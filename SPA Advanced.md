@@ -6,6 +6,8 @@
 
 **SPA导航**
 
+对于SPA，需要将应用的状态反映在URL中，建立状态和URL的某种对应关系，当应用的状态发生改变时，URL也随之改变，反之亦然。
+
 为了让用户掌握其导航位置，SPA通常会在设计中融入路由选择（Routing）的设计思路：借助MV*框架或第三方库的代码实现，将URL风格的路径与功能关联起来。
 
 路径通常看起来像相对URL，其充当用户导航时到达特定视图的触发因素。路由器可以动态更新浏览器URL，并允许用户使用前进和后退按钮。
@@ -86,6 +88,8 @@ eg. `/routes/officehrs/{facultyNameParam}或/routes/officehrs/：facultyNamePara
 - 允许通过路由路径传入参数
 - 允许用户使用标准的浏览器导航方法来进行SPA应用导航
 
+定位本页面所用的URL(base URL)是不能更改的，改变的话会引起页面的刷新，这是我们要避免发生的。
+
 路由器通过两种方式之一来进行导航：
 
 #### 片段标识符方式——不为老式浏览器支持，大多数路由器会自动使用它作为回退方案
@@ -94,11 +98,11 @@ eg. `/routes/officehrs/{facultyNameParam}或/routes/officehrs/：facultyNamePara
 http://www.somwsite.com/categ/#hashinfo
 ```
 
-片段标识符是任意的文本字符串并以#号为前缀，这个URL的可选部分引用当前文档的某部分，并非对新文档的引用。当新的片段标识符添加到URL中时，浏览器不会尝试连接服务器端，但是添加的结果会在浏览器历史中新增一个条目。添加完条目后，用户就可以在无须触发页面刷新的情况下载hash间来回导航。
+片段标识符是任意的文本字符串并以#号为前缀，这个URL的可选部分引用当前文档的某部分，并非对新文档的引用。当新的片段标识符添加到URL中时，更改hash，浏览器不会尝试连接服务器端，也不会造成页面的刷新，但是添加的结果会在浏览器历史中新增一个条目。添加完条目后，用户就可以在无须触发页面刷新的情况下载hash间来回导航。
 
 **利用浏览器的location对象**
 
-location对象包含了一个API，允许我们访问浏览器的URL信息。SPA中，路由器利用location对象以编程方式来访问当前URL，包括片段标识符。并**通过window的onhashchange事件来监听URL片段标识符部分的改变**。
+location对象包含了一个API，允许我们访问浏览器的URL信息，读取或修改页面hash。SPA中，路由器利用location对象以编程方式来访问当前URL，包括片段标识符。
 
 当改变发生时，将用新的hash串来跟路由器配置中各路由的路径进行比较。
 
@@ -108,7 +112,54 @@ location对象包含了一个API，允许我们访问浏览器的URL信息。SPA
 
 当点击该连接时，浏览器的片段标识符将由初始值变为#routes/contact。
 
-#### HTML5历史API方式
+```javascript
+window.location.hash = "foo"; //设置hash
+```
+
+太过频繁地设置hash会影响性能，尤其是在移动端的浏览器中，可能会造成页面的频繁滚动。
+
+**检测hash的变化**
+
+通过**window的onhashchange事件**来监听URL片段标识符部分的改变。
+
+```javascript
+window.addEventListener("haschange"),function(event) {
+    // hash发生改变，更改状态
+});
+```
+
+**抓取Ajax（SEO）**
+
+由于很多搜索引擎爬虫程序无法运行Javascript，因此也无法得到动态创建的内容，页面的hash路由也不会起作用。在爬虫程序眼中，它们看上去都是相同的URL，因为hash字段从来不会发送给服务器。
+
+如果我们想让纯粹的Javascript应用程序在搜序引擎中也能运行的话，需要创建内容的镜像。开发人员会实现一个静态页面版本，将这个特殊的静态HTML内容的快照发送给爬虫程序，而正常的浏览器则继续使用动态生成的内容来展现应用。
+
+Google对引擎做了改进，提出了“Ajax抓取规则”。
+
+```http
+http://twitter.com/#!/maccman
+```
+
+#后面加了“！”，对Google的爬虫来说，看到感叹号就知道当前页面是遵从“Ajax抓取规则”的，这时爬虫程序会将这个URL转换成
+
+```http
+http://twitter.com/?_escaped_fragment_=/maccman
+```
+
+这里的hash替换成了URL中的_escaped_fragment _参数，在“规则”中称为“丑陋的URL”，用户接触不到这个地址，爬虫程序会从这个“丑陋的URL”抓取内容。hash片段就可以转换为URL参数，服务器就可以精确地定位到要抓取的资源位置，实现资源的索引。
+
+因为实现了静态页面的版本，因此只需将爬虫抓取的URL重定向到对应的静态页面地址即可。
+
+``` c
+curl -v http://twitter.com/?_escaped_fragment_=/maccman
+  302 redirected to http://twitter.com/maccman
+```
+
+如果你的站点没有实现静态内容的版本，则在URL中带有请求参数_escaped_fragment _时输出静态的HTML或文本片段即可。
+
+如果你的站点不支持“Ajax抓取规则”，虽然通过浏览器访问站点可用，但可能无法在搜索引擎中正确展示你的站点带索引的页面的内容。
+
+#### HTML5 History API方式
 
 路由器可以使用历史对象API中的两个方法——**pushState()和replaceState()**直接访问浏览器历史，修改浏览器历史记录栈，而不需要依赖片段标识符：
 
@@ -119,8 +170,8 @@ replaceState()——允许用新条目替代已有历史条目
 它们都具有三个参数：
 
 1. 状态对象（State Object）——可选的与历史条目相关的Javascript对象
-2. 标题（Title）——表示历史条目的新标题
-3. URL——将在浏览器地址栏显示的URL
+2. 标题（Title）——表示历史记录中的新页面标题
+3. URL——将在浏览器地址栏显示的URL，即用来替换当前浏览器地址的URL
 
 ```javascript
 history.pushState({myObject:"hi"},"A Title","newURL.html");
@@ -133,6 +184,16 @@ history.pushState({myObject:"hi"},"A Title","newURL.html");
 ##### popstate事件
 
 **window.popstate事件可以监听历史栈的变化** 。只要用户在历史条目间导航，浏览器就会触发该事件。
+
+```javascript
+window.addEventListener("popstate",dunction(event) {
+    if(event.state) {
+    //调用了history.pushstate()
+    }
+});
+```
+
+event对象包含了state属性，这个属性就是pushState的状态对象。
 
 ##### 使用HTML5历史API方式
 
@@ -196,6 +257,8 @@ var productMod = (function(prodeuctData,pricingSvc) { // 通过参数列表访�
 发布/订阅模式基于经典的观察者模式，某个对象被直接观察（Observable，可观察对象），其他多个对象（Observer，观察者）可以选择观察它。只要Observable状态发生了改变，其就发送一个通知（通常通过事件），以便Observer能够做出相应的响应。
 
 发布/订阅模式与观察者模式的区别在于：发布/订阅模式由一个中间服务代表另一个对象发布（发送或广播）通知，其他对象可以决定监听与否。
+
+发布/订阅模式是一种消息模式，有两个参与者：发布者与订阅者。发布者向某个信道（channel）发布一条消息，订阅者绑定这个信道，当有消息发布至信道时就会接收到一个通知。发布者和订阅者是完全解耦的，彼此不知晓对方的存在，仅仅共享一个信道名称。
 
 当两个没有联系的模块需要交互，或者某个应用范围的消息需要广播出去而发布者又不关心接收者收到消息后的行为时，这种类型的中介代理是间接实现模块间交互的理想方式。
 
@@ -563,8 +626,8 @@ Test Runner可以配置成观察文件改变自动触发单元测试，此外，
 3. 创建浏览器刷新任务
 4. 自动化单元测试
 5. 创建构建过程
-  5.1 优化Javascript文件（串接，压缩代码文件）
-  5.2 优化CSS
-  5.3 优化图像
-  5.4 迁移其他的文件
-  5.5 动态修改（Javascript和CSS）文件引用
+    5.1 优化Javascript文件（串接，压缩代码文件）
+    5.2 优化CSS
+    5.3 优化图像
+    5.4 迁移其他的文件
+    5.5 动态修改（Javascript和CSS）文件引用
