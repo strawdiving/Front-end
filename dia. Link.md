@@ -101,4 +101,58 @@ offset定义如下：
  ``.marker-source和.marker-target是link的箭头
  ```
  
+ ### dia.link自己实现的
  
+ |                                                              |                                                    |
+| ------------------------------------------------------------ | -------------------------------------------------- |
+| disconnect(), label(index, properties, opt), translate(tx, ty, [opt]), scale(sx, sy, origin[, opt]), getSourceElement()/getTargetElement() , reparent(),hasLoop([opt]) |                                                    |
+| `applyToPoints(fn,opt)`                                      |                                                    |
+| `getRelationshipAncestor`                                    | 返回源元素，目标元素和链接本身的共同祖先           |
+| `isRelationshipEmbeddedIn(cell)`                             | 源，目标和链接本身是否嵌入给定的cell中             |
+| `endsEqual(a,b)`                                             | a、b的id相等，如果有port，port也相等时，才返回true |
+
+### presentation
+link的形状由vertices, connector 和 router属性决定。vertices数组包含点的列表，这些点是link会交叉的点。
+link.get('vertices')
+link.set('vertices', [{ x: 100, y: 120 }, { x: 150, y: 60 }])
+router采集在模型上定义的vertices数组，并将它们转换为link应该通过的点的数组（route）
+vertice和route的区别在于vertice是用户定义的，而route是计算出来的。
+
+有四个内置的routers  (manhattan, metro, orthogonal and oneSide) 供使用。前两个是所谓的“smarter router”，它们会自动避免妨碍他们的元素。
+orthogonal, manhattan 和 oneSide routers生成只能通过垂直和水平线段连接的点， metro router生成可以用对角线段连接的点。
+link.set('router', { name: 'manhattan' });
+
+manhattan router有一些额外的有用选项可以决定算法的行为。这些选项可以传递给args属性，并且是：
+- excludeTypes - 不应被视为障碍的元素类型数组
+- excludeEnds - “source”或“target”字符串，用于告诉算法处于link该指定端的元素不应被视为障碍物
+- startDirections - link可以从其开始的link source元素的边的数组，默认是所有边['left', 'right', 'top', 'bottom']，如果您想要link，例如始终从源元素的底部开始（值将为['bottom']）
+- endDirections - link可以指向的link target元素的边数组。默认是所有的边['left', 'right', 'top', 'bottom']
+
+```javascript
+link.set('router', {
+    name: 'manhattan',
+    args: {
+        startDirections: ['top'],
+        endDirections: ['bottom'],
+        excludeTypes: ['myNamespace.MyCommentElement']
+    }
+});
+
+link.set('router', {  name: oneSide',  args: {side: 'top', padding: 30}});
+```
+oneSide在给定方向上routes该link，恰好创建三个正交段。它接受以下选项：
+side ——路线的方向，either 'left', 'right', 'top' or 'bottom' (default).
+padding——连接点与 first/last vertex之间的最小间隙，默认为40
+
+connector获取由router返回的点，并生成SVG路径命令以渲染link。有四个连接器（normal, smooth, rounded和jumpover）供使用。
+- normal connector用直线连接点；
+- rounded connector一样，但它平滑了所有的边缘，也以通过传递给rounded connector的radius参数来指定。
+- smooth connector使用三次贝塞尔曲线对点进行插值
+link.set('connector', { name: 'rounded', args: { radius: 10 }});
+- jumpover connector绘制直线, 并在和另一个link交叉的位置绘制小弧形，接受以下选项：
+- size——jump的大小，默认为5
+- jump——jump的风格，'arc' (default), 'cubic' 或 'gap'.
+link.set('connector', { name: 'jumpover', args: { type: 'gap' }});
+router和connector都可以自定义，详见API文档
+
+
