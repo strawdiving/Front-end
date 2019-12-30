@@ -88,6 +88,7 @@ extend自Backbone.Collection
 - change - graph中的任何更改触发的通用事件
 - add -当新的cell添加到graph时触发
 - remove -当从graph中移除cell时触发
+
 而且，在elements或 links上触发的所有事件也会传播到graph中。
 
 ```javascript
