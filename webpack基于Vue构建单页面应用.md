@@ -396,3 +396,7 @@ new Vue({
   render:h => h(App)
 }).$mount('#app')
 ```
+
+# 参考引用
+[webpack搭建vue项目开发环境【文档向学习】](https://segmentfault.com/a/1190000016494957)
+[使用webpack手动搭建一个基于vue的单页面应用](https://segmentfault.com/a/1190000015132838)
