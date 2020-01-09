@@ -74,14 +74,12 @@ var webpack = require('webpack');
 
 module.exports = {
   //项目入口文件
-  entry: './src/main.js',
+  entry: './src/main.js', //唯一的入口文件
   output: {
     //打包出口路径
     path: path.resolve(__dirname, './dist'),
-    //通过devServer访问路径
-    publicPath: '/dist/',
-    //打包后的文件名
-    filename: 'main.js'
+    publicPath: '/dist/', //通过devServer访问路径    
+    filename: 'main.js'//打包后的文件名
   },
   mode:'development',
   devServer: {
@@ -90,7 +88,11 @@ module.exports = {
   }
 };
 ```
-为了简化在命令行中输入复杂指令的操作，可以设置快捷方式，调整package.json文件，在npm scripts中添加一个npm命令：
+只需在终端里运行webpack(非全局安装需使用node_modules/.bin/webpack)命令，这条命令会自动引用webpack.config.js文件中的配置选项。
+
+为了简化在命令行中输入复杂指令的操作，可以设置快捷方式，用npm引导任务执行。
+
+调整package.json文件，对npm进行配置，在npm scripts中添加一个npm命令。
 
 package.json
 ``` json
@@ -105,6 +107,10 @@ webpack [--config webpack.config.js]
 ```
 现在，可以使用npm run build命令，来替代在命令行中输入复杂指令的操作
 更多配置见：[命令行接口](https://webpack.docschina.org/api/cli/)
+
+注：**package.json中的scripts会按照一定顺序寻找命令对应位置，本地的node_modules/.bin路径就在这个寻找清单中，所以无论是全局还是局部安装的webpack，都不需要指明详细的路径了**
+
+npm的start命令是一个特殊的脚本名称，在命令行中使用npm start就可以执行其对应的命令，`npm start`,其他的需要这样用`npm run {script name}`
 
 运行npm run build后，会在项目中生成一个 dist文件夹。
 
