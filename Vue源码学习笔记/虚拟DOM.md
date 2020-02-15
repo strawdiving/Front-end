@@ -8,7 +8,6 @@ Vitual DOM算法的步骤：
 - 当状态变更的时候，重新构造一棵新的对象树/重新渲染这个Javascript的对象结构。对比并记录新旧虚拟DOM树的差异
 - 所记录的差异应用到真正的DOM树上，对视图进行更新
 
-
 Vue通过建立一个虚拟DOM来追踪自己要如何改变真实DOM。
 ```javascript
 return createElement('h1',this.blogTitle)
