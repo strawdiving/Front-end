@@ -1,0 +1,490 @@
+# Javascript
+## 类型
+1. **JS的基本类型，引用类型分别有哪些？**
+基本类型：String，Number，Boolean，Null ，Undefined，Symbol (ES6 中新增的)
+引用类型：Array, Object, Function，Date,RegExp
+2. **基本类型和引用类型有什么区别**
+基本类型值是通过复制值来进行复制和传递的。保存和复制的是值本身；
+- 保存位置：引用类型存在堆上，占用空间不固定；值类型存在栈上，占用空间固定
+- 保存的对象：值类型保存和复制的是值本身；引用类型保存和复制的是指向对象的一个指针
+- 如何检测数据类型：基本类型使用typeof检测，引用类型使用instanceof
+- 引用类型可以使用new方法构建
+
+3. **函数参数的传递方法**
+按值传递，把函数外部的值复制给函数内部的参数，所以引用类型的值传递时，函数内外引用的是同一个对象。
+但若在函数内部修改了参数的值（重写，覆盖）,内部的引用变了,原始的引用仍保持不变，外部变量指向的对象还是原来的。
+4. **js深度复制，深拷贝 & 浅拷贝**
+- 浅拷贝：拷贝后的对象和源对象，属性相同，但内部的对象指向的是同一个内存空间
+- 深拷贝：拷贝后，两个对象除了拷贝了同样的属性外，没有任何关联，里面的对象指向的是不同内存空间
+
+**描述一个深拷贝流程：**
+1. 遍历要拷贝的对象的属性
+2. 判断对象里每一项的数据类型
+3. 如果是非对象，直接赋值；如果是引用类型，进行递归拷贝。如果不想要原型上的对象，用Object.hasOwnProperty(key)
+```javascript
+function deepClone(obj) {
+  if(typeof obj === 'object') {
+    var result = Array.isArray(obj)? []:{}
+    for(let i in obj) {
+      result[i] = typeof i === 'object'? deepClone(obj[i]):obj[i];
+    }
+  } else {
+    var result = obj;
+  }
+  return result;
+}
+```
+5. **类型强制转换**
+两种不同的内置类型间的转换被称为强制转型。显式和隐式:
+- 显式：Number('42')
+- 隐式： `var a = "42"; var b = a * 1;`
+6. **null和undefined，undeclared的区别，该如何检测**
+- undefined，表示不存在，还未被定义，尚未初始化
+- null：表示此处不应该有值，目前不可用的东西
+7. **typeof 和 instanceof 区别，instanceof原理**
+- typeof检测给定变量的数据类型
+- instanceof，用于检测变量是否是给定引用类型的实例，检测基本类型值时始终返回false
+- 最准确的是用Object.prototype.toString 进行类型转换来检测数据类型
+
+**instanceof代码实现**
+检测构造函数的prototype属性是否出现在某个实例对象的原型链上。
+```javascript
+instanceOf(left,right) {
+  let proto = left.__proto__;
+  let prototype = right.prototype;
+  while(true) {
+    if(proto === null) return false;
+    if(proto === prototype) return true;
+    proto = proto.__proto__;
+  }
+}
+```
+7. **如何判断一个变量是Array类型/Number类型**？（不止一种方法）
+- Array.isArray(obj)
+- obj instanceof Array
+- obj.constructor === Array
+- Object.prototype.toString.call(obj) === '[Object Array]'
+
+Number：
+- Number.isNumber(value)
+- typeof value为'number'
+
+8. == 和 === 有什么不同 
+- 严格比较（例如 ===）在不允许强制转型的情况下检查两个值是否相等
+- 抽象比较（例如 ==）在允许强制转型的情况下检查两个值是否相等
+
+[] === [], [] == []，错误，因为引用的不同的对象；
+undefined === undefined，undefined == undefined，都为true，基本类型值；
+
+- 如果被比较的任何一个值可能是 true 或 false，要用 ===，而不是 = =。
+- 如果被比较的任何一个值是这些特定值（0、“”或 []），要用 = = =，而不是 = =。
+- 在其他情况下，可以安全地使用 = =。它不仅安全，而且在很多情况下，它可以简化代码，并且提升代码可读性。
+
+9. **有哪些内置对象和内置函数？为什么扩展 JavaScript 内置对象不是好的做法？扩展内置JavaScript对象的利弊**
+内置对象(11个）：Arguments,Math，Error；Number,Boolean,String,Date,RegExp；Array,Function,Object
+
+10. &&和||
+短路效应，&&返回最后一个为true的，||返回第一个为true的
+console.log("hello" || "world")，// ‘world'
+console.log("foo" && "bar")// 'foo'
+11. 什么是三元表达式 (Ternary expression)？“三元 (Ternary)” 表示什么意思？
+
+12. 什么是 "use strict"; ? 使用它的好处和坏处分别是什么？
+use strict 出现在 JavaScript 代码的顶部或函数的顶部，可以帮助你写出更安全的 JavaScript 代码。如果你错误地创建了全局变量，它会通过抛出错误的方式来警告你。例如，以下程序将抛出错误：
+
+```
+ function doSomething(val) {
+  "use strict"; 
+  x = val + 10;
+}
+```
+它会抛出一个错误，因为 x 没有被定义，并使用了全局作用域中的某个值对其进行赋值，而 use strict 不允许这样做。
+使用哪种 language constructions来迭代对象属性和数组项？
+- for...in...,遍历可枚举的实例属性和原型属性
+- for...of...
+- Object.keys()，遍历可枚举的对象的属性key
+- Array.keys()，values(),entries(),forEach()
+
+13. 常见字符串API/方法
+14. 正则表达式的函数怎么使用 
+regexp.exec(); string.match(regexp),string.replace(regexp,str),regexp.test(string)
+15. forEach循环和.map（）循环之间的主要区别吗？为什么相对另一个，你要选择这个循环？
+ forEach会遍历数组的每个值，对其进行处理，可能会改变数组
+ map，遍历数组，返回对每个值处理后的值组成的新数组
+
+16. "attribute" 和 "property" 的区别是什么？
+
+property是DOM中的属性，是JavaScript里的对象；是这个DOM元素作为对象，其附加的内容，例如childNodes、firstChild等。
+
+attribute是HTML标签上的特性，它的值只能够是字符串；dom节点自带的属性，如id、class、title、align等。HTML标签中定义的属性和值会保存该DOM对象的attributes属性里面；
+
+17. 请解释可变 (mutable) 和不变 (immutable) 对象的区别。举出 JavaScript 中一个不变性对象 (immutable object) 的例子？
+
+Object.freeze()，不可以增加删除属性，可以改变属性
+不变性 (immutability) 有哪些优缺点？
+如何用你自己的代码来实现不变性 (immutability)？
+
+## 函数
+1. 匿名（anonymous ）函数的典型用例？
+可以模仿块级作用域（私有作用域），IIFE，自执行匿名函数`(function(){// 块级作用域})()`
+2. IIFE (立即调用函数表达式)
+function foo(){ }(); // 不是IIFE
+Javascript将function关键字当做一个函数声明的开始，而函数声明后面不能带圆括号，而函数表达式后面可以跟圆括号。
+
+- 要做哪些改动使它变成 IIFE?  写一个IIFE
+
+将函数声明放在一对圆括号中，表明它实际是一个函数表达式，紧随的另一对圆括号会立即调用该函数。
+
+立即调用函数表达式（Immediately-Invoked Function Expression），简称 IIFE。函数被创建后立即被执行。在避免污染全局命名空间时经常使用这种模式，因为IIFE的内部变量在其作用域之外都是不可见的。
+
+2. 函数表达式和声明
+**函数声明提升：**
+在代码开始执行之前，Javascript解析器就读取函数声明，并将其放入执行环境中（源代码树的顶端）,并使其在任何代码执行之前可以访问。
+即使声明函数的代码在使用它的代码之后，Javascript引擎也能把函数声明提升到顶部
+
+函数表达式不会被提升，必须等到解析器执行到他所在的代码行，才会真正被解析执行。
+3. 请解释变量声明提升 (hoisting)
+
+不管变量和函数在何处声明，声明都会被提升到所在作用域的顶部，但是变量和函数初始化的顺序不变。函数的声明优先于变量的声明。
+
+## BOM
+- 浏览器的全局变量有哪些？BOM: navigator对象，location和history
+- iframe有哪些缺点
+1）iframe会阻塞主页面的Onload；
+2）搜索引擎的检索程序无法解读这种页面，不利于SEO;
+3）iframe和主页面共享连接池，而浏览器对相同域的连接有限制，所以会影响页面的并行加载。
+4）使用iframe之前需要考虑这两个缺点。如果需要使用iframe，最好是通过javascript动态给iframe添加src属性值，这样可以绕开以上两个问题。
+## 作用域
+1. 执行上下文，词法作用域
+执行环境：定义了变量或者函数有权访问的其他数据，决定了它们各自的行为。作用域基本上是变量以及如何通过名称访问这些变量的规则的集合。
+
+变量对象：每个执行环境都有关联的变量对象，环境中定义的变量和函数都保存在该对象中。
+
+某个执行环境中的代码执行完以后，该环境被销毁，保存在其中的所有变量和函数都被销毁。
+
+2. js 的作用域有几种？
+作用域分为：全局作用域，函数局部作用域，以及块级作用域；
+- 全局域是最外围的执行环境，web浏览器中，是window对象。全局作用域中的变量和函数，其他域的变量都可以访问；直到应用程序退出才会销毁；
+- 函数域，每个函数都有自己的执行环境，当执行流进入函数内部时，函数的环境会被推入一个环境栈中，函数执行完后，控制权交给之前的执行环境，函数的执行环境销毁，只有函数中的代码才能访问函数作用域内的变量。
+- 块级作用域，只有块级作用域内部的代码可以访问作用域内的变量
+
+**作用域链：**代码在一个执行环境中执行时，会创建变量对象的一个作用域链，保证**对执行环境有权访问的所有变量和和函数的有序访问**。
+
+作用域链最前端是代码所在环境的变量对象。
+
+- JavaScript 引擎如何执行变量查找。
+沿着作用域链一级一级地搜索，从作用域链最前端开始，逐级向后搜索，直到找到变量或到达全局作用域。
+
+同一个作用域中的变量名必须是唯一的。一个作用域可以嵌套在另一个作用域内。如果一个作用域嵌套在另一个作用域内，最内部作用域内的代码可以访问另一个作用域的变量。
+
+3. function Person(){}、var person = Person()、var person = new Person()区别？
+- 为什么要创建静态类成员？
+### 闭包
+1. 什么是闭包？什么时候构成闭包？闭包的实现方法？闭包的优缺点？以及如何/为什么使用
+- 闭包：**有权访问另一个函数作用域中变量的函数。**  
+- **实现方法**：在一个函数内部创建并返回另一个（匿名）函数 
+- 在一个函数内部定义的函数会将包含函数（即外部函数）的变量对象添加到它的作用域链中。即使外层函数执行完毕销毁，闭包还保留着对其变量对象的引用
+- 匿名函数的执行环境具有全局性，其this对象通常指向window。
+- 用途：数据隐藏、内存化以及动态函数生成。
+
+缺点： 引用变量，不利于垃圾回收，占据内存
+2. **this 是如何工作的，this有哪些使用场景？**
+this 引用的是函数执行时所在的上下文对象,而不是函数被创建时所在的对象。（箭头函数除外）
+它的值取决于调用的模式，按优先级从高到低：
+- 使用new的构造函数调用模式
+将会创建一个连接到该函数的prototype成员的新对象（新对象为构造函数的一个实例），同时this会被绑定到那个新对象上。
+
+- apply,call,bind显式调用模式
+将this绑定到传入的上下文参数上
+- 方法调用模式
+函数被保存为一个对象的属性时，即对象的方法，this被绑定到该对象。this到对象的绑定发生在调用的时候
+- 函数调用模式
+this被绑定到全局对象
+- **.call 和 .apply ,.bind的作用，区别是什么？对this有什么影响？**
+作用：**在特定的作用域中调用函数**，把函数的this对象绑定到特定的上下文对象上；
+call()和apply()函数有两个参数：第一个参数都是上下文，如果上下文是null，则使用全局对象代替。
+
+区别在于第二个参数，即传入函数的参数的形式。
+call()的是实际传入的参数序列，apply()是参数组成的数组
+`function.call(this,1,2,3)`，`function.apply(this,[1,2,3])`
+
+- 请解释 Function.prototype.bind？
+返回一个新的函数。第一个参数是上下文对象，作用是将函数绑定到参数中设置的上下文，即改变函数中的this对象
+
+多个bind连接后输出的值，bind函数运行结果，自己实现bind 函数
+
+## 原型和继承
+1. 对象原型、构造函数和 mixin；
+对象的所有实例共享原型的属性和方法。通过new的方式，构造函数创建
+
+2. 创建对象的多种方式，new 一个对象时具体做了什么
+理解通过使用 new 来自函数 prototype 属性的继承的对象是如何生成的。
+- 创建一个新对象
+- 将构造函数的作用域赋给新对象（this指向该新对象）res.__proto__ = func.prototype
+- 执行构造函数中的代码，为新对象添加属性和方法
+- 返回新对象
+
+使用构造函数创建新实例后，该实例的内部包含一个__proto__，[ [ prototype] ]指针，指向构造函数的prototype原型对象。
+
+__proto__指针的连接存在于实例和构造函数的原型对象之间。
+
+3. 请解释原型继承 (prototypal inheritance) 的原理
+我们创建的每个函数都有一个prototype属性，指向函数的原型对象，原型对象包含该类型所有实例共享的属性和方法。
+
+原型继承：利用原型让一个引用类型继承另一个引用类型的实例和方法
+         方法： subType.protytype = new SuperType()，即重写子类的原型对象（不再是默认的原型对象），代之以父类型的实例，将父类型的实例赋给子类的prototype属性/原型对象
+原型链：在通过原型链实现继承时，搜索实例->搜索子类的原型对象->搜索父类的实例对象
+
+子类实例的[[Prototype]]指向子类的原型对象，即父类的实例，父类实例的[[prototype]]属性指向父类构造函数的原型对象。
+
+显式原型和隐式原型，手绘原型链，原型链是什么？为什么要有原型链？
+理解 JavaScript 中的继承通过原型链进行工作。理解如何通过函数和对象设置继承，以及 new 是如何帮助我们实现的。了解 __proto__ 和 prototype 属性是什么，以及它们的作用。
+
+4. 实现继承的多种方式和优缺点
+三个继承方式的优缺点，借用构造继承，几种组合继承方式
+
+- 原型继承：所有实例共享原型的属性和方法，包含引用类型值的属性被共享，一个修改就会引起所有的变化；且不能在不影响所有实例的情况下，给构造函数传递参数
+
+- 借用构造函数：
+SuperType.call(this,properties),在子类构造函数内部调用父类构造函数，用apply或call在新创建的对象上执行构造函数；
+问题：方法在构造函数中定义，无法复用，父类中的方法对子类不可见。
+
+- 组合继承
+
+使用原型链实现对原型属性和方法的继承；借调构造函数实现对实例属性的继承（既保证了函数的复用，又保证每个实例有自己的属性）
+
+问题：要调用两次构造函数，第一次原型继承时，获得原型的属性和方法；第二次借调构造函数时，继承了实例属性，覆盖了原型属性
+
+- 寄生组合式继承
+通过借调构造函数来继承实例属性，通过原型链的混成形式来继承方法
+
+不必为了指定子类型的原型而调用父类的构造函数，只要超类型原型的一个副本，使用寄生式继承来继承超类型的原型，再将结果指定给子类型的原型。
+
+寄生式继承：创建一个封装继承过程的函数
+var prototype = object(supertype.prototype)
+prototype.constructor = subtype
+subtype.prototype = prototype
+
+function object(o) {
+  function F() { }
+  F.prototype = o
+  return new F()
+}
+借助原型可以基于原有的对象创建新对象，而不必创建自定义类型。
+创建一个临时性的构造函数
+将传入的对象作为该构造函数的实例
+返回该构造函数的一个新实例
+
+
+5. 类式继承的方案
+```javascript
+class subType extends superType {
+  constructor(x,y,color) {
+    super(x,y)
+    this.color = color;
+  }
+  toString() {...}
+}
+```
+通过extends关键字实现继承，子类必须在constructor构造函数中调用super()方法，通过父类的构造函数继承父类的实例属性和方法，再加上子类的属性和方法。
+
+只有调用super()以后，才可以使用this对象。调用super（），先将父类的属性和方法加到this上，再用子类的构造函数修改this
+
+super当对象用时，指向父类的原型对象，但调用父类的方法时，方法内部的this绑定当前的子类实例。
+
+实现一个子类实例可以继承父类的所有方法
+
+- JS如何实现重载和多态
+## DOM,事件
+-  JavaScript 的事件流模型都有什么？
+
+事件流分为三个阶段：
+1. 事件捕获阶段
+2. 处于目标阶段
+3. 事件冒泡阶段
+**事件捕获**：事件先被最外层的元素上触发，再到最内层的元素
+**事件冒泡**：嵌套最深的元素触发一个事件，然后这个事件顺着嵌套顺序在父元素上触发。
+click DOM 节点的 inner 与 outer 的执行机制，考查事件冒泡与事件捕获 
+
+防止事件冒泡的一种方法是使用 event.cancelBubble 或 event.stopPropagation()（低于 IE 9）。
+
+- 请解释事件委托 (event delegation)。
+将事件绑定在尽量高层级的元素上，利用事件冒泡，代理子节点上触发的事件
+- DOM事件的绑定的几种方式
+1. 行内绑定： `<button onClick="alert(1)"></button>`
+2. `<button onClick="click"></button>`
+3. DOM元素，button.onclick = function(){...}
+4. addEventListener(eventName,callback,true/false),最后一个参数表示是否在事件冒泡阶段处理，true是事件捕获阶段，false是冒泡
+- DOM事件中target和currentTarget的区别
+1. target: 触发事件的对象
+2. currentTarget：当前正在处理事件的对象
+
+- 原生事件绑定（跨浏览器），dom0和dom2的区别？
+onclick, addEventListener
+- 给定一个元素获取它相对于视图窗口的坐标
+- 编写一个通用的事件监听函数
+
+- 手指点击可以触控的屏幕时，是什么事件？
+touch
+
+- 回调函数
+回调函数是可以作为参数传递给另一个函数的函数，并在某些操作完成后执行。
+- JS常见的dom操作api
+使用 document.querySelector,querySelectorAll选择或查找节点，在旧版浏览器中使用 document.getElementsByTagName；
+上下遍历——Node.parentNode、Node.firstChild、Node.lastChild 和 Node.childNodes；
+左右遍历——Node.previousSibling 和 Node.nextSibling；
+操作——在 DOM 树中添加、删除、复制和创建节点。修改节点的文本内容以及切换、删除或添加 CSS 类名等操作；
+性能——当有很多节点时，修改 DOM 的成本会很高，使用文档片段和节点缓存。
+
+- 在什么时候你会使用 document.write()？
+- 请指出 document load 和 document DOMContentLoaded 两个的区别。
+- 为何你会使用 load 之类的 (event)？有缺点吗？你是否知道其他替代品，以及为何使用它们？
+- requestAnimationFrame 和 setTime、setInterval的区别，requestAnimationFrame 可以做什么
+
+## 异步(Asynchronous）
+- 事件循环
+理解浏览器是如何处理用户输入、Web 请求和一般事件的。知道如何识别并正确实现异步代码。
+js 单线程、
+调用栈 (call stack) 和任务队列 (task queue) 的区别,宏任务与微任务的执行顺序
+async，setTimeout和promise的执行顺序
+Process.nextTick，setImmediate 和promise.then的优先级
+理解 JavaScript 中异步和单线程分别是怎样的
+- 解释同步 (synchronous) 和异步 (asynchronous) 函数的区别。
+- 尽可能详尽的解释 Ajax 的工作原理。使用 Ajax 都有哪些优劣？
+
+Ajax技术的核心是XMLHttpRequest对象，这个对象充当着浏览器中的脚本（客户端）与服务器之间的中间人的角色。Javascript通过这个对象可以自己发送请求，也自己处理请求。
+
+优点:异步方式发送请求。服务器在后台处理请求，脚本可以按需加载和创建页面内容，不会打断用户的浏览体验。Web应用可以呈现出类似桌面应用般的体验。
+
+使用Ajax就可以做到只更新页面中的一小部分,无需刷新和重新加载整个页面
+
+缺点：有其适用范围，依赖Javascript，可能会有浏览器不支持它，而搜索引擎的蜘蛛程序也不会抓取到有关内容。
+**同源策略**：使用XMLHttpRequest对象发送的请求只能访问与其所在HTML处于同一个域中的数据，不能向其他域发送请求。
+
+传统的浏览器web应用都要涉及大量的页面刷新：用户点击链接，请求发送回服务器，服务器返回新页面，即使用户看到的只是页面中的一小部分有变化，也要刷新和重新加载整个页面。
+
+- 手写Ajax
+
+## 高阶函数，函数柯里化
+-  组合和高阶函数；
+- 高阶函数(Higher Order Functions)的定义
+理解这些函数是 JavaScript 中的第一类对象以及这意味着什么，了解从另一个函数返回函数是完全合法的。了解闭包和高阶函数允许我们使用的技术。
+什么是函数柯里化？你能举一个curry柯里函数的例子吗，为什么这种语法有优势？JS的API有哪些应用到函数柯里化的实现（bind函数和数组的reduce方法）？柯里化以及在函数式编程的应用.
+## ES6 
+- 你能给出一个解构（destructuring ）对象或数组的例子吗？
+允许按一定模式，模式匹配，从数组和对象中提取值，对变量进行赋值
+
+- 使用扩展语法有什么好处？它与rest语法有什么不同？
+rest语法，用于获取函数的多余参数，rest参数搭配的变量是一个数组，可以直接用数组的方法。
+
+只能是最后一个参数，函数的length属性不包括rest
+
+- 你使用过 Promises 及其 polyfills 吗? 请写出 Promise 的基本用法（ES6）。
+new Promise((resolve,reject) {
+  if(...) resolve()
+  else reject()
+}).then((val)=>{},(err)=>{})
+.catch((err)=>{
+  
+})
+
+
+- 所有的 ES6 特性你都知道吗？如果遇到一个东西不知道是 ES6 还是 ES5, 你该怎么区分它
+- es6的继承和es5的继承有什么区别
+- promise封装ajax
+- es6 generator 是什么，async/await 实现原理
+- ES6和node的commonjs模块化规范区别
+1. commonjs的模块是**运行时加载**的，整体加载模块，生成一个对象，再从对象上获取属性和方法。CommonJS模块就是对象
+  ESS6模块是**静态加载**的，在**编译时就完成模块加载**，效率更高。且模块不是对象
+2. 内部的所有变量要用export导出，与其对应的值是动态绑定的关系，取到的是实时值；而CommonJS输出的是值的缓存，不存在动态更新
+
+import读入的变量都是只读的，不允许修改，但可以改变变量的属性
+
+3. import会被JS引擎静态分析，先于其他语句执行，所以必须在模块的顶层
+而require是动态加载，只有运行时才知道加载的是什么模块，所以可以放在任何地方
+
+
+- 异步编程各个优缺点，使用 Promises 而非回调 (callbacks) 优缺点是什么？generator,Promise,async/await比较
+- 怎么将一个异步方法promise化，以及实现promise.all()方法，promise.then 的调用，promise封装setstate
+- fetch取消
+
+- 使用let，var或const创建的变量之间有什么区别？
+1. let，const声明的变量，只在当前代码块中有效
+2. 不存在变量提升，必须在声明后才能使用，而const
+3. 暂时性死区，只要块级作用域内存在let命令，它声明的变量就绑定这个作用域，形成封闭作用域，外界对变量没有影响。凡声明之前使用这些变量就会报错。即声明变量之前，都是该变量的死区。
+4. 不允许重复声明
+5. const声明只读的常量，一旦声明就必须初始化，因为后面不能修改，对引用类型，只保证指针指向固定的地址，但指向的数据结构是可变的。
+6. var声明的全局变量，是顶层对象的属性，let和const声明的不是
+
+- ES6类class和ES5函数构造函数（function constructors）之间有什么区别？
+- 你能为新的arrow =>j箭头函数语法提供一个用例吗？ 这种新语法与其他函数有何不同？
+
+箭头函数可以简化回调函数
+箭头函数的this的指向：箭头函数本身没有this对象，它的this对象是它的定义生效时所在的对象，即定义时外部代码块的this
+
+而不是执行时所在的对象
+
+不可以当构造函数，因为没有this
+不可以使用arguments对象，只能用rest参数
+
+- 在构造函数中的方法中使用箭头语法有什么优势？
+- ES6模板文法在生成字符串方面提供了很大的灵活性，你能举个例子吗？
+
+反引号，可以嵌入变量，可以嵌入任意表达式，可以进行运算，可以引用对象的属性，
+
+可以调用函数
+
+可以嵌套
+
+- babel是如何将es6代码编译成es5的
+- 说出ES6中使用this的不同
+- proxy
+## 性能
+- js的垃圾回收机制
+
+- 内存泄漏的原因和场景
+- js处理异常
+## 浏览器
+- 请指出 JavaScript 宿主对象 (host objects) 和原生对象 (native objects) 的区别？
+**宿主对象** —— 由浏览器提供的预定义对象被称为宿主对象，包括Form, Image，Element等，可以通过这些对象获得关于网页上表单、图像和各种表单元素等信息。 还有一种宿主对象 document对象，可以用来获得网页上的任何一个元素的信息。
+**内建对象** ——
+
+## 其他
+- 为何通常会认为保留网站现有的全局作用域 (global scope) 不去改变它，是较好的选择？
+
+- 如何实现下列代码：
+ [1,2,3,4,5].duplicator(); // [1,2,3,4,5,1,2,3,4,5]
+
+- 请实现一个遍历至 100 的 for loop 循环，在能被 3 整除时输出 "fizz"，在能被 5 整除时输出 "buzz"，在能同时被 3 和 5 整除时输出 "fizzbuzz"。
+- 请解释什么是单页应用 (single page app), 以及如何使其对搜索引擎友好 (SEO-friendly)。
+- 使用一种可以编译成 JavaScript 的语言来写 JavaScript 代码有哪些优缺点？
+- 你使用哪些工具和技术来调试 JavaScript 代码？
+- 如何在文件之间共享代码？
+- js设计模式
+总体来说设计模式分为三大类：
+创建型模式，共五种：工厂方法模式、抽象工厂模式、单例模式、建造者模式、原型模式。
+结构型模式，共七种：适配器模式、装饰器模式、代理模式、外观模式、桥接模式、组合模式、享元模式。
+行为型模式，共十一种：策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式
+
+```
+1.使用jq的$.extend(true, target, obj)
+2.newobj = Object.create(sourceObj)，// 但是这个是有个问题就是 newobj的更改不会影响到 sourceobj但是 sourceobj的更改会影响到newObj
+3.newobj = JSON.parse(JSON.stringify(sourceObj))
+```
+- 图片预览功能
+
+    <input type="file" name="file" onchange="showPreview(this)" />
+	< img id="portrait" src="" width="70" height="75">
+
+	function showPreview(source) {
+	  var file = source.files[0];
+	  if(window.FileReader) {
+      var fr = new FileReader();
+      fr.onloadend = function(e) {
+        document.getElementById("portrait").src = e.target.result;
+      };
+      fr.readAsDataURL(file);
+	  }
+	}
+
+RegExp、异步装载、模板引擎、前端MVC、路由、模块化、Canvas、Nodejs
