@@ -111,6 +111,26 @@ plugin监听webpack广播的事件，在合适时通过webpack的API改变结果
 - webpack-uglify-parellel多核压缩来提升uglifyPlugin的压缩速度
 - 使用tree-shaking和scope hoisting来删除多余代码
 
+scope hoisting： 作用域提升,让webpack打包出来的代码文件更小
+
+    代码体积更小，因为函数声明语句会产生大量代码；
+    代码在运行时因为创建的函数作用域更少了，内存开销也随之变小。
+分析出模块之间的依赖关系，尽可能把打散的模块合并到一个函数中去，前提是不能造成代码冗余。 只有那些被引用了一次的模块才能被合并。
+因为要分析模块之间的依赖，所以必须使用ES6模块化语句。
+```javascript
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
+
+module.exports = {
+    resolve: {
+    // 针对 Npm 中的第三方模块优先采用 jsnext:main 中指向的 ES6 模块化语法的文件
+    mainFields: ['jsnext:main', 'browser', 'main']
+  },
+  plugins: [
+    // 开启 Scope Hoisting
+    new ModuleConcatenationPlugin(),
+  ],
+};
+```
 ## 如何配置单页应用，多页应用
 webpack单页应用，entry入口指定单页应用的入口即可；
 
