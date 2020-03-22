@@ -63,7 +63,7 @@ Vue3.0使用Proxy代理对象：
 - Proxy有很多拦截方法，apply,deleteProperty,has等是defineProperty不具备的
 - Proxy返回新对象，我们可以只操作新对象达到目的，而Object.defineProperty只能遍历对象属性进行修改
 
-## computed 与 watch 的内在如何实现
+## **computed 与 watch 的内在如何实现及其区别**
 1. computed，是computed watcher
 - 计算属性，也就是计算值，更多用于计算值的场景，常用于模板渲染
 - 具有缓存性，computed的值在getter执行后会缓存，只有它依赖的属性发生变化后，下一次获取computed的值时才会重新调用对应的getter来计算
@@ -115,6 +115,16 @@ vue实例初始化完毕，进入运行阶段
 异步请求适合在mounted中调用，也可以在created中调用
 
 ## 虚拟DOM更新
+**虚拟DOM的优势**
+DOM引擎、JS引擎相互独立，又工作在同一个线程（主线程）
+JS引擎调用DOM API必须挂起JS引擎，转换传入的参数数据，激活DOM引擎，DOM重绘后再转换可能有的返回值，最后激活JS引擎并继续执行，若有频繁的DOM API调用，且浏览器厂商不做“批量处理”优化，引擎切换的单位代价将迅速积累，若其中有强制重绘的DOM API调用，重新计算布局，重新绘制对象会引起更大的性能消耗。
+
+虚拟DOM和真实DOM的区别和优化：
+
+1. 虚拟DOM不会立马进行排版和重绘操作
+2. 虚拟DOM进行**频繁修改，然后一次性比较并修改真实DOM中需要修改的部分**，最后在真实DOM中进行排版和重绘，减少过多DOM节点重排和重绘的性能消耗
+3. 虚拟DOM有效降低大面积真实DOM的重绘和排版，因为**最终和真实DOM比较差异，可以只渲染局部**
+
 1. 虚拟dom代码实现
 为什么需要虚拟DOM进行diff检测差异
 当vue初始化时，会对数据data进行依赖收集，一旦数据变化，响应式系统就会得到通知，通常一个绑定一个数据就需要一个watcher
@@ -150,7 +160,7 @@ createKeyToOldIndex（children，beginIndex,endIndex），创建key-index的map�
 比较的过程中，变量会向中间靠，一旦startIndex>endIndex，表明oldCh和newCh至少有一个已经遍历完了，就会结束比较，然后删除旧节点（不删除标记为undefined的节点）或者新增新节点。
 
 对diff算法进行优化.
-3. 列表diff中key的作用
+3. **列表diff中key的作用**
 key的特殊属性主要用在Vue的虚拟DOM算法，使用key给每一个节点做一个唯一标识，Diff算法就可以在新旧nodes对比时正确辨识VNodes，**key的作用主要是为了精准高效的更新虚拟DOM**。
 
 - 准确：决定节点是否被复用。如果不使用key，vue会选择复用节点（尽可能的尝试就地修改/复用相同类型元素），导致之前节点的状态被保留下来，会产生一系列的bug。
@@ -187,16 +197,31 @@ event类 on once等方法
 5. provide/inject，父组件通过provide向所有子孙后代注入依赖，不论组件层次多深，在起上下游成立的时间里始终生效。子组件中使用inject注入祖先组件提供的变量。
 6. $parent/$children&ref，访问父子实例，ref在普通DOM上使用，指向的是DOM元素，在子组件上，就指向组件实例。
 
-## keep-alive 
+## keep-alive实现原理
 用keep-alive，名称匹配的组件会被缓存。在组件间切换，可以保持组件的状态，避免重复渲染。
 组件在keep-alive内被切换，activated和deactivated生命周期钩子函数会被对应执行。
 
 react vdom和vue的区别
 
+## Vue的data为什么要写成function，返回一个对象
+组件是用来复用的，vue构建的时候会用Vue.extend将组件包成一个类，页面使用的时候，会创建包成类的实例，vue中的data里面的数据，可能不止被一个组件所调用。如果直接写成对象，每一个实例都共享data数据了,在调用的时候就会被修改，各个组件之间的值会有影响
+## Vue为什么需要一个根元素
+
 vue 代码复用的方式
+## 技术选型上为何选择Vue，Vue的缺陷
+## 了解Vue3吗，相对于Vue2做了哪些优化
+## Vue hooks的使用
+## 在Vue渲染组件的时候，都是从父到子组件再到父组件，如果你是框架的设计者，你会怎么做
+## 如何批量引入组件
+require.context()
+
+可以使用require.context（）函数创建自己的上下文。 它允许您传入一个目录进行搜索，一个标志指示是否应该搜索子目录，还有一个正则表达式来匹配文件。
+
 ## 组件化
 前端主要工作是UI开发，而把UI上的各种元素分解成组件，规定组件的标准，实现组件运行的环境就是组件化了。
 符合原本的 JavaScript/CSS/HTML 书写习惯；绑定了 MVVM 模式，直接确定了 UI 架构，数据交互非常简洁。
+
+### 如何设计一个组件
 
 ## Vue Router路由
 1. vue单页多页的区别
@@ -206,15 +231,25 @@ vue 代码复用的方式
 涉及到保存页面的前进后退历史，一般用URL的Hash来控制
 
 vue路由实现原理
+前端路由Hash模式和History模式的区别
 
 场景题：Vue CheckBoxGroup/CheckBox设计
 
 ## Vuex
-Redux/Vuex区别
-Vuex action/mutation区别
-vuex底层流程和实现原理以及数据流向
+1. Vuex action/mutation区别
+mutations和actions只是为了devtools追踪状态变化。actions随你操作，只要最后调用mutation修改数据就行；
+
+mutations必须是同步操作，同步的意义在于，每一个mutation执行完都可以对应到一个新的状态，这样devtools查看异步actions就能清楚地查看mutation何时被记录，对应状态。
+
+
+mutations是可以发异步请求的，但是不推荐，因为devtools拿到的是mutation执行完毕时的快照snapshots，而如果是异步的话，拿不到你想要的快照，devtools就看不到所谓的时间旅行了，所以用action处理异步，拿到异步的结果后，触发mutation，更改state
+
+2. vuex底层流程和实现原理以及数据流向
+
+
 Vuex的响应式原理
 js实现依赖注入
+Redux/Vuex区别
 
 ## Node.js
 Nodejs的事件循环
