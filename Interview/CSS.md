@@ -140,16 +140,16 @@ CSS重置就是在样式表开头放一些核心标签的样式，在这些样�
 控制重叠元素的垂直叠加顺序，可以控制它控制元素的图层位置，只能影响设置了position值的元素。
 5. 请描述 BFC(Block Formatting Context) 及其如何工作
 对BFC规范(块级格式化上下文：block formatting context)的理解？如何创建bfc？
-BFC规定了内部的Block Box如何布局。
+
 box是CSS布局的基本单位，页面由很多box（盒模型）组成
-Formatting context：块级上下文格式化，页面中的一块渲染区域，有一套渲染规则：
+Formatting context：块级上下文格式化，页面中的一块渲染区域，有一套渲染规则，BFC规定了内部的Block Box如何布局：
 定位方案：
 - 内部的Box会在垂直方向上一个接一个放置。
 - Box垂直方向的距离由margin决定，属于同一个BFC的两个相邻Box的margin会发生重叠。
 - 每个元素的margin box 的左边，与包含块border box的左边相接触。
 - BFC的区域不会与float box重叠。
-- BFC是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。外面的元素也不会影响到容器里面的子元素。
 - 计算BFC的高度时，浮动元素也会参与计算。
+- BFC是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。外面的元素也不会影响到容器里面的子元素。
 可以把它看做一块独立的区域，让处于BFC内部的元素与外部的相互隔离
 
 满足下列条件之一就可触发BFC：
@@ -255,13 +255,7 @@ translate改变位置时，元素依然会占据其原始空间。
 改变绝对定位会触发重新布局，进而触发重绘和复合。会用到CPU
 
 28. 为什么响应式设计 (responsive design) 和自适应设计 (adaptive design) 不同？
-29. CSS Sprite（子图集）
-将一个页面涉及到的所有图片都包含到一张大图中去，然后利用CSS的 background-image，background- repeat，background-position 的组合进行背景定位。
 
-好处：CSS Sprites能很好地减少网页的http请求，从而大大的提高页面的性能；CSS Sprites能减少图片的字节 
-可以提前加载资源
-不足：维护成本高，一改就要改整张
-     加载速度优势在http2多路复用后没有了
 - setTimeout 动画与 CSS animation 区别
 30. CSS里的visibility属性有个collapse属性值？在不同浏览器下以后什么区别？
 当一个元素的visibility属性被设置成collapse值后，对于一般的元素，它的表现跟hidden是一样的。
