@@ -206,9 +206,10 @@ react vdom和vue的区别
 ## Vue的data为什么要写成function，返回一个对象
 组件是用来复用的，vue构建的时候会用Vue.extend将组件包成一个类，页面使用的时候，会创建包成类的实例，vue中的data里面的数据，可能不止被一个组件所调用。如果直接写成对象，每一个实例都共享data数据了,在调用的时候就会被修改，各个组件之间的值会有影响
 ## Vue为什么需要一个根元素
-
+## Vue的挂载怎么实现，el和$mount有什么区别
 vue 代码复用的方式
 ## 技术选型上为何选择Vue，Vue的缺陷
+
 ## 了解Vue3吗，相对于Vue2做了哪些优化
 ## Vue hooks的使用
 ## 在Vue渲染组件的时候，都是从父到子组件再到父组件，如果你是框架的设计者，你会怎么做
@@ -244,8 +245,6 @@ mutations必须是同步操作，同步的意义在于，每一个mutation执行
 mutations是可以发异步请求的，但是不推荐，因为devtools拿到的是mutation执行完毕时的快照snapshots，而如果是异步的话，拿不到你想要的快照，devtools就看不到所谓的时间旅行了，所以用action处理异步，拿到异步的结果后，触发mutation，更改state
 
 2. vuex底层流程和实现原理以及数据流向
-
-
 Vuex的响应式原理
 js实现依赖注入
 Redux/Vuex区别

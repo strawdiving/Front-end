@@ -88,14 +88,6 @@ loader把读到的源文件的内容转义成新的文件内容，且每个loade
 
 plugin监听webpack广播的事件，在合适时通过webpack的API改变结果。
 
-## webpack优化前端性能
-优化webpack的输出结果，让打包的最终结果在浏览器运行快速高效。
-- 压缩删除多余的代码，注释，简化代码的写法等，UglifyJSPlugin,ParallelUglifyPlugin压缩JS文件optimise-css-assets-webpack-plugin压缩css
-- 利用CDN加速，在构建过程中，将引用的静态资源路径修改为CDN上对应的路径。利用webpack的output参数和各个loader的publicPath参数来修改资源路径
-- Tree Shaking,将代码中永远不会走到的片段删除掉。在启动webpack时追加参数 --optimize-minimize来实现
-- Code Splitting，将代码按路由维度或组件分块，这样做到按需加载，同时充分利用浏览器缓存
-- 提取公共第三方库，SplitChunksPlugin插件（webpack4)（webpack4)进行公共模块提取，利用浏览器缓存可以长期缓存这些无需频繁变动的公共代码
-
 ## 提高webpack的打包速度
 - happypack/thread-loader，利用进程并行编译loader，利用缓存使rebuild更快
 - 外部扩展（externals）,将不怎么需要更新的第三方库脱离webpack打包，不被打入bundle中，从而减少打包时间，不如jQuery用script标签引入
@@ -155,5 +147,7 @@ babel的转译过程分为3个阶段：
 4. webpack-dev-server，通过sockjs，在c/s之间建立一个websocket长连接，将webpack编译打包各个阶段的状态信息告知浏览器，同时也包括3中Server监听静态文件变化的信息。浏览器根据socket消息进行不同操作，server传递的最主要信息是新模块的hash值，后面的步骤根据这一hash值进行模块热替换。
 
 ## webpack的劣势
+
+## 前端的工作流程
 ## webpack针对模块化做的处理
 
