@@ -7,12 +7,57 @@
 ## 如何实现跨域
 1. image PING
 
-2. 通过jsonp跨域，JSONP 的工作原理，以及它为什么不是真正的 Ajax
-jsonp的实现（要代码）方式；带超时，带防重名的 JSONP 的实现
-后台响应头要加什么；
+2. 通过jsonp跨域，JSONP 的工作原理，
+jsonp的实现（要代码）方式；带超时，带防重名的 JSONP 的实现；
 
-jsonp利用script标签不受同源策略限制的特性进行跨域操作。实现简单，兼容性好；
+后台响应头要加什么？
+Content-Type=text/javascript
+
+它为什么不是真正的 Ajax？ 
+- ajax的核心是通过XmlHttpRequest获取非本页内容
+- jsonp的核心是动态添加< script >标签来调用服务器提供的js脚本
+
+区别不在于是否跨域，ajax通过服务端代理一样可以实现跨域，jsonp本身也不排斥同域的数据的获取。jsonp是一种方式或者说非强制性协议，如同ajax一样，它也不一定非要用json格式来传递数据，字符串也行，只是不利于用jsonp提供公开服务
+
+jsonp利用script标签（拥有src属性的标签都可以，如script,image,iframe）不受同源策略限制的特性进行跨域操作。实现简单，兼容性好；
 缺点：只支持get请求，script只能get；易受xss攻击；需要服务端配合jsonp进行一定程度改造。
+
+所以用纯前端的方式跨域访问数据只有一种可能，就是在远程服务器上设法把数据装进js格式的文件里，供客户端调用和进一步处理；
+
+web客户端通过与调用脚本一模一样的方式，来调用跨域服务器上动态生成的js格式文件（一般以json为后缀），服务器之所以要动态生成JSON文件，目的在于把客户端需要的数据装入进去。
+
+客户端在对JSON文件调用成功后，获得了自己所需的数据。
+JSONP的要点就是允许用户传递一个callback参数给服务端，然后服务端返回数据时会将这个callback参数作为函数名包裹住JSON数据，这样客户端就可以随意定制自己的函数来自动处理返回数据了。
+如何让服务端知道本地的函数名呢？只要服务端提供的js脚本是动态生成的就行了，这样调用者可以传一个参数过去告诉服务端“我想要一段调用XXX函数的js代码，请你返回给我”，于是服务器就可以按照客户端的需求来生成js脚本并响应了。
+
+前端：1）定义callback函数，2）传入请求参数，3）动态生成script标签
+example:
+```javascript
+    <script type="text/javascript">
+    // 得到航班信息查询结果后的回调函数
+    var flightHandler = function(data){
+        alert('你查询的航班结果是：票价 ' + data.price + ' 元，' + '余票 ' + data.tickets + ' 张。');
+    };
+    // 提供jsonp服务的url地址（不管是什么类型的地址，最终生成的返回值都是一段javascript代码）
+    var url = "http://flightQuery.com/jsonp/flightResult.aspx?code=CA1998&callback=flightHandler";
+  code参数告知服务器要返回的数据，callback参数告知本地回调函数的名字，请把查询结果传入该函数中进行调用
+
+    // 创建script标签，设置其属性
+    var script = document.createElement('script');
+    script.setAttribute('src', url);
+    // 把script标签加入head，此时调用开始
+    document.getElementsByTagName('head')[0].appendChild(script); 
+    </script>
+```
+服务端返回一个定制的js文件，调用callback函数并且将JSON 数据形式作为参数传递，文件内容： 
+
+flightHandler({
+    "code": "CA1998",
+    "price": 1780,
+    "tickets": 5
+});
+传给flightHandler函数的是一个json。
+Content-Type = text/javascript
 
 实现：
 ```javascript
@@ -25,11 +70,13 @@ function JSONP({url,params,callbackKey,callback}) {
   script.setAttribute('src','$(url).?${paramString}')
   document.body.appendChild(script)
 }
-JSONP({url:'http://sss.weibo.com',
-params: {key: 'test'},
-callbackKey: '_cb',
-callback(result) {console.log(result.data)} });
+JSONP({
+    url:'http://sss.weibo.com',
+    params: {key: 'test'},
+    callbackKey: '_cb',
+    callback(result) {console.log(result.data)} });
 ```
+
 3. CORS,目前主流的跨域解决方案
 用额外的HTTP头来告诉浏览器一个origin/domain上的web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从和该资源所在server不同的域请求一个资源时，资源会发起一个跨域HTTP请求。
 如果用express，可以这样在后端设置：
