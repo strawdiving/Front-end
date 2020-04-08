@@ -144,6 +144,48 @@ ES6模板文法在生成字符串方面提供了很大的灵活性。
 在字符串中如果要用反撇号，可以用反斜杠转义；
 模板字符串中，空格，缩进，换行都会被保留；
 
+- 嵌入变量
+支持嵌入变量，只需将变量名写在${}中，不止变量，还可以嵌入任意Javascript表达式，可以进行运算，可以引用对象的属性
+
+可以嵌套
+
+可以调用函数
+
+- 标签模板
+
+模板字符串可以紧跟在一个函数名后面，该函数将被调用来处理这个模板字符串。
+```javascript
+let x = 'Hi',y='Kevin';
+var res = message`${x},I am ${y}`;
+
+function message(literals,...values) {
+  console.log(literals)//["",",I am",""]
+  console.log(values[0])// Hi
+  console.log(values[1])// Kevin
+
+  // 将参数拼回去--方法1
+  let result = ''
+
+  for(let i=0;i<values.length;i++) {
+    result += literals[i]
+    result += values[i]
+  }
+  result += literals[literals.length - 1]
+  return result
+
+  // 将参数拼回去--方法2
+  let result = literals.reduce((prev,next,i) => {
+    let value = values[i-1];
+    return prev + value + next
+  })
+
+  return result
+}
+
+```
+
+
+注：当大括号中的值不是字符串时，会将其转为字符串，如数组[1,2,3]就会被转为1,2,3
 
 - 你能给出一个解构（destructuring ）对象或数组的例子吗？
 允许按一定模式，模式匹配，从数组和对象中提取值，对变量进行赋值
@@ -204,11 +246,6 @@ import读入的变量都是只读的，不允许修改，但可以改变变量�
 - 在构造函数中的方法中使用箭头语法有什么优势？
 
 
-反引号，可以嵌入变量，可以嵌入任意表达式，可以进行运算，可以引用对象的属性，
-
-可以调用函数
-
-可以嵌套
 
 - babel是如何将es6代码编译成es5的
   babel如何编译let和const（ES6深入系列）
