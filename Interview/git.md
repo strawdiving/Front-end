@@ -2,8 +2,6 @@
 
 # git工具流
 gitflow——git操作流程标准，可实现并行开发，可以多个feature并行，feature新功能开发完成才并到develop开发分支。可支持协作开发
-
-
 - master，主分支
 - develop，主开发分支，主要用于暂时保存未发布的内容。一个新feature开发完成，会被合并到develop分支。如果还要开发新分支，只需从develop分支创建新分支，就可包含所有已完成的feature。
 - feature，新功能分支，一般一个新功能对应一个分支，拆分要合理
@@ -21,7 +19,24 @@ release分支会发布到测试环境进行测试，发现问题就在这个分�
 master分支只跟踪已经发布的代码，合并到master上的commit只能来自release和hotfix
 
 hotfix分支是紧急修复一些bug。他们都是从master分支上的某个tag建立，修复结束后再合并到develop和master上。
-
+## 从当前分支拉出新分支
+1. 切换到被copy的分支，从服务器拉取最新版本
+```
+git checkout master
+git pull origin master
+``` 
+2. 从当前分支copy出新的开发分支，命名为dev分支
+```
+git checkout -b dev
+```
+3. 把新建的分支push到远端
+```
+git push origin dev
+```
+4. 拉取远端分支
+```
+git pull origin dev
+```
 ## rebase和merge的区别
 git rebase和git merge都是从一个分支获取并合并到当前分支。
 如feature/todo分支合并到master主分支，

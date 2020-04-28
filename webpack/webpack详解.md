@@ -166,22 +166,7 @@ Babel的配置
 ### 图片资源在webpack中的配置
 file-loader
 
-## Plugins
-plugins是用来扩展webpack功能的，它们会在整个构建过程中生效，执行相关的任务。
-loaders是在打包过程中用来处理源文件的，一次处理一个。
-plugins并不操作单个文件，它直接对整个构建过程起作用。
 
-### 使用插件的方法
-首先要npm安装，然后在webpack配置中的plugins关键字部分添加该插件的一个实例，plugins是一个**数组**。
-```javascript
-module.exports = {
-  ...
-  plugins: [
-        new webpack.BannerPlugin('版权所有，翻版必究')
-    ],
-  }
-
-```
 
 #### Html在webpack中的配置——HtmlWebpackPlugin
 引入html-webpack-plugin,并在module.exports里配置插件plugins。
@@ -195,32 +180,11 @@ HMR允许你在修改组件代码后，自动刷新实时预览修改后的效�
 - webpack配置文件中添加HMR插件
 - webpack dev server中添加“hot"参数
 
-
-
-
 ### 别名在webpack中的配置——resolve
 
 ### 其他静态资源在webpack中的配置
 - src下其他的文件直接复制到dist目录下，并不是每个文件都需要打包处理，很多资源可能就直接复制过去，使用**CopyWebpackPlugin插件**
 - jquery，lodash等工具库是很多组件会复用的，使用**webpack.ProvidePlugin插件**
-
-### proxy
-```javascript
-proxy: {
-    '*': {
-        target: config.target,
-        changeOrigin: true,
-        pathRewrite: {
-            '^/api': ''
-        }
-    }
-}
-```
-changeOrigin 加了这个，代理服务器会在请求头中加入相应Host首部，然后目标服务器就可以根据这个首部来区别要访问的站点了。假如你在本地80端口
-起了apache服务器，服务器配了两个虚拟站点a.com,b.com，设置代理之后并且changeOrigin为true，此时可以正确访问虚拟主机下的文档内容，否则访问a,b站点等同于访问localhost。
-webpack dev server用的是node-http-proxy
-
-
 
 ## 使用webpack构建本地服务器
 想让浏览器监听代码的修改，并自动刷新显示修改后的结果，webpack提供了一个可选的本地开发服务器webpack-dev-server，它是一个单独的组件，需要单独安装。
@@ -319,38 +283,3 @@ package.json
   },
 ```
 注意:如果是window电脑，build需要配置为"build": "set NODE_ENV=production && webpack --config ./webpack.production.config.js --progress".
-
-### 优化插件
-- UglifyJsPlugin：压缩JS代码，内置插件
-- ExtractTextPlugin: 分离JS和CSS文件
-
-要安装非内置插件，在配置文件的plugins中引用;内置插件可以直接引用。
-```javascript
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-module.exports={
-...
-plugins: [
-  new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.optimize.UglifyJsPlugin(),
-        new ExtractTextPlugin("style.css")
-      ]
-```
-### 缓存
-使用缓存最好的方法是保证文件名和文件内容是匹配的（内容改变，名称相应改变）
-
-webpack可以把一个hash值添加到打包的文件名中，使用方法如下，添加特殊的字符串混合体到输出文件名前（[name],[id] and [hash]）
-```javascript
-const webpack = require('webpack');
-
-module.exports = {
-..
-    output: {
-        path: __dirname + "/build",
-        filename: "bundle-[hash].js"
-    },
-   ...
-};
-```
-### 去除build文件中的残余文件
-添加hash后，会导致改变文件内容后重新打包时，文件名不同而内容越来越多，可以使用clean-webpack-plugin

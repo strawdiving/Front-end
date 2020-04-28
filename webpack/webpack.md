@@ -24,70 +24,6 @@ bundle是webpack打包出来的文件
 chunk是代码块，一个chunk由多个模块组合而成，用于代码的合并和分割
 module是开发中的单个模块，webpack中一切皆模块，一个模块对应一个文件，从ectry文件开始找出所有依赖的模块
 
-## loader，加载器
-让webpack拥有了加载和解析非Javascript文件的能力。webpack把一切文件视为模块，但webpack原生只能解析js文件，如果要把其他文件也打包，就会用到loader
-
-1. 配置
-
-loader在module.rules中配置，作为文件模块的解析规则存在，类型为数组，每一项是一个object，描述对于什么类型的文件（test),使用什么加载（loader),和使用的参数（options）
-`module: { rules: [{test: /\.vue$/,loader: 'vue-loader',options: vueLoaderConfig}]}`
-
-2. 常见的loader:
-- vue-loader,解析和转换 .vue 文件，**提取**出其中的逻辑代码script、样式代码style、以及HTML 模版template，再分别把它们交给对应的 Loader 去处理
-- file-loader,把文件输出到一个文件夹中，代码中通过相对URL去引用输出的文件
-- url-loader，在文件很小的情况下以base64的方式把文件内容注入到代码中
-- image-loader，加载并压缩图片文件
-- babel-loader，ES6转为ES5
-- css-loader，加载CSS，支持模块化，压缩，文件导入等
-- style-loader，把CSS代码注入Javascript中，通过DOM操作去加载CSS
-- eslint-loader，通过ESLint检查Javascript代码
-- source-map-loader,加载额外的Source Map文件，以方便断点调试
-
-## plugin 插件
-扩展webpack的功能，让webpack具有更多灵活性。webpack的生命周期中会广播出许多事件，plugin可以监听这些事件，在合适的时机通过webpack提供的API输出结果。
-
-1. 配置
-
-在plugins中单独配置，类型为数组，每一项是一个plugin的实例，参数通过构造函数传入
-- webpack-parallel-uglify-plugin，多核压缩，提高压缩速度
-- mini-css-extract-plugin，CSS提取到单独的文件中，支持按需加载
-
-dev版本：
-
-webpack自带的：
-- define-plugin：定义环境变量，'process.env'
-- HotModuleReplacementPlugin,热更新模块
-- NamedModulePlugin，HMR在更新时在console中显示正确的文件名
-- no-emit-on-errors-plugin
-
-加载的：
-- html-webpack-plugin，简化html文件创建
-- copy-webpack-plugin，拷贝自定义的静态assets,如/static文件夹中的文件
-- friendly-errors-webpack-plugin
-
-prod版本：
-- uglifyjs-webpack-plugin，通过uglifyES压缩ES6代码
-- extract-text-webpack-plugin，将CSS提取到它自己的文件中
-- optimise-css-assets-webpack-plugin，压缩提取的CSS，对来自不同组件的重复CSS进行重复数据删除
-- html-webpack-plugin，简化html文件创建
-
-webpack自带的：
-- HashedModuleIdsPlugin：vendor modules没有改变时保持module.id稳定
-- optimize.ModuleConcatenationPlugin，使能scope hoisting
-- optimize.CommonsChunkPlugin，split vendor js into its own file
-
-加载的plugin
-- compression-webpack-plugin，压缩文件
-- copy-webpack-plugin，拷贝自定义的静态assets,如/static文件夹中的文件
-- webpack-bundle-analyzer，可视化webpack输出文件的体积
-
-## 进阶： 写一个loader，plugin
-loader把读到的源文件的内容转义成新的文件内容，且每个loader通过链式操作，把源文件一步步翻译成想要的样子。
-要遵循单一原则，即一个loader只做一种“转义”工作。
-每个loader拿到的是源文件内容，以通过返回值的方式将处理后的内容输出，也可调用this.callback()方法，将内容返回给webpack，还可以通过this.async生成一个callback函数。还有提供的loader-utils工具函数集
-
-plugin监听webpack广播的事件，在合适时通过webpack的API改变结果。
-
 ## 提高webpack的打包速度
 - happypack/thread-loader，利用进程并行编译loader，利用缓存使rebuild更快
 - 外部扩展（externals）,将不怎么需要更新的第三方库脱离webpack打包，不被打入bundle中，从而减少打包时间，不如jQuery用script标签引入
@@ -130,13 +66,6 @@ webpack单页应用，entry入口指定单页应用的入口即可；
 - 每个页面都有公共的代码，如公共的css样式表。可以抽离出来，避免重复加载
 - 页面可能不断追加，所以入口配置足够灵活，避免每次添加新页面要修改构建配置。
 
-## babel原理
-babel的转译过程分为3个阶段：
-1. 解析Parse（babylon），将代码解析生成抽象语法树（AST），即词法分析与语法分析
-2. 转换Transform，对AST进行变换一系列的操作，babel接受得到AST并通过babel-tranverse对其进行遍历，在此过程中进行添加、更新、移除等操作
-3. 生成Generate,将变换后的AST再转换为JS代码，使用babel-generator
-
-### 进阶： 如何写一个babel插件
 
 ## wepack-dev-server热更新HMR的原理
 热替换HMR，不用刷新浏览器就可以用变更的模块代替旧模块。
@@ -151,3 +80,19 @@ babel的转译过程分为3个阶段：
 ## 前端的工作流程
 ## webpack针对模块化做的处理
 
+### 缓存
+使用缓存最好的方法是保证文件名和文件内容是匹配的（内容改变，名称相应改变）
+
+webpack可以把一个hash值添加到打包的文件名中，使用方法如下，添加特殊的字符串混合体到输出文件名前（[name],[id] and [hash]）
+```javascript
+const webpack = require('webpack');
+
+module.exports = {
+..
+    output: {
+        path: __dirname + "/build",
+        filename: "bundle-[hash].js"
+    },
+   ...
+};
+```
