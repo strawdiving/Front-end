@@ -112,11 +112,7 @@ regexp.exec(); string.match(regexp),string.replace(regexp,str),regexp.test(strin
  forEach会遍历数组的每个值，对其进行处理，可能会改变数组
  map，遍历数组，返回对每个值处理后的值组成的新数组
 
-16. "attribute" 和 "property" 的区别是什么？
 
-property是DOM中的属性，是JavaScript里的对象；是这个DOM元素作为对象，其附加的内容，例如childNodes、firstChild等。
-
-attribute是HTML标签上的特性，它的值只能够是字符串；dom节点自带的属性，如id、class、title、align等。HTML标签中定义的属性和值会保存该DOM对象的attributes属性里面；
 
 17. 请解释可变 (mutable) 和不变 (immutable) 对象的区别。举出 JavaScript 中一个不变性对象 (immutable object) 的例子？
 
@@ -374,20 +370,56 @@ JavaScript 中的继承通过原型链进行工作。（手绘原型链，原型
 4. 实现继承的多种方式和优缺点
 三个继承方式的优缺点，借用构造继承，几种组合继承方式
 
-- 原型继承：所有实例共享原型的属性和方法，包含引用类型值的属性被共享，一个修改就会引起所有的变化；且不能在不影响所有实例的情况下，给构造函数传递参数
+- 原型链继承：子类的prototype对象，是父类对象的实例
+缺点：
+所有实例共享原型的属性和方法，包含引用类型值的属性被共享，一个修改就会引起所有的变化；
+且不能在不影响所有实例的情况下，给构造函数传递参数（在创建Child的实例时，不能向Parent传参）
 
-- 借用构造函数：
+- 借用构造函数（经典继承）：
 SuperType.call(this,properties),在子类构造函数内部调用父类构造函数，用apply或call在新创建的对象上执行构造函数；
-问题：方法在构造函数中定义，无法复用，父类中的方法对子类不可见。
+优点：
+  避免了引用类型的属性被所有实例共享；可以在子类中向父类传递参数
+问题：
+  方法都在构造函数中定义，每次创建实例都会创建一遍方法，无法复用。
 
-- 组合继承
+- 组合继承，最常用的继承模式
 
 使用原型链实现对原型属性和方法的继承；借调构造函数实现对实例属性的继承（既保证了函数的复用，又保证每个实例有自己的属性）
 
-问题：要调用两次构造函数，第一次原型继承时，获得原型的属性和方法；第二次借调构造函数时，继承了实例属性，覆盖了原型属性
+问题：要调用两次父类构造函数，第一次原型继承时，获得子类原型的属性和方法；第二次借调构造函数时，继承了实例属性，覆盖了原型属性，可能存在Child.prototype和child1实例都有一个属性（父类的实例属性）
+
+- 原型式继承（Object.create的模拟实现）
+新建一个构造函数，将传入的对象作为该构造函数的prototype原型对象，返回该构造函数的实例
+即：将传入的对象作为创建的对象的原型
+
+缺点：和原型链继承一样，包含引用类型的属性值始终会共享相应的值
+
+- 寄生式继承
+创建一个仅用于封装继承过程的函数，该函数内部以某种形式来做增强对象，最后返回对象
+先Object.create一个对象，再为其添加一个属性，函数，返回该对象
+
+缺点：和借调构造函数一样，每次创建对象都会创建一遍方法
 
 - 寄生组合式继承
 通过借调构造函数来继承实例属性，通过原型链的混成形式来继承方法
+
+不使用Child.Prototype = new Parent()，而是间接让Child.prototype访问到Parent.prototype
+```javascript
+function object(o) {
+  function F() {  }
+  F.prototype = o
+  return new F()
+}
+
+function prototype(child,parent) {
+  var prototype = object(parent.prototype)
+  prototype.constructor = child
+  child.prototype = prototype
+}
+
+// 使用
+prototype(Child,Parent)
+```
 
 不必为了指定子类型的原型而调用父类的构造函数，只要超类型原型的一个副本，使用寄生式继承来继承超类型的原型，再将结果指定给子类型的原型。
 
@@ -406,6 +438,7 @@ function object(o) {
 将传入的对象作为该构造函数的实例
 返回该构造函数的一个新实例
 
+这种方式的高效率体现它只调用了一次 Parent 构造函数，并且因此避免了在 Parent.prototype 上面创建不必要的、多余的属性。与此同时，原型链还能保持不变；因此，还能够正常使用 instanceof 和 isPrototypeOf。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。
 
 5. 类式继承的方案
 ```javascript
@@ -426,51 +459,7 @@ super当对象用时，指向父类的原型对象，但调用父类的方法时
 实现一个子类实例可以继承父类的所有方法
 
 - JS如何实现重载和多态
-## DOM,事件
--  JavaScript 的事件流模型都有什么？
 
-事件流分为三个阶段：
-1. 事件捕获阶段
-2. 处于目标阶段
-3. 事件冒泡阶段
-**事件捕获**：事件先被最外层的元素上触发，再到最内层的元素
-**事件冒泡**：嵌套最深的元素触发一个事件，然后这个事件顺着嵌套顺序在父元素上触发。
-click DOM 节点的 inner 与 outer 的执行机制，考查事件冒泡与事件捕获 
-
-防止事件冒泡的一种方法是使用 event.cancelBubble 或 event.stopPropagation()（低于 IE 9）。
-
-- 请解释事件委托 (event delegation)。
-将事件绑定在尽量高层级的元素上，利用事件冒泡，代理子节点上触发的事件
-- DOM事件的绑定的几种方式
-1. 行内绑定： `<button onClick="alert(1)"></button>`
-2. `<button onClick="click"></button>`
-3. DOM元素，button.onclick = function(){...}
-4. addEventListener(eventName,callback,true/false),最后一个参数表示是否在事件冒泡阶段处理，true是事件捕获阶段，false是冒泡
-- DOM事件中target和currentTarget的区别
-1. target: 触发事件的对象
-2. currentTarget：当前正在处理事件的对象
-
-- 原生事件绑定（跨浏览器），dom0和dom2的区别？
-onclick, addEventListener
-- 给定一个元素获取它相对于视图窗口的坐标
-- 编写一个通用的事件监听函数
-
-- 手指点击可以触控的屏幕时，是什么事件？
-touch
-
-- 回调函数
-回调函数是可以作为参数传递给另一个函数的函数，并在某些操作完成后执行。
-- JS常见的dom操作api
-使用 document.querySelector,querySelectorAll选择或查找节点，在旧版浏览器中使用 document.getElementsByTagName；
-上下遍历——Node.parentNode、Node.firstChild、Node.lastChild 和 Node.childNodes；
-左右遍历——Node.previousSibling 和 Node.nextSibling；
-操作——在 DOM 树中添加、删除、复制和创建节点。修改节点的文本内容以及切换、删除或添加 CSS 类名等操作；
-性能——当有很多节点时，修改 DOM 的成本会很高，使用文档片段和节点缓存。
-
-- 在什么时候你会使用 document.write()？
-- 请指出 document load 和 document DOMContentLoaded 两个的区别。
-- 为何你会使用 load 之类的 (event)？有缺点吗？你是否知道其他替代品，以及为何使用它们？
-- requestAnimationFrame 和 setTime、setInterval的区别，requestAnimationFrame 可以做什么
 
 ## 异步(Asynchronous）
 - 事件循环
@@ -501,81 +490,7 @@ Ajax技术的核心是XMLHttpRequest对象，这个对象充当着浏览器中�
 - 高阶函数(Higher Order Functions)的定义
 理解这些函数是 JavaScript 中的第一类对象以及这意味着什么，了解从另一个函数返回函数是完全合法的。了解闭包和高阶函数允许我们使用的技术。
 什么是函数柯里化？你能举一个curry柯里函数的例子吗，为什么这种语法有优势？JS的API有哪些应用到函数柯里化的实现（bind函数和数组的reduce方法）？柯里化以及在函数式编程的应用.
-## ES6 
-- 你能给出一个解构（destructuring ）对象或数组的例子吗？
-允许按一定模式，模式匹配，从数组和对象中提取值，对变量进行赋值
 
-- 使用扩展语法有什么好处？它与rest语法有什么不同？
-rest语法，用于获取函数的多余参数，rest参数搭配的变量是一个数组，可以直接用数组的方法。
-
-只能是最后一个参数，函数的length属性不包括rest
-
-- 你使用过 Promises 及其 polyfills 吗? 请写出 Promise 的基本用法（ES6）。
-new Promise((resolve,reject) {
-  if(...) resolve()
-  else reject()
-}).then((val)=>{},(err)=>{})
-.catch((err)=>{
-  
-})
-
-- 所有的 ES6 特性你都知道吗？如果遇到一个东西不知道是 ES6 还是 ES5, 你该怎么区分它
-- es6的继承和es5的继承有什么区别
-- promise封装ajax
-- es6 generator 是什么，async/await 实现原理
-- ES6和node的commonjs模块化规范区别
-CommonJS是一种模块规范，成为Node.js的模块规范，ES6之前，前端也实现了一套相同的模块规范，如AMD，用来对前端模块进行管理。
-
-ES6引入了一套新的模块规范，在语言标准层面上实现了模块功能，且实现得很简单，有望成为浏览器和服务器通用的模块解决方案。目前浏览器对ES6模块兼容性还不太好，在webpack中使用的export和import，会经过Babel转换为CommonJS规范。使用上的区别有：
-
-1. CommonJS模块输出的是一个值的拷贝，ES6模块输出的是值的引用
-
-import读入的变量都是只读的，不允许修改，但可以改变变量的属性；
-
-内部的所有变量要用export导出，与其对应的值是动态绑定的关系，取到的是实时值；而CommonJS输出的是值的缓存，不存在动态更新
-
-2. commonjs的模块是**运行时加载**的，（整体加载模块，生成一个对象，再从对象上获取属性和方法。CommonJS模块就是对象）；
-  ESS6模块是**静态加载**的，在**编译时就完成模块加载**，编译时输出接口。（效率更高，且模块不是对象）
-3. CommonJS是单个值导出，ES6模块可以导出多个
-4. ES6模块是静态语法，import必须在模块的顶层（会被JS引擎静态分析，先于其他语句执行，)；
-而CommonJS是动态语法，可以写在判断里（require是动态加载，只有运行时才知道加载的是什么模块，所以可以放在任何地方）
-
-- 异步编程各个优缺点，使用 Promises 而非回调 (callbacks) 优缺点是什么？generator,Promise,async/await比较
-- 怎么将一个异步方法promise化，以及实现promise.all()方法，promise.then 的调用，promise封装setstate
-- 如何将一个同步函数包装为异步函数
-- fetch取消
-
-- 使用let，var或const创建的变量之间有什么区别？
-1. let，const声明的变量，只在当前代码块中有效
-2. 不存在变量提升，必须在声明后才能使用，而const
-3. 暂时性死区，只要块级作用域内存在let命令，它声明的变量就绑定这个作用域，形成封闭作用域，外界对变量没有影响。凡声明之前使用这些变量就会报错。即声明变量之前，都是该变量的死区。
-4. 不允许重复声明
-5. const声明只读的常量，一旦声明就必须初始化，因为后面不能修改，对引用类型，只保证指针指向固定的地址，但指向的数据结构是可变的。
-6. var声明的全局变量，是顶层对象的属性，let和const声明的不是
-
-- ES6类class和ES5函数构造函数（function constructors）之间有什么区别？
-- 你能为新的arrow =>j箭头函数语法提供一个用例吗？ 这种新语法与其他函数有何不同？
-
-箭头函数可以简化回调函数
-箭头函数的this的指向：箭头函数本身没有this对象，它的this对象是它的定义生效时所在的对象，即定义时外部代码块的this
-
-而不是执行时所在的对象
-
-不可以当构造函数，因为没有this
-不可以使用arguments对象，只能用rest参数
-
-- 在构造函数中的方法中使用箭头语法有什么优势？
-- ES6模板文法在生成字符串方面提供了很大的灵活性，你能举个例子吗？
-
-反引号，可以嵌入变量，可以嵌入任意表达式，可以进行运算，可以引用对象的属性，
-
-可以调用函数
-
-可以嵌套
-
-- babel是如何将es6代码编译成es5的
-- 说出ES6中使用this的不同
-- proxy
 ## 性能
 - js的垃圾回收机制
 
@@ -589,10 +504,6 @@ import读入的变量都是只读的，不允许修改，但可以改变变量�
 ## 其他
 - 为何通常会认为保留网站现有的全局作用域 (global scope) 不去改变它，是较好的选择？
 
-- 如何实现下列代码：
- [1,2,3,4,5].duplicator(); // [1,2,3,4,5,1,2,3,4,5]
-
-- 请实现一个遍历至 100 的 for loop 循环，在能被 3 整除时输出 "fizz"，在能被 5 整除时输出 "buzz"，在能同时被 3 和 5 整除时输出 "fizzbuzz"。
 - 请解释什么是单页应用 (single page app), 以及如何使其对搜索引擎友好 (SEO-friendly)。
 - 使用一种可以编译成 JavaScript 的语言来写 JavaScript 代码有哪些优缺点？
 - 你使用哪些工具和技术来调试 JavaScript 代码？
@@ -608,20 +519,6 @@ import读入的变量都是只读的，不允许修改，但可以改变变量�
 2.newobj = Object.create(sourceObj)，// 但是这个是有个问题就是 newobj的更改不会影响到 sourceobj但是 sourceobj的更改会影响到newObj
 3.newobj = JSON.parse(JSON.stringify(sourceObj))
 ```
-- 图片预览功能
 
-    <input type="file" name="file" onchange="showPreview(this)" />
-	< img id="portrait" src="" width="70" height="75">
-
-	function showPreview(source) {
-	  var file = source.files[0];
-	  if(window.FileReader) {
-      var fr = new FileReader();
-      fr.onloadend = function(e) {
-        document.getElementById("portrait").src = e.target.result;
-      };
-      fr.readAsDataURL(file);
-	  }
-	}
 
 RegExp、异步装载、模板引擎、前端MVC、路由、模块化、Canvas、Nodejs
