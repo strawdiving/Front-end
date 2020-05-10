@@ -290,6 +290,29 @@ var foo = 1;
 - 匿名函数的执行环境具有全局性，其this对象通常指向window。
 - 用途：数据隐藏、内存化以及动态函数生成。
 
+闭包：函数 + 函数能够访问的自由变量
+- 即使创建它的上下文已经销毁，它仍然存在（比如，内部函数从父函数中返回）
+- 在代码中引用了自由变量（自由变量是指在函数中使用的，但既不是函数参数也不是函数的局部变量的变量）
+
+```javascript
+var scope = "global scope";
+function checkscope(){
+    var scope = "local scope";
+    function f(){
+        return scope;
+    }
+    return f;
+}
+
+var foo = checkscope();
+foo();
+```
+f的执行上下文维护了一个作用域链：
+`fContext = {  Scope: [AO,checkScopeContext.AO,globalContext.VO] }`
+因为这个作用域链，f仍然可以读取checkScopeContext.AO中的值，当f函数引用其中值的时候，即使checkScopeContext被销毁了，JS仍然会让checkScopeContext.AO活在内存中，f仍然可以通过其作用域链找到它，从而实现闭包。
+
+
+
 缺点： 引用变量，不利于垃圾回收，占据内存
 2. **this 是如何工作的，this有哪些使用场景？**
 this 引用的是函数执行时所在的上下文对象,而不是函数被创建时所在的对象。（箭头函数除外）
