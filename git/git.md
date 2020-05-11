@@ -1,4 +1,14 @@
 
+## 工作区和暂存区
+1. 工作区(working directory)
+电脑里能看到的目录，就是一个工作区。
+工作区有一个隐藏的目录.git，是git的版本库respository。
+
+git的版本库里，有
+- 暂存区stage
+- git为我们自动创建的第一个分支 master
+- 指向master的一个指针 HEAD
+
 ## git安装
 安装完成后，需要设置：
 ```bash
@@ -26,6 +36,9 @@ git config --global user.email "email@email.com"
 
 可以多次git add不同的文件，再一次commit提交多个文件
 
+git add 实际是把文件修改添加到暂存区；
+git commit 提交修改，实际是把暂存区的所有内容提交到当前分支。 因为创建git 版本库时，git自动创建了一个master分支，所以现在是往master分支上提交修改。
+
 ## 查看结果 & 提交
 **git status** 可以查看仓库当前的状态，比如xxx被修改过了，但还没有准备提交的修改
 **git diff** 可以查看文件具体修改了什么
@@ -43,6 +56,7 @@ git config --global user.email "email@email.com"
 想要输出简略的信息，就加上 --pretty=oneline 参数。
 
 ### 回退
+前提是，还没有把本地版本库推送到远程。
 1. 知道当前版本：
 git必须知道当前版本是哪个版本。git用**HEAD**表示当前版本，上一个版本就是HEAD^,上上个版本HEAD^^,...往上100个版本 HEAD~100
 2. 回退到上一个版本
@@ -62,54 +76,73 @@ git的回退很快，因为git内部有个指向当前版本的HEAD指针，回�
 git log， 查看提交历史，以便确定要回退到哪个版本。如果回退了，则后面的提交历史就看不到了，要用git reflog
 git reflog， 查看命令历史，以便确定要回到未来的哪个版本
 
-# git工具流
-gitflow——git操作流程标准，可实现并行开发，可以多个feature并行，feature新功能开发完成才并到develop开发分支。可支持协作开发
-- master，主分支
-- develop，主开发分支，主要用于暂时保存未发布的内容。一个新feature开发完成，会被合并到develop分支。如果还要开发新分支，只需从develop分支创建新分支，就可包含所有已完成的feature。
-- feature，新功能分支，一般一个新功能对应一个分支，拆分要合理
-- release，发布分支，发布时用，测试发现bug在此分支修复
-- hotfix，紧急修复bug时用，从某个已发布的tag上创建出来并做一个紧急修复，只影响这个已经发布的tag，而不会影响正在开发的新feature
+## 撤销修改
+注：最新的git
+**用git restore  < file >代替git checkout -- file**，丢弃工作区的修改
+**用git restore --staged < file >代替git reset HEAD < file >**，取消暂存区的修改
 
-feature分支都是从develop创建，最后再合并到develop分支，等待发布；
+### git checkout -- file
+注：“--”很重要，否则就变成“切换到另一个分支”的命令了。
+把file在工作区的修改全部撤销：
+1. 文件修改后还没有被放到暂存区，撤销修改就回到和版本库一样的状态（该文件必须进入过git 版本库，曾经git add过或git commit过）
+2. 文件已经添加到暂存区后，又做了修改，撤销修改就回到添加到暂存区后的状态
 
-需要发布时，从develop创建一个release分支
+即，**让文件回到最近一次git commit（1）或git add（2）时的状态**
 
-release分支会发布到测试环境进行测试，发现问题就在这个分支直接修复，在所有问题修复前，不停重复发布-测试-修复-重新发布-重新测试这个流程。
+注：git checkout只恢复修改过的文件，想删除未被tracked的文件（即还未进行过git add等操作的文件），用**git clean -df**
+### git reset HEAD < file >
+  
+可以把暂存区的修改撤销掉（unstage），重新放回工作区。用HEAD时，表示最新的版本
 
-发布结束后，release分支合并到develop和master分支，保证不会有代码丢失
+## 删除文件
+如果新建一个文件，并且git add和git commit了。想要从版本库中删除的话：
+1. 文件管理器中先手动删除
+2. git rm < file >或git add < file >，两者效果是一样的
+3. git commit
 
-master分支只跟踪已经发布的代码，合并到master上的commit只能来自release和hotfix
+如果误删了，因为版本库中还有，仍然可以恢复到最新版本
+git checkout -- < file >或git restore < file >
+即用版本库里的版本替换工作区里的版本，无论工作区是修改还是删除，都可以用该命令还原。但只能恢复到最新版本，会丢失最近一次提交后你修改的内容。
 
-hotfix分支是紧急修复一些bug。他们都是从master分支上的某个tag建立，修复结束后再合并到develop和master上。
-## 从当前分支拉出新分支
-1. 切换到被copy的分支，从服务器拉取最新版本
-```
-git checkout master
-git pull origin master
-``` 
-2. 从当前分支copy出新的开发分支，命名为dev分支
-```
-git checkout -b dev
-```
-3. 把新建的分支push到远端
-```
-git push origin dev
-```
-4. 拉取远端分支
-```
-git pull origin dev
-```
-## rebase和merge的区别
-git rebase和git merge都是从一个分支获取并合并到当前分支。
-如feature/todo分支合并到master主分支，
-1. merge，自动创建一个新的commit，如果合并时遇到冲突，仅需修改后重新commit。
-优点：记录了真实的commit情况，包括每个分支的详情；
-缺点：每次merge自动产生一个merge commit，使用GUI或者commit频繁时，看到分支很杂乱
-2. rebase，会合并之前的commit历史
-优点：得到简洁的项目历史，去掉了merge commit;
-缺点：合并出现问题不容易定位，因为rewrite了history
+注：**从未被添加到版本库就被删除的文件，是无法恢复的**
 
-总结：需要保留详细合并信息时建议使用git merge，特别是需要将分支合并到master;当发现要修改某个功能时，频繁进行git commit提交时，过多提交信息没有必要，用git rebase
+## 远程仓库
+git是分布式版本控制系统，同一个git仓库，可以分布到不同机器上。一般找一台电脑充当服务器的角色，其他每个人都从这个“服务器”仓库克隆一份到自己电脑上，且各自把各自的提交推送到服务器仓库里。也从服务器仓库中拉取别人的提交。 
+
+git本地工作不需要考虑远程库，不联网也可以正常工作，而SVN在没有联网时是拒绝干活的。
+
+git默认的远程仓库的名字就是 **origin**，可以改成别的。
+
+### github
+本地git仓库和github仓库间传输通过SSH加密，需要提供你的公钥，让github确认是你推送的。如果有若干电脑，则要把每个电脑的key都添加到github，这样每台电脑都可以向github推送了。
+需要设置：
+1. 创建SSH Key
+在用户主目录下（cd ~），看看有没有.ssh目录，目录下是否有 id_rsa和id_rsa.pub文件。如果没有，则在git bash中创建
+```bash
+ssh-keygen -t rsa -C "youremail@example.com"
+```
+一路回车，使用默认值。
+id_rsa是私钥不可泄漏，id_rsa.pub是公钥
+2. 登录github，Account settings，SSH Keys页面，点击“Add SSH Key"，填上任意title,key文本中粘贴id_rsa.pub文件的内容
+
+## 先有本地库，后有远程库，如何关联远程库
+在github上新建仓库后，将本地已有的仓库推送上去，即在本地关联远程库：
+
+1. 在本地的仓库下运行 
+```
+git reomote add origin git@github.com:path/repo-name.git
+```
+2. 把本地库的内容推送到远程
+第一次推送master分支时，加上 -u 参数（git push -u origin master）
+
+git在推送时，还把本地master分支和远程的master分支关联起来，实际是把当前分支 master 推送到远程。
+
+3. 后面推送时：
+以后的推送和拉取时就可以简化命令，直接用 git push origin master
+
+## 先创建远程库，然后从远程库克隆
+- SSH方式：git clone git@github.com: path/repo-name.git，默认的git:// 使用ssh,速度快。
+- https方式： git clone https://github.com/path/repo-name.git ，每次都需要输入账号密码。
 
 ## git reset，git revert，git checkout有什么区别
 共同点：用来撤销代码仓库中的某些更改
