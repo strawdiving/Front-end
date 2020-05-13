@@ -1,13 +1,21 @@
 
 ## 工作区和暂存区
-1. 工作区(working directory)
-电脑里能看到的目录，就是一个工作区。
+git仓库三个组成部分：
+1. 工作区（working directory）
+
+在git管理下的正常目录都算工作区，平时编辑都在这里完成。
 工作区有一个隐藏的目录.git，是git的版本库respository。
 
 git的版本库里，有
 - 暂存区stage
 - git为我们自动创建的第一个分支 master
 - 指向master的一个指针 HEAD
+
+2. 暂存区（Stage）
+
+临时区域，存放将要提交的文件的快照
+
+3. 历史记录区（History）：git commit后的记录区
 
 ## git安装
 安装完成后，需要设置：
@@ -124,6 +132,7 @@ ssh-keygen -t rsa -C "youremail@example.com"
 一路回车，使用默认值。
 id_rsa是私钥不可泄漏，id_rsa.pub是公钥
 2. 登录github，Account settings，SSH Keys页面，点击“Add SSH Key"，填上任意title,key文本中粘贴id_rsa.pub文件的内容
+3. git bash中，在用户主目录下，输入 `ssh git@github.com`进行连接认证
 
 ## 先有本地库，后有远程库，如何关联远程库
 在github上新建仓库后，将本地已有的仓库推送上去，即在本地关联远程库：
@@ -144,12 +153,13 @@ git在推送时，还把本地master分支和远程的master分支关联起来�
 - SSH方式：git clone git@github.com: path/repo-name.git，默认的git:// 使用ssh,速度快。
 - https方式： git clone https://github.com/path/repo-name.git ，每次都需要输入账号密码。
 
+## fork
+github上可以fork任意开源库，自己拥有fork后的仓库的读写权限。
+
+可以对fork后的库进行一些修改，然后创建一个pull request给官方仓库来贡献代码。
+
 ## git reset，git revert，git checkout有什么区别
 共同点：用来撤销代码仓库中的某些更改
-git仓库三个组成部分：
-1. 工作区（working directory）：在git管理下的正常目录都算工作区，平时编辑都在这里完成
-2. 暂存区（Stage）：临时区域，存放将要提交的文件的快照
-3. 历史记录区（History）：git commit后的记录区
 
 working directory-git add files-stage-git commit-history
 
