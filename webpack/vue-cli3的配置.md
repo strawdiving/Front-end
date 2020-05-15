@@ -183,3 +183,63 @@ Preset的数据会被插件生成器用来生成相应的项目文件。
 可以显式地指定用到的插件的版本。这对于官方插件不是必须的，忽略时CLI会使用 registry 中的最新版本
 
 # CLI服务
+@vue/cli-service 安装了 vue-cli-service 的命令， 可以
+- 在npm scripts 中以 vue-cli-service 
+- 从终端中以 ./node_modules/.bin/vue-cli-service 
+
+访问这个命令。 
+```json
+"scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  }
+``` 
+用 `npm run serve`可以调用这些scripts。
+
+## vue-cli-service serve
+会启动一个开发服务器（基于 webpack-dev-server），并附 HMR 热重载模块。
+
+```json
+// 命令行参数
+vue-cli-service serve [options] [entry]
+
+options:
+-- open 服务端启动时打开浏览器
+-- mode 指定环境模式（默认 development）
+-- host 指定 host（默认 0.0.0.0）
+-- port 指定 port （默认 8080）
+-- https 使用 https （默认 false）
+```
+
+除了通过命令行参数，也可以使用 vue.config.js 里的 `dev.Server` 字段配置开发服务器。
+
+命令行参数 [ entry ] 将被指定为唯一接口，而非额外的追加入口。尝试用[ entry ]覆盖  config.pages 中的 entry 将可能引发错误。
+
+## vue-cli-service build
+```json
+// 命令行参数
+vue-cli-service build [options] [entry|pattern]
+
+options:
+-- mode 指定环境模式（默认 development）
+-- dest 指定输出目录 （默认 dest）
+-- report 生成 report.html 以帮助分析包内容
+-- report-json 生成 report.json 以帮助分析包内容
+-- watch 监听文件变化
+-- modern 使用现代模式构建应用，为现代浏览器交付原生支持的ES2015代码，并生成一个兼容老浏览器的包用来自动回退
+```
+
+`vue-cli-service build` 会在 `dist/`目录下产生一个可用于生产环境的包，带有html/css/js的压缩，和为更好的缓存而做的自动的 **vendor chunk splitting**，它的 chunk manifest 会内联在html里。 
+
+## 查看所有的可用命令
+有些应用，如@vue/cli-plugin-eslint 会注入 `vue-cli-service lint`命令。
+
+查看所有注入的命令：`npx vue-cli-service help`
+
+学习每个命令可用的选项：`npx vue-cli-service help [command]`
+## 缓存和并行处理
+- `cache-loader` 默认为Vue/Babel/TypeScript编译开启。文件缓存在 node_modules/.cache中。如果遇到了编译方面的问题，记得先删掉缓存目录后再看
+- `thread-loader` 在多核CPU的机器上为Babel/TypeScript转译开启。
+
+通过 Vue CLI 创建的项目让你无需 eject 就能够配置工具的几乎每个角落
