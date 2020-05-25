@@ -295,53 +295,6 @@ firefox，opera和IE，使用collapse值和使用display：none没有什么区�
 ## 实践及优化
 - CSS三行省略
 - CSS硬件加速
--  如何居中div？如何居中一个浮动元素？如何让绝对定位的div居中？如何实现水平居中和垂直居中？
-
-```css
-div：
-border: 1px solid red;
-**margin: 0 auto; **
-height: 50px;
-width: 80px;
-浮动元素的上下左右居中：
-
-border: 1px solid red;
-float: left;
-position: absolute;
-width: 200px;
-height: 100px;
-left: 50%;
-top: 50%;
-margin: -50px 0 0 -100px; 
-绝对定位的左右居中：
-
-border: 1px solid black;
-position: absolute;
-width: 200px;
-height: 100px;
-margin: 0 auto;
-left: 0;
-right: 0; 
-```
-
-还有更加优雅的居中方式就是用flexbox
-```css
-.center {
-    display:flex;
-    justify-content: center;
-}
-```
-- 用纯CSS创建一个三角形的原理是什么？
-首先，需要把元素的宽度、高度设为0。然后设置边框样式。
-
-```css
-width: 0;
-height: 0;
-border-top: 40px solid transparent;
-border-left: 40px solid transparent;
-border-right:40px solid transparent;
-border-bottom: 40px solid #ff0000;
-```
 
 -  一个满屏品字布局如何设计?
 第一种真正的品字：
@@ -352,62 +305,9 @@ border-bottom: 40px solid #ff0000;
 第二种全屏的品字布局:
 上面的div设置成100%，下面的div分别宽50%，然后使用float或者inline使其不换行。
 
-- 一个页面上两个div左右铺满整个浏览器
-要保证左边的div一直为100px，右边的div跟随浏览器大小变化（比如浏览器为500，右边div为400，浏览器为900，右边div为800），请写出大概的css代码。
-
-    1.使用flex
-
-```html
-	//html
-	<div class='box'><div class='left'></div> <div class='right'></div></div>
-```
-```css
-	//css
-	.box {
-    width: 400px;
-    height: 100px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    border: 1px solid #c3c3c3;
-	}
-	.left {
-    flex-basis：100px;
-    -webkit-flex-basis: 100px;
-    /* Safari 6.1+ */
-    background-color: red;
-    height: 100%;
-	}
-	.right {
-    background-color: blue;
-    flex-grow: 1;
-	}
-
-    2.浮动布局
-
-	<div id="left">Left sidebar</div>
-	<div id="content">Main Content</div>
-
-	<style type="text/css">
-	* {
-    margin: 0;
-    padding: 0;
-	}
-	#left {
-    float: left;
-    width: 220px;
-    background-color: green;
-	}
-	#content {
-    background-color: orange;
-    margin-left: 220px;
-    /*==等于左边栏宽度==*/
-	}
-	</style>
-```
-
 - grid布局
 table布局的作用
+<<<<<<< HEAD
 实现两栏布局有哪些方法？
 css布局问题？css实现三列布局怎么做？如果中间是自适应又怎么做？
 流式布局如何实现，响应式布局如何实现
@@ -501,6 +401,8 @@ e.g.
 ```
 
 
+=======
+>>>>>>> 3a213e11741f733a89c4b15d90527d59d82d10b0
 
 9 CSS3有哪些新特性？
 RGBA和透明度
@@ -545,7 +447,6 @@ Chrome 中文界面下默认会将小于 12px 的文本强制按照 12px 显示,
 
 29 元素竖向的百分比设定是相对于容器的高度吗？
 当按百分比设定一个元素的宽度时，它是相对于父容器的宽度计算的，但是，对于一些表示竖向距离的属性，例如 padding-top , padding-bottom , margin-top , margin-bottom 等，当按百分比设定它们时，依据的也是父容器的宽度，而不是高度。
-padding百分比是相对于父级宽度还是自身的宽度
 
 30 全屏滚动的原理是什么？用到了CSS的哪些属性？
 原理：有点类似于轮播，整体的元素一直排列下去，假设有5个需要展示的全屏页面，那么高度是500%，只是展示100%，剩下的可以通过transform进行y轴定位，也可以通过margin-top实现
