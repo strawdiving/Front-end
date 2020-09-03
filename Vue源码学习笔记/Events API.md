@@ -1,3 +1,5 @@
+Vue的事件机制
+
 # Vue Events API
 Vue.js提供了四个实例方法/事件API，$on, $off, $once, $emit。
 事件的初始化在`/src/core/instance/events.js`中。
@@ -18,7 +20,7 @@ export function initEvents (vm: Component) {
 ```
 初始化事件在vm上创建一个_events对象，用于存放事件，_events的格式：
 ```javascript
-{ 
+{
     // eventName:事件名，string
     eventName: [cb1,cb2,cb3,...]
 }
@@ -30,7 +32,7 @@ export function initEvents (vm: Component) {
   - { string | Array<string> } event，事件名或事件名数组
   - { Function } callback，事件的回调函数
 - 用法：
-  
+
   监听当前实例上的自定义事件，事件可以由`vm.$emit`触发。回调函数会接收所有传入事件触发函数的额外参数。
 ```javascript
 /*
@@ -45,7 +47,7 @@ Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Comp
         vm.$on(event[i], fn)
       }
     } else {
-    // 将事件加入_events中 
+    // 将事件加入_events中
       (vm._events[event] || (vm._events[event] = [])).push(fn)
       // optimize hook:event cost by using a boolean flag marked at registration
       // instead of a hash lookup
@@ -70,7 +72,7 @@ vm.$emit('test','hi')
   - { string } event，事件名
   - { Function } callback，事件的回调函数
 - 用法：
-  
+
   监听一个自定义事件，但是只触发一次。一旦触发之后，监听器就会被移除。
 
 ```javascript
@@ -92,7 +94,7 @@ Vue.prototype.$once = function (event: string, fn: Function): Component {
   - { string | Array<string> } event，事件名或事件名数组
   - { Function } callback，事件的回调函数
 - 用法：
-  
+
   移除自定义事件监听器。
   - 如果没有提供参数，则移除所有的事件监听器
   - 如果只提供了事件，则移除该事件所有的监听器

@@ -41,7 +41,7 @@ notify () {
     if (this.lazy) {
       this.dirty = true
     }
-    // 同步，则直接运行run渲染视图 
+    // 同步，则直接运行run渲染视图
     else if (this.sync) {
       this.run()
     } else {
@@ -90,3 +90,5 @@ export function queueWatcher (watcher: Watcher) {
   }
 }
 ```
+
+vue.nextTick实现原理

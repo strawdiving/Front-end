@@ -1,69 +1,3 @@
-## 跨域
-同源策略(same-origin policy)，限制了从同一个源加载的文档或脚本如何与来自另一个源的资源进行交互，用来隔离潜在恶意文件。
-
-同源是指：“协议+域名+端口”三者相同，即使两个相同的域名指向同一个IP，也非同源。
-浏览器中大部分内容都是受同源策略限制，但三个标签可以不受限制：`img，link，script`
-
-## 如何实现跨域
-1. image PING
-
-2. 通过jsonp跨域，JSONP 的工作原理，以及它为什么不是真正的 Ajax
-jsonp的实现（要代码）方式；带超时，带防重名的 JSONP 的实现
-后台响应头要加什么；
-
-jsonp利用script标签不受同源策略限制的特性进行跨域操作。实现简单，兼容性好；
-缺点：只支持get请求，script只能get；易受xss攻击；需要服务端配合jsonp进行一定程度改造。
-
-实现：
-```javascript
-function JSONP({url,params,callbackKey,callback}) {
-  window.jsonpCallback = callback
-  const paramKeys = Object.keys(params)
-  const paramString = paramKeys.map(key=>`${key} = ${params[key]}`).join('&'))
-
-  const script = document.createElement('script')
-  script.setAttribute('src','$(url).?${paramString}')
-  document.body.appendChild(script)
-}
-JSONP({url:'http://sss.weibo.com',
-params: {key: 'test'},
-callbackKey: '_cb',
-callback(result) {console.log(result.data)} });
-```
-3. CORS,目前主流的跨域解决方案
-用额外的HTTP头来告诉浏览器一个origin/domain上的web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从和该资源所在server不同的域请求一个资源时，资源会发起一个跨域HTTP请求。
-如果用express，可以这样在后端设置：
-```javascript
-var allowCrossDomain = function(req,res,next) {
-	res.header('Access-Control-Allow-Origin','http://example.com');
-	res.header('Access-Control-Allow-Methods','GET,PUT,POST,DELETE');
-	res.header('Access-Control-Allow-Headers','Content-Type');
-     
-	next()
-}
-
-app.configure(function() {
-	...
-	app.use(express.session({secret: 'cool beans'});
-	app.use(allowCrossDomain));
-	...
-})
-```
-4. nginx反向代理,优点是轻量级，启动快，高并发。
-我们用node开发的服务通常都要经过nginx的反向代理。
-
-反向代理的原理：所有client的请求都必须先经过nginx的处理，nginx作为代理服务器再将请求转发给node服务，这样就规避了同源请求。不用目标服务器配合.
-
-5. Websocket,websocket的工作原理和机制
-一次http请求，目的是建立websocket通信，建立连接之后，Websocket的c和s都能主动向对方发送和接收数据，之间的通信和HTTP无关了，因此可以跨域。
-6. 使用HTML5中新引进的window.postMessage方法来跨域传送数据（ie 67 不支持）
-允许来自不同源的脚本采用异步方式进行有限的通信。可以跨文档，多窗口，跨域消息传递。
-
-- 页面访问Cookie的限制条件
- 1）跨域问题
- 2）设置了HttpOnly
-- web端cookie的设置和获取,cookie 结构有什么字段
-
 ### 前端如何实现即时通讯
 - Long-Polling、Websockets 和 Server-Sent Event 之间有什么区别？
 1. 短轮询：每隔一段时间客户端就发出一个请求，去获取server最新的数据，一定程度模拟了即时通讯
@@ -75,8 +9,6 @@ app.configure(function() {
 缺点：基于文本传输效率没有websocket高，不是严格的双向通信，client向server发送请求，无法复用之前的连接，需要重新发独立的请求。
 4. Websocket（双向通信）
 全新的，独立的协议，基于TCP协议，和http兼容，不融入http。作用是建立全双工，持久化通信。
-
-websocket的工作原理和机制
 
 web worker,为Javascript创造多线程环境，允许主线程创建Worker线程，将一些任务分配给后者执行。
 Service Workers，本质上充当Web应用程序与client之间的代理服务器，也可在网络可用时充当网络和浏览器之间的代理，创建有效的离线体验。
@@ -98,12 +30,12 @@ HTTP是纯粹的文本协议，它是使用 TCP 协议来传输文本格式的�
 3）空行
 4）body 响应体：服务器响应的数据
 ## HTTP Method方法
-HTTP1.0: 
+HTTP1.0:
 - GET，请求server发送资源，浏览器通过地址访问页面都是GET
 - POST，发送数据给server，表单提交产生POST
 - HEAD：和GET类似,只返回请求资源的头部信息，多数由JS发起，使用场景之一：下载一个大文件之前先获取其大小再决定是否要下载，以节约带宽
 
-HTTP1.1: 
+HTTP1.1:
 - PUT：添加资源，或用请求中的有效负载更新目标资源
 - DELETE：删除资源
 上述2者只是语义的约束，没有强约束
@@ -255,26 +187,15 @@ PUT是直接覆盖资源，局部修改时会带很多无用信息。
 ## HTTP Request Body请求体
 主要用于提交表单场景，只要发送的body服务器端认可就行。常见的格式：application/json,application/x-www-form-urlencoded（form标签提交产生的请求）,multipart/form-data（文件上传）,text/xml
 
-## 完整描述从输入 URL 到整个网页加载完毕及显示在屏幕上的整个流程。
-输入地址
-- 浏览器查找域名的 IP 地址
-- 这一步包括 DNS 具体的查找过程，包括：浏览器缓存->系统缓存->路由器缓存…
-- 浏览器向 web 服务器发送一个 HTTP 请求
-- 服务器的永久重定向响应（从 http://example.com 到 http://www.example.com）
-- 浏览器跟踪重定向地址
-- 服务器处理请求
-- 服务器返回一个 HTTP 响应
-- 浏览器显示 HTML
-- 浏览器发送请求获取嵌入在 HTML 中的资源（如图片、音频、视频、CSS、JS等等）
-- 浏览器发送异步请求
 
-## dns解析原理，输入网址后如何查找服务器
-## HTTPS
-HTTPS有两个作用：一是确定请求的目标服务端身份，二是保证传输的数据不会被网络中间节点窃听或篡改。
+### 一个tcp连接能发几个http请求？
+HTTP1.0版本，一般不支持长连接，每次请求发完，TCP连接就会断开，因此一个TCP连接发送一个HTTP请求；
+但是有种情况可以将一条TCP连接保持在活跃状态，通过Connection和Keep-Alive首部，在请求头带上Connection:Keep-Alive，并且可以通过Keep-Alive通用首部中指定的，用逗号分隔的选项调节Keep-Alive的行为，如果客户端和服务端都支持，可以发送多条。但该方式有限制（HTTP权威指南4.5.5对于Keep-Alive连接的限制和规则）
 
-HTTPS是使用加密通道来传输HTTP的内容。HTTPS首先与服务端建立一条TLS加密通道，TLS构建于TCP协议之上，实际上是对传输的内容做一次加密，所以传输内容跟HTTP没有任何区别。
-14. http有几次挥手和握手？TLS的中文名？TLS在哪一网络层？https（对是https）有几次握手和挥手？https协议的过程,获取加密密钥的过程。都说要减少 https 的请求，https 为什么慢 ？
-## HTTP2 与http1 的区别
+HTTP1.1支持了长连接，只要TCP连接不断开，就可以一直发HTTP请求，持续不断，没有上限。
+
+HTTP2.0,支持多连接复用，一个TCP请求可以并发多个HTTP请求，同样也支持长连接，只要不断开TCP，HTTP请求数也可以无上限地持续发送。
+
 最大的改进有2点：一是支持服务端推送，二是支持TCP连接复用
 - 服务器推送
 在客户端发送第一个请求到服务端时，提前把一部分内容推送给客户端，放入缓存当中，避免客户端请求顺序带来的并行度不高，从而导致的性能问题。
@@ -283,7 +204,7 @@ server可以在发送HTML时主动推送其它资源（如JS和CSS文件），�
 
 server可以主动推送，client也有权利选择是否接收。如果server推送的资源已被浏览器缓存过，client可以发送RST_STREAM来拒收。主动推送也遵循同源策略，不会推送第三方资源给client
 
-- TCP连接复用（持久连接，管线化）
+- TCP连接复用（持久连接，管线化）HTTP2是如何实现多路复用的？
 使用一个TCP连接来传输多个HTTP请求，避免TCP连接时产生的三次握手开销，和创建TCP连接时传输窗口小的问题。
 
 HTTP1中，想并发多个请求，必须使用多个TCP连接，浏览器为了控制资源，还会对单个域名有6-8个TCP连接请求限制
@@ -304,60 +225,92 @@ HTTP1在请求和响应中重复地携带不常改变的、冗长的头部数据
 2. 首部表在连接存续期内始终存在，由c和s端共同维护
 3. 每个新的首部键值对要么被追加到当前表末尾，要么替换表中之前的值（只发送差异数据，从而减少头部信息量）
 
-
-
-## TCP,UDP
-1. TCP连接的特点，TCP连接如何保证安全可靠的？
-2. 为什么tcp要三次握手四次挥手？tcp的三次握手和四次挥手画图（当场画写ack 和 seq的值）？
-3. tcp与udp的区别
-4. 域名解析时是tcp还是udp
-5. 域名发散和域名收敛
-3. 什么是tcp流，什么是http流
-
 9. 服务器如何知道你？
-## 前端安全
-1. xss，csrf…攻击原理及防范措施
-2. 接口攻击的方式和防御措施，DOS
-### 浏览器缓存，强缓存和协商缓存（从200缓存，到cache到etag再到）
-1. client向server请求资源
-2. server返回资源，并通过**响应头决定缓存策略**
-3. client根据响应头的缓存决策决定是否缓存资源，如果要缓存，就将响应头与资源缓存下来
-4. 在client再次请求并命中资源时，此时client会去检查上次的缓存策略，根据策略的不同，是否过期等决定是直接读取本地缓存，还是和server协商缓存
 
-**强缓存：**
-离不开响应头Cache-Control和Expires
-- Cache-Control，优先级高于Expires，
-`Cache-Control:max-age =3145250450`，用max-age控制过期时间（相对时间）
-- Expires，表示过期时间（绝对时间），受限于本地时间，如果修改了本地时间，可能导致缓存失效
+**跨域&跨站**
+跨站和跨域是不同的，同站same-site和跨站cross-site，第一方first-party和第三方third-party是等价的，而和浏览器同源策略中的同源same-origin和跨域cross-origin是完全不同的
 
-1. 如果是no-store，不产生任何缓存，不能重用缓存的资源
-2. 如果是no-cache，缓存每次都生效，先缓存本地，但命中缓存后必须与server验证缓存的新鲜度
-3. 看能否被中继缓存，public被所有用户缓存,包括中继缓存server，private只能被终端浏览器缓存
-4. 再判断max-age，如果超过了最大缓存时间，在缓存有效期内命中缓存，则直接读取本地的缓存资源；过期之后和server协商缓存
+同源策略： 同源是指两个URL的协议、主机名、端口都一致，比较严格
+Cookie的同站：只要两个URL的eTLD+1相同即可（eTLD表示有效顶级域名，如.github.io,.com，eTLD+1则表示，有效顶级域名+二级域名，如taobao.com等
 
-**协商缓存：**
-当第一次请求时server的响应头中没有Cache-Control和Expires，或者过期，或者为no-cache时，则浏览器第二次请求时就会与服务器协商
+www.taobao.com 和 www.baidu.com 是跨站，www.a.taobao.com 和 www.b.taobao.com 是同站，a.github.io 和 b.github.io 是跨站(注意是跨站)。
 
-1. 如果缓存和server中资源最新版本一致，就无需下载该资源，直接返回304 Not Modified
-2. 如果浏览器中的缓存已经是旧版本，server就会把最新资源的完整内容返回，状态码200
+接下来看下从 None 改成 Lax 到底影响了哪些地方的 Cookies 的发送？
+对大部分 web 应用而言，Post 表单，iframe，AJAX，Image 这四种情况从以前的跨站会发送三方 Cookie，变成了不发送。
 
-判断缓存是否新鲜：
+Post表单：应该的，学 CSRF 总会举表单的例子。
 
-1. Last-Modified/If-Modified-Since
-client首次请求资源时，server会把资源的最新修改时间Last-Modified通过响应首部发送给client，再次发送请求时，client将server返回的修改时间放在请求头If-Modified-Since中发给server，server再跟对应资源进行比对，如果资源更新了，200，如果资源是最新的，返回304，表示客户端直接用缓存即可
-2. ETag/If-None-Match
-类似，Etag是根据资源内容进行hash，生成一个信息摘要，只要资源有变化，ETag就发生巨变，通过摘要信息比对，就可确定缓存是否为最新，精确度更高。
+iframe：iframe 嵌入的 web 应用有很多是跨站的，都会受到影响。
 
-流程如下：
-1. 用户请求资源，判断是否存在缓存
-2. 如果不存在，向server请求资源
-3. server响应请求，缓存协商，返回展示资源
-4. 如果存在缓存，判断缓存是否过期，如果未过期则直接使用缓存，返回展示资源
-5. 如果缓存过期（Expires，Cache-Control:max-age），进行协商缓存
-6. 先判断ETag，向服务器请求If-None-Match，根据返回200还是304,判断是否读取本地缓存
-7. 如果没有ETag，判断Last-Modified，向服务器请求If-Modified-Since，根据200还是304判断
+AJAX：可能会影响部分前端取值的行为和结果。
 
-10. session
+Image：图片一般放 CDN，大部分情况不需要 Cookie，故影响有限。但如果引用了需要鉴权的图片，可能会受到影响。
 
-11. 一个 XMLHttpRequest 实例有多少种状态？
+除了这些还有 script 的方式，这种方式也不会发送 Cookie，像淘宝的大部分请求都是 jsonp，如果涉及到跨站也有可能会被影响。
+问题
+
+我们再看看会出现什么的问题？举几个例子：
+
+    天猫和飞猪的页面靠请求淘宝域名下的接口获取登录信息，由于 Cookie 丢失，用户无法登录，页面还会误判断成是由于用户开启了浏览器的“禁止第三方 Cookie”功能导致而给与错误的提示
+
+    淘宝部分页面内嵌支付宝确认付款和确认收货页面、天猫内嵌淘宝的登录页面等，由于 Cookie 失效，付款、登录等操作都会失败
+
+    阿里妈妈在各大网站比如今日头条，网易，微博等投放的广告，也是用 iframe 嵌入的，没有了 Cookie，就不能准确的进行推荐
+
+    一些埋点系统会把用户 id 信息埋到 Cookie 中，用于日志上报，这种系统一般走的都是单独的域名，与业务域名分开，所以也会受到影响。
+
+    一些用于防止恶意请求的系统，对判断为恶意请求的访问会弹出验证码让用户进行安全验证，通过安全验证后会在请求所在域种一个Cookie，请求中带上这个Cookie之后，短时间内不再弹安全验证码。在Chrome80以上如果因为Samesite的原因请求没办法带上这个Cookie，则会出现一直弹出验证码进行安全验证。
+
+    天猫商家后台请求了跨域的接口，因为没有 Cookie，接口不会返回数据
+
+    ……
+
+解决方案就是设置 SameSite 为 none。
+
 - 抓包知识，调试
+
+http content-type 有哪几种，有什么区别
+http1.1时如何复用tcp连接
+Http报文的请求会有几个部分
+介绍下HTTP状态码
+403、301、302是什么
+说一下200和304的理解和区别
+
+- get和post有什么区别?什么情况下用到?
+
+(1) GET请求在浏览器回退和刷新时是无害的，而POST请求会告知用户数据会被重新提交；
+(2) GET请求可以收藏为书签，POST请求不可以收藏为书签；
+(3) GET请求可以被缓存，POST请求不可以被缓存；
+(4) GET请求只能进行url编码，而POST请求支持多种编码方式。
+(5) GET请求的参数可以被保留在浏览器的历史中，POST请求不会被保留；
+(6) GET请求长度有限制，发送数据时，GET请求向URL添加数据，URL长度是有限制的，最大长度是2048个字符，POST请求无长度限制；
+(7) GET请求只允许ASCII字符，POST请求无限制，支持二进制数据；
+(8) GET请求的安全性较差，数据被暴露在浏览器的URL中，所以不能用来传递敏感信息，POST请求的安全性较好，数据不会暴露在URL中；
+(9) GET请求具有幂等性(多次请求不会对资源造成影响)，POST请求不幂等；
+(10) GET请求会产生一个TCP数据包，POST请求会产生两个TCP数据包，因为GET请求会将http header和data数据一并发送出去，而POST请求会先发送http header数据，服务端响应100(continue)，然后POST请求再发送http data数据，服务端再响应200返回数据。
+
+Post一个file的时候file放在哪的？
+HTTP Response的Header里面都有些啥？
+
+Http请求的过程与原理
+HTTP 请求——GET 和 POST 以及相关标头，如 Cache-Control、ETag、Status Codes 和 Transfer-Encoding；
+浏览器向服务器发送请求，相应数据包被拦截怎么办
+http缓存控制
+缓存相关的HTTP请求头
+性能优化为什么要减少 HTTP 访问次数？
+http有几次挥手和握手？
+REST 与 RPC；
+
+从浏览器里访问一个地址，从网络的 tcp/ip 协议、聊到操作系统 io、内存管理、进程管理和文件管理，再聊到负载均衡、限流算法、分布式事务，相比之下前端真的简单很多，不过知识储备多肯定是有用的。
+
+HTTP 首部（Header）和实体（Body）的分隔符是什么，用正则如何匹配
+HTTP请求报文和响应报文的具体组成，能理解常见请求头的含义，有几种请求方式，区别是什么
+- HTTP 报文
+  请求行 + 头部信息 + 空白行 + body  有被问到说空白行的意义，我一直以为就是纯粹来标识 headers 的结束，但是面试官说不止这个功能，我后面看了HTTP 权威指南 也没有找到，Stack Overflow 也没找到。。。希望有人知道可以跟我说一下。
+HTTP所有状态码的具体含义，看到异常状态码能快速定位问题
+HTTP 状态码：301、302、307 的区别
+
+如何实现 Tab（标签）页之间，客户端与服务器的实时通讯
+
+5. CDN的作用和原理
+

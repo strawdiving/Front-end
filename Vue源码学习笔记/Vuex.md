@@ -170,7 +170,7 @@ mutations: {
     increment (state, payload) {
         state.count+= payload.amount
     }
-} 
+}
 ```
 
 更改store的状态的唯一方法是 提交mutation。通过提交mutation的方式，而非直接改变状态，是为了能明确地追踪到状态的变化，以及实现一些能记录每次状态改变、保存状态快照的调试工具。
@@ -363,7 +363,7 @@ const store = new Vuex.Store({
 如果希望使用全局state和getter， `rootState和rootGetters`会作为第三和第四参数传入getter，也会通过context对象的属性传入action。
 
 若要在全局命名空间内分发action或提交mutation，将 `{root: true}`作为第三参数传给dispatch 或 commit 即可。
-```javascript 
+```javascript
 // 在模块中， dispatch 和 commit 也被局部化了
 // 他们可以接受 `root` 属性以访问根 dispatch 或 commit
 dispatch('someOtherAction', null, { root: true }) // -> 'someOtherAction'
@@ -452,7 +452,23 @@ mutations必须是同步操作，同步的意义在于，每一个mutation执行
 
 mutations是可以发异步请求的，但是不推荐，因为devtools拿到的是mutation执行完毕时的快照snapshots，而如果是异步的话，拿不到你想要的快照，devtools就看不到所谓的时间旅行了，所以用action处理异步，拿到异步的结果后，触发mutation，更改state
 
-2. vuex底层流程和实现原理以及数据流向
+2. vuex底层流程和实现原理以及数据流向,vuex的工作流
 Vuex的响应式原理
 js实现依赖注入
-Redux/Vuex区别
+聊聊 Redux 和 Vuex 的设计思想,Redux/Vuex区别
+
+- vuex有哪几种属性及其使用
+有五种，分别是 State、 Getter、Mutation 、Action、 Module
+state, getters, mutations, actions, modules
+
+vuex: 状态管理: 数据仓库store
+
+       辅助函数mapState等..., 仓库中计算属性的映射, 方便操作
+
+       记住在 store.js 和 组件中 使用方式
+
+如何设计状态树
+
+对vuex的看法
+为什么 Vuex 的 mutation 和 Redux 的 reducer 中不能做异步操作？
+双向绑定和 vuex 是否冲突

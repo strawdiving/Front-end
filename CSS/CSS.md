@@ -67,7 +67,7 @@ eg. a[href^="http://"]
 <a href="#signupForm">Sign up</a>
 <form id="signupForm">
 <input type="email" id="email"/>
-</form> 
+</form>
 //单击链接时，后面的表单会成为目标
 ```
 - **:not()选择符** 否定伪类，用于选择不符合指定条件的标签
@@ -98,6 +98,9 @@ eg. a[href^="http://"]:not(href^="http://mysite.com") 选取绝对地址不是my
 继承得到的样式的优先级最低。
 
 然后，根据选择器的特殊性决定规则的次序，具有更特殊选择器的规则优于具有一般选择器的规则。如果两个规则的特殊性相同，则后定义的规则优先。
+
+!important > 行内样式 > id选择器 > class选择器 > 标签选择器 > * > 继承 > 默认
+
 #### 特殊性（specificity）
 为了计算规则的特殊性，给每种选择器都分配一个数字值，然后，将规则的每个选择器的值加在一起，计算出规则的特殊性。特殊性的计算不是以10为基数的，而是采用一个更高的未指定的基数，这确保非常特殊的选择器（比如ID）不会被大量一般选择器所超越。但是，为了简化，如果在一个特定选择器中的选择器数量少于10个，则可以以10为基数计算特殊性。
 值越大，特殊性越高，优先级越高。
@@ -108,7 +111,7 @@ eg. a[href^="http://"]:not(href^="http://mysite.com") 选取绝对地址不是my
 - b 等于ID选择器的总数
 - c 等于类、伪类和属性选择器的数量
 - d 等于类型选择器和伪元素选择器的数量
-优先级（就近原则）：!important >内联> [ id > class > tag ] 
+优先级（就近原则）：!important >内联> [ id > class > tag ]
 
 | 选择器      |     特殊性 |   以10为基数的特殊性   |
 | :-------- | --------:| :------: |
@@ -159,6 +162,11 @@ ID用于标识页面上的特定元素，而且必须是唯一的。
     - display的值为inline-block、table-cell、table-caption、flex
     - position的值为absolute或fixed
     作用是防止margin重叠，两栏布局，防止文字环绕，防止元素塌陷等。
+
+介绍下 BFC、IFC、GFC 和 FFC，
+- BFC概念，实现原理，如何触发/创建 ，怎么应用，可以解决哪些问题
+bfc (set middle area overflow is hidden)
+
 8. 有哪些的隐藏内容的方法 (如果同时还要保证屏幕阅读器可用呢)
 
 9. 你用过栅格系统 (grid system) 吗？如果使用过，你最喜欢哪种？介绍一下bootstrap的栅格系统是如何实现的？
@@ -175,10 +183,12 @@ CSS : @media only screen and (max-device-width:480px) {/css样式/}
 13. 举例 @media 属性除了screen?
 写高效的CSS的“陷阱”
 14. 使用 CSS 预处理器的优缺点有哪些？请描述你曾经使用过的 CSS 预处理器的优缺点。
-    Less sass
+一般回答 变量 / 嵌套 / 自动前缀 / 条件语句 / 循环语句
+    PostCSS、 Sass、 Less的异同，以及使用配置，至少掌握一种
     - 按照一定的逻辑， 把css代码分到了多个较小的文件中， 在做预处理时会自动把多个较小的文件合并成一个CSS文件，以便提升加载速度。还能压缩最终得到的CSS文件。
     - 可以轻易更新共用的值
-    - 编写的代码量更少。用Sass混入，只需编写一行代码，Sass会将其转换成所有带厂商前缀的版本。此外，如果发现要在多个不同的样式中使用相同的CSS属性，可以让Sass自动添加那一部分代码。 
+    - 编写的代码量更少。用Sass混入，只需编写一行代码，Sass会将其转换成所有带厂商前缀的版本。此外，如果发现要在多个不同的样式中使用相同的CSS属性，可以让Sass自动添加那一部分代码。
+
 15. 如果设计中使用了非标准的字体，你该如何去实现？
     Web浏览器支持Web字体——访问网站时浏览器下载的字体。Web字体也使用font-family属性设置，不过除此以外还要使用一个CSS命令——@ font-face，该指令的作用是告诉Web浏览器从哪儿下载Web字体。
     **使用Web字体**
@@ -216,7 +226,7 @@ font-face {
 font-face {
     font-family:'League Gothic';
     src: url('fonts/Legue_Gothic-webfont.woff2') format('woff2'),
-         url('fonts/Legue_Gothic-webfont.woff') format('woff'); 
+         url('fonts/Legue_Gothic-webfont.woff') format('woff');
     font-weight: bold;
     font-style: italic;
 }
@@ -228,11 +238,16 @@ font-face {
 23. 你在开发或生产环境中使用过哪些 CSS 框架？你觉得应该如何改善他们
 
 24. 解释您对盒子模型的理解，以及如何告诉CSS浏览器在不同的盒子模型中呈现布局。
+    以及标准情况和IE下的区别
+
     对文档进行布局时，浏览器的渲染引擎会根据标准之一的CSS基础框盒模型（basic box model），将所有元素表示为一个个矩形的盒子，CSS决定盒子的大小，位置，属性。
 
-    盒模型由content，padding，border，margin组成。
-    标准盒模型的width，height为content的宽高，默认使用标准盒模型。box-sizing = content-box
+    指的是页面在渲染时，DOM元素所采用的布局模型，一个元素占用的空间大小由几个部分组成，内容(content)、内边距(padding)，边框(border)和外边距(margin)。可以通过 box-sizing来进行设置，其中IE盒模型的content包含了padding和border，这是区别于W3C标准盒模型的地方。
 
+    盒模型由content，padding，border，margin组成。
+
+    盒模型之box-sizing，请解释*{box-sizing:border-box;}的作用，并说明使用它的好处
+    标准盒模型的width，height为content的宽高，默认使用标准盒模型。box-sizing = content-box
     将box-sizing属性设为 border-box，设置属性使用的时候更方便
 24. 新的CSS Flexbox 或者 Grid 标准规格？
     web应用有不同设备尺寸和分辨率，需要响应式界面设计来满足复杂的布局需求，flexbox的优势在于，只要声明布局应该有的行为，而不要给出具体的实现方式，浏览器负责完成实际布局。
@@ -273,16 +288,16 @@ firefox，opera和IE，使用collapse值和使用display：none没有什么区�
 参数是auto时候，子元素内容大于父元素时出现滚动条。
 参数是visible时候，溢出的内容出现在父元素之外。
 参数是hidden时候，溢出隐藏。overflow:hidden有什么缺点？
-34. CSS 3 如何实现旋转图片（transform: rotate）
 35. link和@import引入css的区别
-36. css dpi
-38. css3动画，transition和animation的区别，animation的属性，加速度，重力的模拟实现
 39. css 单行和多行截断
-40. CSS中的长度单位（px,pt,rem,em,ex,vw,vh,vh,vmin,vmax）
+40. CSS中的长度单位（px,pt,rem,em,ex,vw,vh,vh,vmin,vmax），em和px的区别，em、 rem的原理和用法，rem、flex的区别（root em）
     px是像素值，与浏览器的设置完全无关。
     em——相对于父元素的值，1em，和父元素相同，nem，是父元素属性的n倍
     rem——相对于根元素< html>，如果没有设置，将以16px为基准，2rem=32px
     percentage 指定为包含块的宽度、高度的百分比
+
+rem布局的优缺点
+
 41. CSS 的加载是异步的吗？表现在什么地方？
 42. clearfix css属性如何有用
 43. * { box-sizing: border-box; }作用及优势
@@ -293,116 +308,8 @@ firefox，opera和IE，使用collapse值和使用display：none没有什么区�
 48. 您将如何解决特定于浏览器的样式问题
 49. float，以及它们是如何工作的
 ## 实践及优化
-- CSS三行省略
+
 - CSS硬件加速
-
--  一个满屏品字布局如何设计?
-第一种真正的品字：
-三块高宽是确定的；
-上面那块用margin: 0 auto;居中；
-下面两块用float或者inline-block不换行；
-用margin调整位置使他们居中。
-第二种全屏的品字布局:
-上面的div设置成100%，下面的div分别宽50%，然后使用float或者inline使其不换行。
-
-- grid布局
-table布局的作用
-<<<<<<< HEAD
-实现两栏布局有哪些方法？
-css布局问题？css实现三列布局怎么做？如果中间是自适应又怎么做？
-流式布局如何实现，响应式布局如何实现
-移动端布局方案
-实现三栏布局（圣杯布局，双飞翼布局，flex布局）
-上中下三栏布局 
-双栏固定布局
-
-## flex样式
-flex属性是`flex-grow`,`flex-shrink`,`flex-basis`的缩写。只有flex-basis的属性值是长度值。
-flex-grow, flex-shrink, flex-basis的默认值是`flex: 0 1 auto`。
-
-```css
-flex: none | auto | [<'flex-grow'> <'flex-shrink'>? || <'flex-basis'>]
-```
-1. |，单管道符，表示排他，即不能同时出现，所以只有以下三种：
-```css
-flex: none;
-flex: auto;
-flex: [<'flex-grow'> <'flex-shrink'>? || <'flex-basis'>]
-```
-2. [...]，方括号表示范围，也就是支持的属性值在这个范围内，flex属性值支持空格分隔的3个值
-3. ？,问号表示0或1个，也就是 flex-shrink属性可有可无。
-4. ||, 双管道符，或的意思，表示前后可以分开独立使用
-
-所以 flex属性还可以有以下几种：
- ```css
- flex: 1; // 1个值，flex-grow，相当于 flex: 1 1 auto
- flex: 100px; // 1个值，flex-basis，相当于 flex: 0 1 100px
- flex: 1 100px; // 2个值，flex-grow和flex-basis，相当于 flex: 1  1 100px
- flex: 1 1; // 2个值，flex-grow和flex-shrink，相当于 flex: 1 1 auto
- flex: 1 1 100px; // 3个值
- ```
-
-### 关键字属性值
-- initial
-
-初始值，`flex: initial`关键字的计算值是 `flex: 0 1 auto`，即flex属性的默认值。 
-
-含义：1. 不会增长变大占据flex容器中额外的剩余空间（flex_grow:0）
-      2. 会收缩变小以适合容器（flex-shrink:1）。如果子项内容多的话，如果容器收缩的话，子项会缩小（例如，表现为文字换行）
-      3. 尺寸根据自身宽高属性进行调整（flex-basis:auto）
-- auto
-
-等同于设置 `flex: 1 1 auto`
-
-含义：1. 子项会变大，占据flex容器的剩余空间。每个子项元素的flex-grow都是1，因此会等比例变大。
-     2. 会收缩变小以适合容器（flex-shrink:1）
-     3. 尺寸根据自身宽高属性进行调整（flex-basis:auto）
-
-- none
-
-等同于设置 `flex: 0 0 auto`
-
-含义： 子项不会增大，也不会缩小，尺寸根据自身宽高属性进行调整。
-表现： 缩小时，子项宽度超过了容器的尺寸，子项的内容溢出到了容器外。
-
-### flex
-- flex-grow，指定了容器剩余空间多余时的分配规则，（增加变大），默认值为0，即多余空间不分配
-- flex-shrink，指定了容器剩余空间不足时的分配规则，（收缩变小），默认值为1，即空间不足要分配
-- flex-basis，指定了固定的分配数量，默认为auto。如果该属性未设置的时候，需要同时设置width或height属性
-
-e.g.
-范张，范鑫和范旭每人100万固定家产，范帅和范哥则20万保底家产。如果范闲归西那天家产还有富余，范帅和范哥按照3:2比例分配；如果没有剩余财产，则范张，范鑫和范旭三位兄长按照2:1:1的比例给两人匀20万保底家产。
-```html
-<div class="container">
-    <item clas="zhang">范张</item>
-    <item clas="xin">范鑫</item>
-    <item clas="xu">范旭</item>
-    <item clas="shuai">范帅</item>
-    <item clas="ge">范哥</item>
-</div>
-```
-
-```css
-.container {
-    display: flex;
-}
-.zhang {
-    flex: 0 2 100px; // 空间多余时不占用，空间不足时范张，范鑫，范旭 按照 2：1：1的比例分出部分空间给范帅和范哥
-}
-.xin, .xu {
-    flex: 0 1 100px; // 或 flex: 100px
-}
-.shuai {
-    flex: 3 0 20px; // 有多余宽度时 范帅和范哥 按 3：2分配多余宽度
-}
-.ge {
-    flex: 2 0 20px;
-}
-```
-
-
-=======
->>>>>>> 3a213e11741f733a89c4b15d90527d59d82d10b0
 
 9 CSS3有哪些新特性？
 RGBA和透明度
@@ -414,6 +321,9 @@ font-face属性：定义自己的字体
 边框图片：border-image: url(border.png) 30 30 round
 盒阴影：box-shadow: 10px 10px 5px #888888
 媒体查询：定义两套css，当浏览器的尺寸变化时会采用不同的属性
+- CSS3新特性，新增的选择器，伪类，伪元素，锚伪类，伪类和伪元素有哪些，它们的区别和实际应用
+解释一下“::before”和“:after”中的双冒号和单冒号的区别
+- CSS3中新增的属性, transform trasition animation等...
 
 13 常遇到的浏览器兼容性问题有哪些？常用的hack的技巧
 不同浏览器的标签默认的margin和padding不一样。
@@ -490,11 +400,43 @@ margin正值的时候 解决：margin使用负值
 41 有一个高度自适应的div，里面有两个div，一个高度100px，希望另一个填满剩下的高度
 外层div使用position：relative；高度要求自适应的div使用position: absolute; top: 100px; bottom: 0; left: 0
 
-42 png、jpg、gif 这些图片格式解释一下，分别什么时候用。有没有了解过webp？
+- 行内元素和块级元素的区别，对行内元素设置宽高有用吗，为什么对 img 标签起作用，对行内元素设置边距有效吗
+  span包含12px大小英文'abc',问span高度?baseline怎么理解?
+vertical-align & line-height
+vertical-align 为什么没有绝对垂直居中？
+line-height 的具体含义是什么？
+
+42 png、jpg、jpeg、gif 这些图片格式解释一下，分别什么时候用。有没有了解过webp？JPG,png，webp图片特点,场景，如何选择图片格式
+说说你对base64 URL 的了解
+
 png是便携式网络图片（Portable Network Graphics）是一种无损数据压缩位图文件格式.优点是：压缩比高，色彩好。 大多数地方都可以用。
 jpg是一种针对相片使用的一种失真压缩方法，是一种破坏性的压缩，在色调及颜色平滑变化做的不错。在www上，被用来储存和传输照片的格式。
 gif是一种位图文件格式，以8位色重现真色彩的图像。可以实现动画效果.
 webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，大小比png小了45%。缺点是压缩的时间更久了，兼容性不好，目前谷歌和opera支持。
+
+- 已知如下代码，如何修改才能让图片宽度为 300px ？注意下面代码不可修改。
+< img src="1.jpg" style="width:480px!important;”>
+- 为什么通常在发送数据埋点请求的时候使用的是 1x1 像素的透明 gif 图片？
+- 前端如何实现图片剪裁
+- CSS 3 如何实现旋转图片（transform: rotate）
+- 雪碧图,雪碧图实现原理
+
+43. 分析比较 opacity: 0、visibility: hidden、display: none 优劣和适用场景。
+  三种隐藏方式差别:visibility:hidden,display:none,opacity:0
+    渲染上的差异:
+    1.将元素设置为display:none后，元素在页面上将彻底消失，元素本来占有的空间就会被其他元素占有，也就是说它会导致浏览器的回流和重绘。
+    2.设置元素的visibility为hidden，和display:none的区别在于，元素在页面消失后，其占据的空间依旧会保留着，所以它只会导致浏览器重绘而不会回流。
+
+    3.opacity:0,只是看不到元素,元素依然存在并且占有原有位置. 注: 事件绑定的差异: 1、display:none：元素彻底消失，不会触发绑定的事件.
+    2、visibility:hidden：无法触发其点击事件，有一种说法是display:none是元素看不见摸不着，而visibility:hidden是看不见摸得着，这种说法是不准确的，设置元素的visibility后无法触发点击事件，说明这种方法元素也是消失了，只是依然占据着页面空间。
+    3、opacity:0：可以触发点击事件，设置元素透明度为0后，元素只是相对于人眼不存在而已，对浏览器来说，它还是存在的，所以可以触发绑定事件
+    动画属性的差异: 1、display:none：完全不受transition属性的影响，元素立即消失
+    2、visibility：hidden：元素消失的时间跟transition属性设置的时间一样，但是没有动画效果.
+    3、opacity:0,动画属性生效,能够进行正常的动画效果.
+
+44. 介绍css3中position:sticky
+
+45. inline和block元素列举,block和inline-block区别?内联元素包含块元素的表现？块元素和内联元素渲染区别?
 
 30. 规划、组织和维护样式表
      1. 对文档应用样式——将所有样式放在一个或多个外部样式表中，再将外部样式表附加到网页上（链接或导入）。如果将样式放在style标签之间，则可移植和可维护性差
@@ -506,7 +448,7 @@ webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，
     - 完成一般样式后，开始处理更特殊的样式和辅助样式（这些是在整个站点中使用的一般类，包括表单和错误消息方面，然后处理布局和导航等结构性元素）
     - 处理完页面结构元素之后，处理与特定页面相关的组件
     - 在页面内底部处理覆盖和例外情况
-    
+
     文档的结构如下所示：
     - 一般性样式
       - 主体样式
@@ -527,3 +469,78 @@ webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，
 	- 覆盖
 
 7. 如何为功能受限的浏览器提供页面服务
+
+8. 如果你正在 Review CSS 代码，那么你在代码中经常遇到的问题是什么？
+
+示例：使用魔性数字，如 width: 67px; 或使用 em 代替 rem 单位，在通用代码之前编写 media queries（媒体查询），滥用 ID 和类等。
+
+知道如何在页面上布局元素，如何使用子元素或直接后代选择器来定位元素，以及什么时候该用类、什么时候该用 ID。
+
+适当的命名空间和类命名。
+9. 动画的了解
+
+熟练使用 CSS实现常见动画，如渐变、移动、旋转、缩放等等
+- 实现动画有哪些途径
+1. CSS3
+2. JS帧动画,定时器,requestAnimateFrame
+3. Canvas动画
+4. SVG
+transform动画和直接使用left、top改变位置有什么优缺点
+什么时候应该使用 CSS animations而不是 CSS transitions？你做出这个决定标准是什么？
+transition和animation的区别，animation的属性，加速度，重力的模拟实现
+
+transition 过渡动画：
+(1) transition-property：属性名称
+(2) transition-duration: 间隔时间
+(3) transition-timing-function: 动画曲线
+(4) transition-delay: 延迟
+
+animation 关键帧动画：
+(1) animation-name：动画名称
+(2) animation-duration: 间隔时间
+(3) animation-timing-function: 动画曲线
+(4) animation-delay: 延迟
+(5) animation-iteration-count：动画次数
+(6) animation-direction: 方向
+(7) animation-fill-mode: 禁止模式
+
+10. 介绍position属性包括CSS3新增
+
+使用canvas绘图时如何组织成通用组件
+formData和原生的ajax有什么区别
+介绍下表单提交，和formData有什么关系
+
+react-router 里的 <Link> 标签和 <a> 标签有什么区别
+如何禁掉 <a> 标签默认事件，禁掉之后如何实现跳转。
+
+理解 Viewport的原理和用法，分辨率、 px、 ppi、 dpi、 dp的区别和实际应用
+如何实现H5手机端的适配
+屏幕适配 以及 页面自适应
+移动端页面适配解决方案、不同机型适配方案
+- 移动端长度单位
+如何解决移动端 Retina 屏 1px 像素问题
+移动端适配1px的问题
+<b>和<strong>的区别
+padding百分比是相对于父级宽度还是自身的宽度
+外边距合并
+
+
+- 1. CSS选择器( 三大特性 ）
+CSS所有选择器及其优先级、使用场景，哪些可以继承，如何运用 at规则
+特异性——如何计算选择器的特异性，以及级联如何影响属性；
+
+CSS实现隐藏页面的方式
+CSS 选择器的解析顺序是从右到左，还是从左到右，为什么
+说说CSS重要难点?
+- 怎么避免 css 冲突
+CSS模块化方案、如何配置按需加载、如何防止 CSS阻塞渲染
+你知道attribute和property的区别么
+css初始化
+svg与canvas
+HTML文档流的排版规则， CSS几种定位的规则、定位参照物、对文档流的影响，如何选择最好的定位方式，
+
+7. 可使用 CSS函数复用代码，实现特殊效果
+11. CSS浏览器兼容性写法，了解不同 API在不同浏览器下的兼容性情况
+
+CSS模块化开发(封装);
+如何写一个CSS库,要注意哪些东西?

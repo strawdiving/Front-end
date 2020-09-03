@@ -13,7 +13,7 @@ vue路由实现原理
 2. 前端路由Hash模式和History模式的区别
 - vue-router默认hash模式——使用URL的hash来模拟一个完整的URL，于是当URL改变时，页面不会重新加载。
 - history模式，充分利用**history.pushState** API来完成URL跳转而无须重新加载页面。
-```javascript 
+```javascript
 const router = new VueRouter({
     mode: 'history',
     routes:[]
@@ -37,3 +37,34 @@ const router = new VueRouter({
   ]
 })
 ```
+
+React-Router版本号
+如何配置React-Router
+路由的动态加载模块
+前端怎么控制管理路由
+使用路由时出现问题如何解决
+React怎么做数据的检查和变化
+介绍路由的history
+react-router怎么实现路由切换
+react-router里的<Link>标签和<a>标签有什么区别
+<a>标签默认事件禁掉之后做了什么才实现了跳转
+
+- active-class是哪个组件的属性？嵌套路由怎么定义
+vue-router模块的router-link组件
+
+前端router 如何实现？
+   1. vue-router: 搭建SPA
+       路由,组件的配置
+       路由间的传值
+       路由跳转
+       路由的导航守卫
+
+       记住在router.js 和 组件页面中的使用方式
+注意点：
+1.params只能用name来引入路由，query用path来引入
+2.params类似于post，query更加类似于我们ajax中get传参，说的再简单一点，前者在浏览器地址栏中不显示参数，后者显示，所以params传值相对安全一些。
+3.取值用法类似分别是this.$route.params.name和this.$route.query.name。
+4.params传值一刷新就没了，query传值刷新还存在
+
+5.路由实现
+ReactRouter和 VueRouter的底层实现原理、动态加载实现原理

@@ -48,7 +48,7 @@ Observer——作用是遍历对象的所有属性，将其进行双向数据绑
 
 初始化完毕后，当数据变化时，observer中的setter方法被触发，立即调用dep.notify()，Dep遍历所有的订阅者（watchers），并调用watcher的update方法，对视图进行相应更新。
 
-## Vue.set的机制 
+## Vue.set的机制
 由于Javascript的限制，Vue不能自动检测以下变动的数组：通过下标设置一个项，或修改数组长度
 对象添加属性，Vue也不能自动检测
 
@@ -64,6 +64,8 @@ Vue3.0使用Proxy代理对象：
 - Proxy返回新对象，我们可以只操作新对象达到目的，而Object.defineProperty只能遍历对象属性进行修改
 
 ## vue的v-model原理
+v-model，怎么封装的？
+怎么封装个组件，把 v-model 暴露出去
 
 ## **computed 与 watch 的内在如何实现及其区别**
 1. computed，是computed watcher
@@ -76,6 +78,10 @@ Vue3.0使用Proxy代理对象：
 
 需要在某个数据变化时做一些事情，就用watcher来观察这个数据变化
 需要进行数值计算时，而且依赖于其他数据，则设计为computed
+
+watch与computed的区别
+  1.watch擅长处理的场景：一个数据影响多个数据
+  2.computed擅长处理的场景：一个数据受多个数据影响
 
 ## 异步更新视图
 当状态发送变化时，Vue异步执行DOM更新。
@@ -95,6 +101,7 @@ Vue3.0使用Proxy代理对象：
 
 执行的时候，当主线程执行栈执行完毕时，对callbacks进行遍历，依次执行相应的回调函数。
 ## 页面渲染原理
+vue从data改变到页面渲染的过程
 
 ## 生命周期
 Vue实例有一个完整的生命周期，从开始创建，初始化数据，编译模板，挂载DOM，渲染、更新，渲染、卸载等一系列过程，称为生命周期。
@@ -114,6 +121,15 @@ vue实例初始化完毕，进入运行阶段
 解除watchers，销毁子组件，移除所有事件监听
 8. destroyed，组件销毁后调用
 
+A组件包裹B组件，B组件包裹C组件，它们的 componentDidMount 触发顺序如何
+Vue 的父组件和子组件生命周期钩子执行顺序是什么
+
+生命周期及对应的行为，vue父子组件生命周期执行顺序
+  - created和beformounted 中间发生了什么
+    created:在模板渲染成html前调用，即通常初始化某些属性值，然后再渲染成视图。
+    mounted:在模板渲染成html后调用，通常是初始化页面完成后，再对html的dom节点进行一些需要的操作。
+在Vue渲染组件的时候，都是从父到子组件再到父组件，如果你是框架的设计者，你会怎么做
+
 异步请求适合在mounted中调用，也可以在created中调用
 
 event类 on once等方法
@@ -121,11 +137,13 @@ event类 on once等方法
 ## Vue的组件通信
 1. props/$emit+v-on，通过props将数据从父->子传递，通过$emit和v-on将数据从子->父传递
 2. EventBus：通过EventBus进行信息的发布和订阅，通过一个空的vue实例作为中央事件总线，用它来触发和监听事件$emit,$on；在按钮事件中调用Event.$emit
-因为不确定何时触发事件，一般在组件的mounted或created中，Event.$on监听事件 
+因为不确定何时触发事件，一般在组件的mounted或created中，Event.$on监听事件
 3. vuex全局数据管理库，可通过vuex管理全局的数据流
 4. $attr/$listeners，Vue2.4加入，可进行跨级的组件通信，$attr父组件中绑定的非props属性，供子组件访问；通过v-on =‘$listeners'，包含父组件中绑定的非原生事件，子组件可以访问$listeners来自定义监听器
 5. provide/inject，父组件通过provide向所有子孙后代注入依赖，不论组件层次多深，在起上下游成立的时间里始终生效。子组件中使用inject注入祖先组件提供的变量。
 6. $parent/$children&ref，访问父子实例，ref在普通DOM上使用，指向的是DOM元素，在子组件上，就指向组件实例。
+
+组件间通信方法（父子, 兄弟, 跨级）, $listener和$attr
 
 ## keep-alive实现原理
 用keep-alive，名称匹配的组件会被缓存。在组件间切换，可以保持组件的状态，避免重复渲染。
@@ -141,9 +159,8 @@ react vdom和vue的区别
 vue 代码复用的方式
 ## 技术选型上为何选择Vue，Vue的缺陷
 
-## 了解Vue3吗，相对于Vue2做了哪些优化
+## 了解Vue3吗，相对于Vue2做了哪些优化。Vue2.0和Vue3.0区别
 ## Vue hooks的使用
-## 在Vue渲染组件的时候，都是从父到子组件再到父组件，如果你是框架的设计者，你会怎么做
 ## 如何批量引入组件
 require.context()
 
@@ -154,3 +171,38 @@ require.context()
 符合原本的 JavaScript/CSS/HTML 书写习惯；绑定了 MVVM 模式，直接确定了 UI 架构，数据交互非常简洁。
 
 ### 如何设计一个组件
+
+第 94 题：vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
+
+
+数据双向绑定单向绑定优缺点
+Vue 的响应式原理中 Object.defineProperty 有什么缺陷？
+为什么在 Vue3.0 采用了 Proxy，抛弃了 Object.defineProperty？
+使用 JavaScript Proxy 实现简单的数据绑定
+
+1. React和 vue选型和优缺点、核心架构的区别
+
+熟练使用 Vue的 API、基本指令、钩子函数，实例的属性和方法； 组件基础: 创建,注册,添加属性方法,套用等...
+插槽slot：v-slot, slot-scope
+在 Vue 中，子组件为何不可以修改父组件传递的 Prop；如果修改了，Vue 是如何监控到属性的修改并给出警告的。
+
+observer，watcher，compile
+从 template转换成真实 DOM的实现机制
+vue构建过程原理,具体流程
+模板到DOM大致流程:
+  template模板经过parse处理后返回AST 获得一棵AST后再经过generate()生成渲染函数
+  执行渲染函数后会获得一个VNode，即虚拟DOM patch函数，负责把虚拟DOM变为真正DOM。
+
+自定义插件
+如何实现一个指令
+  -- - 自定义指令（v-check、v-focus）的方法有哪些?它有哪些钩子函数？还有哪些钩子函数参数
+    全局定义指令：在vue对象的directive方法里面有两个参数，一个是指令名称，另外一个是函数。
+    组件内定义指令：directives 钩子函数：bind（绑定事件触发）、inserted(节点插入的时候触发)、update（组件内相关更新） 钩子函数参数：el、binding
+
+vue2新增内容?独立构建（standalone）和运行时构建（runtime-only）的差别和应用?
+
+介绍状态机
+
+怎么看待组件层级嵌套很多层
+
+vue 怎么进行性能优化的

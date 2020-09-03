@@ -48,30 +48,30 @@ exports.world = function() { //通过exports对象把world作为模块的访问�
 1. exports：是模块公开的接口
 2. require：从外部获取一个模块的接口（即所获取模块的exports对象）
 
-#### 把一个对象封装到模块中 
+#### 把一个对象封装到模块中
 `module.exports = function() { ...	}`
 
 例：
 ```javascript
-//hello.js 
-function Hello() { 
-  var name; 
-  this.setName = function(thyName) { 
-    name = thyName; 
-  }; 
-  this.sayHello = function() { 
-    console.log('Hello ' + name); 
-  }; 
-}; 
-	
+//hello.js
+function Hello() {
+  var name;
+  this.setName = function(thyName) {
+    name = thyName;
+  };
+  this.sayHello = function() {
+    console.log('Hello ' + name);
+  };
+};
+
 module.exports = Hello;
 ```
 调用：
 ```javascript
-//main.js 
-var Hello = require('./hello'); 
-hello = new Hello(); 
-hello.setName('BYVoid'); 
+//main.js
+var Hello = require('./hello');
+hello = new Hello();
+hello.setName('BYVoid');
 hello.sayHello();
 ```
 模块接口的唯一变化是使用**module.exports = Hello**代替了**exports.world = function(){}**。 在外部引用该模块时，其接口对象就是要输出的Hello对象本身，而不是原先的exports。
@@ -102,9 +102,9 @@ require方法接受参数：
 我们需要的所有数据都会包含在 **request** 对象中，要解析这些数据，要额外的**url**和**querystring**模块。URL用 .parse方法来将一个URL字符串转换为URL对象，QueryString模块用于实现URL参数字符串与参数对象的互相转换。
 ```javascript
 //查询字符串中的参数部分（问号后面部分字符串），或者使用 querystring.parse() 解析后返回的对象
-url.parse(string).query 
+url.parse(string).query
 //URL的路径部分，位于主机名之后请求查询之前
-url.parse(string).pathname  
+url.parse(string).pathname
 
 http:/ /localhost:8888/start?foo=bar&hello=world” //url.parse(string).pathname为start
 querystring.parse(queryString)["foo"]// bar
@@ -120,7 +120,7 @@ function start(route) {  //将路由函数作为参数传递
 http. createServer (function(request, response) {
       var pathname = url.parse(request.url).pathname;
       console.log("Request for " + pathname + " received.");
-      
+
       route(pathname);
 
       response.writeHead(200, {"Content-Type": "text/plain"});
@@ -145,7 +145,7 @@ exports.route = route;
 ```javascript
 var server = require("./server");
 var router = require("./router");
- 
+
 server.start(router.route);
 ```
 
@@ -160,7 +160,7 @@ console.log(data.toString());
 console.log("程序执行结束!");
 
 // 输出结果： 先输出input.txt中的内容，再输出“程序执行结束！”
- 
+
 ```
 - 非阻塞代码（带回调函数）
 在读取文件时同时执行接下来的代码，不需要按顺序，如果需要处理回调函数的参数，就需要写在回调函数内。
@@ -171,7 +171,7 @@ fs.readFile('input.txt', function (err, data) {
   console.log(data.toString());
 });
 console.log("程序执行结束!");
-  
+
 // 输出结果： 先输出“程序执行结束！”，再输出input.txt中的内容
 ```
 Node.js中，执行异步操作的函数将回调函数作为最后一个参数，回调函数接收错误对象作为第一个参数。
@@ -265,13 +265,78 @@ $ node event.js
 listener1 arg1 参数 arg2 参数
 listener2 arg1 参数 arg2 参数
 ```
-
-
 ## Node.js
-Nodejs的事件循环
-Nodejs express koa
-express 中间件原理
-express ctx 中间键代码实现
-node 网关
+nodejs适合做什么样的业务？
+nodejs与php，java有什么区别
 nodejs相关的应用（答：开发命令行工具、web服务，ssr，数据库操作等）
+你的Nodejs在处理什么模块。
+node 网关
+Node中的事件循环是什么？process.nextTick() 的作用
+node文件查找优先级
+require 的解析规则
+服务端怎么做统一的状态处理
+如何对相对路径引用进行优化
+NodeJS 中存在哪些流，怎么理解 pipe() 及其优点
+Nodejs中的Stream和Buffer有什么区别？
+node的异步问题是如何解决的？
+node是如何实现高并发的？
+
+CommonJS 的实现原理
+
+介绍一下负载均衡，NodeJS 的 cluster 和 child_process 是什么
+有没有涉及到Cluster，Node 的Cluster模式是什么？
+Node 中的进程和线程啥区别？
+进程和线程的区别（一个node实例就是一个进程，node是单线程，通过事件循环来实现异步）
+NodeJS 是单线程还是多线程，都有哪些线程，JS 为什么是单线程的
+Node 中如何创建一个进程？
+Node的多个进程如何通信？
+node多线程实现
+
+Node中的错误怎么捕获？
+Node中遇到错误，进程退出了怎么办？
+如何监控Node？
+Node中的日志如何保整串行？
+Node 挂掉怎么办？怎么发现其中的问题？
+node起服务如何保证稳定性，平缓降级，重启等
+
+如何和MySQL进行通信
+node接口转发有无做什么优化
+常用的中间件，介绍自己写过的中间件
+项目中的中间层Node 在处理什么问题？
+
+Koa2 中的 context如何实现？
+介绍koa2
+koa原理，为什么要用koa(express和koa对比)
+使用过的koa2中间件
+Koa 的中间件原理，介绍一下 compose 函数
+koa-body原理
+koa中response.send、response.rounded、response.json发生了什么事，浏览器为什么能识别到它是一个json结构或是html
+koa-bodyparser怎么来解析request
+express ctx 中间件代码实现
 express技术相关应用
+
+介绍pm2
+master挂了的话pm2怎么处理
+pm2怎么做进程管理，进程挂掉怎么处理
+不用pm2怎么做进程管理
+
+我们需要理清语言和环境的关系：
+
+ECMAScript描述了 JavaScript语言的语法和基本对象规范
+
+浏览器作为 JavaScript的一种运行环境，为它提供了：文档对象模型（ DOM），描述处理网页内容的方法和接口、浏览器对象模型（ BOM），描述与浏览器进行交互的方法和接口
+
+Node也是 JavaScript的一种运行环境，为它提供了操作 I/O、网络等 API
+
+1.理解 Node在应用程序中的作用，可以使用 Node搭建前端运行环境、使用 Node操作文件、操作数据库等等
+
+2.掌握一种 Node开发框架，如 Express， Express和 Koa的区别
+
+3.熟练使用 Node提供的 API如 Path、 Http、 ChildProcess等并理解其实现原理
+
+4. Node的底层运行原理、和浏览器的异同
+
+5. Node事件驱动、非阻塞机制的实现原理
+
+多线程如何保障各个线程的安全?
+node了解哪些?node各个模块的底层原理?

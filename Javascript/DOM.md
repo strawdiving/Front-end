@@ -7,7 +7,7 @@
 3. 事件冒泡阶段
 **事件捕获**：事件先被最外层的元素上触发，再到最内层的元素
 **事件冒泡**：嵌套最深的元素触发一个事件，然后这个事件顺着嵌套顺序在父元素上触发。
-click DOM 节点的 inner 与 outer 的执行机制，考查事件冒泡与事件捕获 
+click DOM 节点的 inner 与 outer 的执行机制，考查事件冒泡与事件捕获
 
 防止事件冒泡的一种方法是使用 event.cancelBubble 或 event.stopPropagation()（低于 IE 9）。
 
@@ -26,7 +26,6 @@ click DOM 节点的 inner 与 outer 的执行机制，考查事件冒泡与事�
 onclick, addEventListener
 - 给定一个元素获取它相对于视图窗口的坐标
 - 编写一个通用的事件监听函数
-
 - 手指点击可以触控的屏幕时，是什么事件？
 touch
 
@@ -49,3 +48,40 @@ touch
 property是DOM中的属性，是JavaScript里的对象；是这个DOM元素作为对象，其附加的内容，例如childNodes、firstChild等。
 
 attribute是HTML标签上的特性，它的值只能够是字符串；dom节点自带的属性，如id、class、title、align等。HTML标签中定义的属性和值会保存该DOM对象的attributes属性里面；
+
+JS常见的dom操作api
+事件委托（手写例子），事件冒泡和捕获，如何阻止冒泡？如何组织默认事件？
+
+表单可以跨域吗
+
+4. 如何在 JavaScript 中检测触摸事件？
+
+你是否不看好检测设备对触摸事件的支持？如果是，为什么？比较触摸事件和点击事件。
+
+当设备同时支持触摸和鼠标事件时，你认为这些事件的正确事件顺序是什么或应该是什么？
+
+知道如何遍历和操作 DOM 非常重要，在不使用第三方库的情况下，你需要知道如何执行以下这些操作：
+
+使用 document.querySelector 选择或查找节点，在旧版浏览器中使用 document.getElementsByTagName；
+querySelectAll和ByClassName所获取元素的区别?如何绑定事件?
+上下遍历——Node.parentNode、Node.firstChild、Node.lastChild 和 Node.childNodes；
+左右遍历——Node.previousSibling 和 Node.nextSibling；
+操作——在 DOM 树中添加、删除、复制和创建节点。你应该了解如何修改节点的文本内容以及切换、删除或添加 CSS 类名等操作；
+
+性能——当有很多节点时，修改 DOM 的成本会很高，你至少应该知道如何使用文档片段和节点缓存。
+
+2.浏览器提供的浏览器对象模型 ( BOM)提供的所有全局 API、浏览器差异、兼容性
+1.浏览器提供的符合 W3C标准的 DOM操作 API、浏览器差异、兼容性
+3.大量 DOM操作、海量数据的性能优化(合并操作、 Diff、 requestAnimationFrame等)
+4.浏览器海量数据存储、操作性能优化
+5. DOM事件流的具体实现机制、不同浏览器的差异、事件代理
+
+offsetTop和scrollTop和scrollHeight分别代表什么
+
+手指点击可以触控的屏幕时，是什么事件？
+
+getComputedStyle用法?
+
+比如在代码中有a.addEventListener('click', fn1), a.addEventListener('click', fn2)这个时候fn1和fn2会执行吗，假如加上说阻止冒泡呢
+简述 requestAnimationFrame 和 requestIdleCallback 的作用
+addEventListener绑定事件?参数不同的执行顺序.

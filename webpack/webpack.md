@@ -1,4 +1,5 @@
 # 前端工程化-Webpack
+前端工程化的理解，webpack等工具在项目中的作用
 ## webpack打包原理
 webpack是基于模块化打包的工具。自动化处理模块，webpack把一切当成模块，当webpack处理应用程序时，它会递归地构建一个依赖图，其中包含应用程序需要的每个模块，然后将这些模块打包成一个或多个bundle。
 webpack有强大的loader和plugin插件生态，打包后的文件实际上是一个立即执行函数，这个函数执行一个参数，参数是模块对象，键为各个模块的路径，值为模块内容。立即执行函数内部处理模块之间的引用，执行模块等。更适合文件依赖复杂的应用。
@@ -75,6 +76,8 @@ webpack单页应用，entry入口指定单页应用的入口即可；
 3. webpack-dev-server对文件变化的监控，当在配置中
 4. webpack-dev-server，通过sockjs，在c/s之间建立一个websocket长连接，将webpack编译打包各个阶段的状态信息告知浏览器，同时也包括3中Server监听静态文件变化的信息。浏览器根据socket消息进行不同操作，server传递的最主要信息是新模块的hash值，后面的步骤根据这一hash值进行模块热替换。
 
+## 是如何做到在不刷新浏览器的前提下更新页面的?
+
 ## webpack的劣势
 
 ## 前端的工作流程
@@ -96,3 +99,72 @@ module.exports = {
    ...
 };
 ```
+
+import { Button } from 'antd'，打包的时候只打包button，分模块加载，是怎么做到的
+
+webpack的入口文件怎么配置，多个入口怎么分割。
+webpack的常用配置
+抽取公共文件是怎么配置的
+webpack 配置文件中的 externals，UMD 了解吗
+使用webpack构建时有无做一些自定义操作
+如何实现分模块打包（多入口）
+如何配置把js、css、html单独打包成一个文件
+webpack配sass需要哪些loader，配css需要哪些loader
+使用import时，webpack对node_modules里的依赖会做什么
+一般怎么组织CSS（Webpack）
+项目如何管理模块
+webpack整个生命周期
+webpack介绍，webpack做了什么
+webpack打包的整个过程/webpack 是如何进行打包的
+webpack执行的过程
+dev-server是怎么跑起来
+打包时Hash码是怎么生成的
+随机值存在一样的情况，如何避免
+Webpack的编译原理、构建流程、热更新原理， chunk、 bundle和 module的区别和应用
+tree-shaking作用，工作原理，如何才能生效
+code splitting用的什么插件，怎么做？
+sourcemap原理是什么？
+webpack 动态 import 是如何实现的
+如何自己实现一个文件打包，比如一个JS文件里同时又ES5 和ES6写的代码，如何编译兼容他们
+
+
+用过哪些loader和plugin，各种loader，plugin的名字和使用方法
+可熟练配置已有的 loaders和 plugins解决问题，
+plugin与loader的区别
+webpack里面的插件是怎么实现的
+有没有写过Webpack插件。如何编写一个loader、plugin
+loader的执行顺序为什么是后写的先执行
+- vue-loader是什么？使用它的用途有哪些；
+解析.vue文件的一个加载器，跟template/js/style转换成js模块。
+用途：js可以写es6、style样式可以scss或less、template可以加jade等
+- css-loader原理,过程
+
+对webpack,gulp，grunt等有没有了解?对比。
+gulp的具体使用
+rollup了解过没？
+为什么rollup打包赘余代码比较少？
+
+是否配置过webpack、做过哪些优化/如何做工程上的优化
+webpack配置优化
+webpack打包优化（happypack、dll）
+webpack构建速度优化（dllplugin预编译资源模块，HappyPack加速代码构建）
+
+1. vue-cli脚手架搭建 和 功能配置 vue.config.js
+  3. 项目构建 打包
+  1. 项目分类; 各类文件整理,分类
+  2. 各类功能封装
+  3. 组件和功能模块的抽离, 解耦, 复用；模块化, 组件化开发能力
+
+项目构建
+1.理解 npm、 yarn依赖包管理的原理，两者的区别
+2.可以使用 npm运行自定义脚本
+
+3.理解ESLint
+  ESLint规则检测原理，常用的 ESLint配置
+
+5. Babel在项目中承担的作用。Babel的核心原理，可以自己编写一个 Babel插件
+6.可以配置一种前端代码兼容方案，如 Polyfill
+
+
+
+

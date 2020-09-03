@@ -31,7 +31,7 @@ createElement返回的其实不是一个实际的DOM元素，它更准确的名�
 ## VNode
 ```javascript
 export default class VNode {
-  tag: string | void; 
+  tag: string | void;
   data: VNodeData | void;
   children: ?Array<VNode>;
   text: string | void;
@@ -213,3 +213,10 @@ key的特殊属性主要用在Vue的虚拟DOM算法，使用key给每一个节�
 - 完整触发组件的生命周期钩子
 - 触发过渡，<transition><span :key='text'>{{text}}</span></transition>，当key发生变化时，span总是被替换而不是被修改，因此会触发过渡。
 使用相同标签名元素的过渡切换时，也用到key，目的是让vue可以区分它们，否则vue只会替换其内部属性，不会触发transition过渡效果。
+
+vue diff 原理/diff算法，如果有个节点数据发生了变化，vue 是怎么迅速找到对应的节点的
+Virtual Dom的作用，是否可以提高性能？为什么快？
+key 的作用，如果用 index 做 key 有什么问题，为什么不推荐使用数组的index
+Virtual DOM 真的比操作原生 DOM 快吗？谈谈你的想法。
+（滴滴、饿了么）写 React / Vue 项目时为什么要在列表组件中写 key，其作用是什么？
+React 和 Vue 的 diff 时间复杂度从 O(n^3) 优化到 O(n) ，那么 O(n^3) 和 O(n) 是如何计算出来的？
