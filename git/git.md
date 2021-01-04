@@ -29,7 +29,7 @@ git config --global user.email "email@email.com"
 ## 创建版本库
 版本库即respository,可以看作一个目录，目录里的所有文件都可以被git管理起来，每个文件的修改、删除，git都能跟踪，以便任何时刻都可以追踪历史或者还原。
 
-创建： 
+创建：
 1. 创建一个空目录；
 2. git init ，将该目录变成git可以管理的仓库；仓库建好了，且会告诉你这是一个empty git respository
 目录下多了一个.git目录（默认隐藏），是git来跟踪管理版本库的，不要手动修改，否则会把git仓库破坏。
@@ -53,7 +53,7 @@ git commit 提交修改，实际是把暂存区的所有内容提交到当前分
 
 提交修改（和提交新文件一样）：
 ```git
-1. git add file/git add . 
+1. git add file/git add .
 2. git commit
 ```
 
@@ -99,7 +99,7 @@ git reflog， 查看命令历史，以便确定要回到未来的哪个版本
 
 注：git checkout只恢复修改过的文件，想删除未被tracked的文件（即还未进行过git add等操作的文件），用**git clean -df**
 ### git reset HEAD < file >
-  
+
 可以把暂存区的修改撤销掉（unstage），重新放回工作区。用HEAD时，表示最新的版本
 
 ## 删除文件
@@ -115,7 +115,7 @@ git checkout -- < file >或git restore < file >
 注：**从未被添加到版本库就被删除的文件，是无法恢复的**
 
 ## 远程仓库
-git是分布式版本控制系统，同一个git仓库，可以分布到不同机器上。一般找一台电脑充当服务器的角色，其他每个人都从这个“服务器”仓库克隆一份到自己电脑上，且各自把各自的提交推送到服务器仓库里。也从服务器仓库中拉取别人的提交。 
+git是分布式版本控制系统，同一个git仓库，可以分布到不同机器上。一般找一台电脑充当服务器的角色，其他每个人都从这个“服务器”仓库克隆一份到自己电脑上，且各自把各自的提交推送到服务器仓库里。也从服务器仓库中拉取别人的提交。
 
 git本地工作不需要考虑远程库，不联网也可以正常工作，而SVN在没有联网时是拒绝干活的。
 
@@ -137,7 +137,7 @@ id_rsa是私钥不可泄漏，id_rsa.pub是公钥
 ## 先有本地库，后有远程库，如何关联远程库
 在github上新建仓库后，将本地已有的仓库推送上去，即在本地关联远程库：
 
-1. 在本地的仓库下运行 
+1. 在本地的仓库下运行
 ```
 git reomote add origin git@github.com:path/repo-name.git
 ```
@@ -183,3 +183,7 @@ history- git reset-stage-git checkout-working directory
 类似reset，以创建新的commit的方式来撤销commit，可以保留之前的commit历史，比较安全。但可能会覆盖本地的修改，所以要先stash或commit
 
 文件层面：不支持文件层面的操作。
+
+## 工具
+Gogs
+sourceTree

@@ -249,9 +249,6 @@ font-face {
     盒模型之box-sizing，请解释*{box-sizing:border-box;}的作用，并说明使用它的好处
     标准盒模型的width，height为content的宽高，默认使用标准盒模型。box-sizing = content-box
     将box-sizing属性设为 border-box，设置属性使用的时候更方便
-24. 新的CSS Flexbox 或者 Grid 标准规格？
-    web应用有不同设备尺寸和分辨率，需要响应式界面设计来满足复杂的布局需求，flexbox的优势在于，只要声明布局应该有的行为，而不要给出具体的实现方式，浏览器负责完成实际布局。
-    当布局涉及到不定宽度，分布对齐的场景，就要优先考虑flexbox。
 25. 响应式网站编程与使用移动优先策略之间的区别
     **响应式设计**
     响应式网站设计(Responsive Web design)是一个网站能够兼容多个终端，而不是为每一个终端做一个特定的版本。
@@ -296,7 +293,7 @@ firefox，opera和IE，使用collapse值和使用display：none没有什么区�
     rem——相对于根元素< html>，如果没有设置，将以16px为基准，2rem=32px
     percentage 指定为包含块的宽度、高度的百分比
 
-rem布局的优缺点
+
 
 41. CSS 的加载是异步的吗？表现在什么地方？
 42. clearfix css属性如何有用
@@ -483,7 +480,7 @@ webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，
 - 实现动画有哪些途径
 1. CSS3
 2. JS帧动画,定时器,requestAnimateFrame
-3. Canvas动画
+3. Canvas动画,使用canvas绘图时如何组织成通用组件
 4. SVG
 transform动画和直接使用left、top改变位置有什么优缺点
 什么时候应该使用 CSS animations而不是 CSS transitions？你做出这个决定标准是什么？
@@ -506,7 +503,7 @@ animation 关键帧动画：
 
 10. 介绍position属性包括CSS3新增
 
-使用canvas绘图时如何组织成通用组件
+
 formData和原生的ajax有什么区别
 介绍下表单提交，和formData有什么关系
 

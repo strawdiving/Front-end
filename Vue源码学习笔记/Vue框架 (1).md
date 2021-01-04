@@ -174,7 +174,6 @@ require.context()
 
 第 94 题：vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
 
-
 数据双向绑定单向绑定优缺点
 Vue 的响应式原理中 Object.defineProperty 有什么缺陷？
 为什么在 Vue3.0 采用了 Proxy，抛弃了 Object.defineProperty？

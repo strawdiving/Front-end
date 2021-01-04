@@ -52,3 +52,35 @@ git rebase
 2.熟练使用常规的 Git命令、 git rebase、 git stash等进阶命令
 
 3.可以快速解决 线上分支回滚、 线上分支错误合并等复杂问题
+
+Q: Git撤销已经push到远端仓库的commit信息
+
+在git push后，发现一些代码需要小改动，但原则上不应该作为一次新的提交，此时需要撤销这次push和commit，然后修改代码，再重新提交和推送。
+
+1. git log, 查看提交信息，获取需要回退至的commit id 版本号
+2. git reset --soft < 版本号 >，重置至指定版本的commit，达到撤销提交的目的
+--soft，保留当前工作区，以便重新提交
+--hard，会撤销相应工作区的修改
+3. git log 看是否成功撤销
+4. git push origin master --force，强制提交当前版本号，以达到撤销版本号的目的
+注：必须加参数--force，否则会提交失败并报错，原因是，本地项目版本号低于远端仓库版本号
+5. 修改代码，重新commit和push
+
+Q: 报错 error: You have not concluded your merge(MERGE_HEAD exists)
+   原因：可能是以前pull下来的代码自动合并失败
+
+   解决：git merge --abort
+        git reset --merge
+        git pull
+  git pull之后重新解决冲突，再push
+
+
+Q: git fetch 和 git pull 的区别
+   都可以从远程获取最新版本到本地
+
+   git fetch: 只从远程获取最新版本到本地，不会merge
+      git fetch origin master //从远程的master分支上获取最新版本到origin/master
+      git merge master  //合并
+
+   git pull: 从远程获取最新版并merge到本地，相当于进行了 git pull + git merge
+      git pull origin master
