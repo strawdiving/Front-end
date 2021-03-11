@@ -394,9 +394,6 @@ p{font-size:10px;-webkit-transform:scale(0.8);} //0.8是缩放比例
 margin正值的时候 解决：margin使用负值
 使用font-size时候 解决：font-size:0、letter-spacing、word-spacing
 
-41 有一个高度自适应的div，里面有两个div，一个高度100px，希望另一个填满剩下的高度
-外层div使用position：relative；高度要求自适应的div使用position: absolute; top: 100px; bottom: 0; left: 0
-
 - 行内元素和块级元素的区别，对行内元素设置宽高有用吗，为什么对 img 标签起作用，对行内元素设置边距有效吗
   span包含12px大小英文'abc',问span高度?baseline怎么理解?
 vertical-align & line-height
@@ -434,6 +431,9 @@ webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，
 44. 介绍css3中position:sticky
 
 45. inline和block元素列举,block和inline-block区别?内联元素包含块元素的表现？块元素和内联元素渲染区别?
+
+46. line-height: height 有被问到该值是不是等于高度设置的值?，回来测试发现是跟盒模型相关的，需要是 computed height
+47. absolute + transform 居中为什么要使用 transform（为什么不使用margin Left / Top），这是一道重绘重排的问题。
 
 30. 规划、组织和维护样式表
      1. 对文档应用样式——将所有样式放在一个或多个外部样式表中，再将外部样式表附加到网页上（链接或导入）。如果将样式放在style标签之间，则可移植和可维护性差

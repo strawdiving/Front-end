@@ -1,6 +1,8 @@
 # 虚拟DOM
 真正的DOM元素非常庞大，直接操作DOM来修改视图的话，很消耗性能。而Javascript很容易处理，可以用Javascript对象来表示DOM树上的结构、属性信息，进而可以用Javascript对象构成的抽象树来表示真实的DOM树。
 
+预先通过JavaScript进行各种计算，把最终的DOM操作计算出来并优化，由于这个DOM操作属于预处理操作，并没有真实的操作DOM，所以叫做虚拟DOM。最后在计算完毕才真正将DOM操作提交，将DOM操作变化反映到DOM树上。
+
 Vue.js将DOM树抽象成一个以Javascript对象为节点的虚拟DOM树，用VNode节点模拟真实DOM。
 
 Vitual DOM算法的步骤：

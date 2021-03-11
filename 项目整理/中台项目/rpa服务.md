@@ -27,5 +27,5 @@ font-awesome图标库版本要注意：
 信息发送管理中，人员信息查询，keyword分页获取所有用户
 
 日期时间组件：
-   对日期进行筛选，设定defaultTime，设定禁用日期/可选日期时间范围
+   对日期进行筛选，设定defaultTime，设定禁用日期/可选日期时间范围disableDate
 

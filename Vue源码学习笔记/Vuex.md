@@ -446,11 +446,15 @@ computed: {
 
 
 1. Vuex action/mutation区别
+action：含有异步操作，例如向后台提交数据，写法： this.$store.dispatch('mutations方法名',参数)
+commit：同步操作，写法：this.$store.commit('mutations方法名',参数)
+
 mutations和actions只是为了devtools追踪状态变化。actions随你操作，只要最后调用mutation修改数据就行；
 
 mutations必须是同步操作，同步的意义在于，每一个mutation执行完都可以对应到一个新的状态，这样devtools查看异步actions就能清楚地查看mutation何时被记录，对应状态。
 
 mutations是可以发异步请求的，但是不推荐，因为devtools拿到的是mutation执行完毕时的快照snapshots，而如果是异步的话，拿不到你想要的快照，devtools就看不到所谓的时间旅行了，所以用action处理异步，拿到异步的结果后，触发mutation，更改state
+
 
 2. vuex底层流程和实现原理以及数据流向,vuex的工作流
 Vuex的响应式原理
@@ -466,6 +470,8 @@ vuex: 状态管理: 数据仓库store
        辅助函数mapState等..., 仓库中计算属性的映射, 方便操作
 
        记住在 store.js 和 组件中 使用方式
+
+Vuex 允许在Store中定义 “ Getter”（类似于 Store 的计算属性）。Getter 的返回值会根据他的依赖进行缓存，只有依赖值发生了变化，才会重新计算。
 
 如何设计状态树
 

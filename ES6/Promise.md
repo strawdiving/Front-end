@@ -18,10 +18,7 @@ promise封装ajax
 
 promise、async/await 都问比较多，包括比较火的问打印顺序那种题还有捕获异常的问题，只要对语法非常熟悉加上稍微了解实现细节都是没问题。
 
-JS 异步解决方案的发展历程以及优缺点，异步编程四种方法以及优缺点
 JS怎么实现异步,如何处理异常捕获
-JS执行过程中分为哪些阶段,异步整个执行周期
-JS为什么要区分微任务和宏任务，介绍宏任务和微任务
 使用回调、promise、await 和 async 处理异步调用；
 Promise有没有解决异步的问题（promise链是真正强大的地方）
 promise 和 async/await 和 callback的区别
@@ -50,7 +47,6 @@ new Promise((resolve,reject) {
 - es6 generator 是什么，async/await 实现原理
 - 异步编程各个优缺点，使用 Promises 而非回调 (callbacks) 优缺点是什么？generator,Promise,async/await比较
 - 怎么将一个异步方法promise化，以及实现promise.all()方法，promise.then 的调用，promise封装setstate
-- 如何将一个同步函数包装为异步函数
 
 手动实现符合 Promise/A+规范的 Promise、手动实现 async await
 

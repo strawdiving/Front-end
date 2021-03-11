@@ -84,3 +84,18 @@ Q: git fetch 和 git pull 的区别
 
    git pull: 从远程获取最新版并merge到本地，相当于进行了 git pull + git merge
       git pull origin master
+
+
+经验：
+
+来回切换分支协同开发的时候，不小心把 git stash 的内容给删掉（clear）了，然后 feature 分支上写了一下午的代码就这么没了[泪]
+
+不死心查了一下是否能够恢复被 clear 的 stash 内容，折腾了半天终于被我还原了（上 G 的仓库里头查找很痛苦）。不得不说，git 的设计真的太棒了，只要是通过 git command 操作的代码，一定会以某种方式储存在 .git 中，而且是可以被提交到仓库的。
+
+git stash clear 的代码 sha 会被记录到 .git/lost-found 中，通过 git fsck —lost-found 可以找到这些 sha，不过需要注意的是，这些 sha 有很多种格式，blob/tree/commit 等，需要找到对应代码所在的 commit，然后通过 git stash apply SHA 给恢复回来。
+
+我用了比较傻的办法，将所有的 lost-found 的 diff 代码输出到一个临时文件中，然后全局遍历我修改的代码关键词，这样比较方便找到对应的 sha：
+
+git fsck --lost-found | awk '/dangling commit/ {print $3}' | xargs -I {} git show {} >> TMP_FILE;
+
+这个经验也说明了另外一个问题，你要很小心，很可能你 stash/focePush/forceDeleteBranch 仍然可以在仓库中找到，如果在代码中不小心提交过密码或其他敏感信息，通过简单的 delete branch 或者 reset —hard && force push 等方式是不够的。
