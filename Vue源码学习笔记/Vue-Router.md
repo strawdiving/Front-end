@@ -134,6 +134,120 @@ vue-router模块的router-link组件
 3.取值用法类似分别是this.$route.params.name和this.$route.query.name。
 4.params传值一刷新就没了，query传值刷新还存在
 
-5.路由实现
+## Vue路由跳转方式有哪几种？
+1. router-link
+
+**不带参数**
+```html
+<router-link :to="{name:'home'}">
+<router-link :to="{path:'/home'}"> //name,path都行, 建议用name
+// 注意：router-link中链接如果是'/'开始就是从根路由开始，如果开始不带'/'，则从当前路由开始。
+带参数
+<router-link :to="{name:'home', params: {id:1}}">
+// params传参数 (类似post)
+// 路由配置 path: "/home/:id" 或者 path: "/home:id"
+// 不配置path ,第一次可请求,刷新页面id会消失
+// 配置path,刷新页面id会保留
+// html 取参  $route.params.id
+// script 取参  this.$route.params.id
+<router-link :to="{name:'home', query: {id:1}}">
+// query传参数 (类似get,url后面会显示参数)
+// 路由可不配置
+// html 取参  $route.query.id
+// script 取参  this.$route.query.id
+```
+2. this.$router.push() (函数里面调用)
+
+不带参数
+```javascript
+this.$router.push('/home')
+this.$router.push({name:'home'})
+this.$router.push({path:'/home'})
+query传参
+this.$router.push({name:'home',query: {id:'1'}})
+this.$router.push({path:'/home',query: {id:'1'}})
+// html 取参  $route.query.id
+// script 取参  this.$route.query.id
+```
+2.1 params传参
+```javascript
+this.$router.push({name:'home',params: {id:'1'}})  // 只能用 name
+// 路由配置 path: "/home/:id" 或者 path: "/home:id" ,
+// 不配置path ,第一次可请求,刷新页面id会消失
+// 配置path,刷新页面id会保留
+// html 取参  $route.params.id
+// script 取参  this.$route.params.id
+```
+2.2 query和params区别
+
+query类似 get, 跳转之后页面 url后面会拼接参数,类似?id=1, 非重要性的可以这样传, 密码之类还是用params刷新页面id还在
+params类似 post, 跳转之后页面 url后面不会拼接参数 , 但是刷新页面id 会消失
+
+3. this.$router.replace() (用法同上,push)
+
+# 路由实现
 ReactRouter和 VueRouter的底层实现原理、动态加载实现原理
 前端router 如何实现？vue路由实现原理
+
+vue-router 路由实现（https://zhuanlan.zhihu.com/p/37730038）
+路由就是用来跟后端服务器进行交互的一种方式，通过不同的路径，来请求不同的资源，请求不同的页面是路由的其中一种功能
+
+## $route和$router的区别
+$router 为 VueRouter 路由实例，对象包括了路由的跳转方法，钩子函数等。想要导航到不同 URL，则使用 $router.push 方法
+$route 为“路由信息对象”，当前 router 跳转对象里面可以获取ath，params，hash，query，fullPath，matched，name等路由信息参数
+
+21. vue-router 使用params与query传参有什么区别
+vue-router 可以通过 params 与 query 进行传参
+
+// 传递
+this.$router.push({path: './xxx', params: {xx:xxx}})
+this.$router.push({path: './xxx', query: {xx:xxx}})
+
+// 接收
+this.$route.params
+
+this.$route.query
+params 是路由的一部分,必须要有。query 是拼接在 url 后面的参数，没有也没关系
+params 不设置的时候，刷新页面或者返回参数会丢，query 则不会有这个问题
+
+使用params进行传参，不能用path，要用name，否则接收不到参数的，
+
+## Vue 如何去除url中的 #
+vue-router 默认使用 hash 模式，所以在路由加载的时候，项目中的 url 会自带 #。如果不想使用 #， 可以使用 vue-router 的另一种模式 history
+
+new Router({
+  mode: 'history',
+  routes: [ ]
+})
+需要注意的是，当我们启用 history 模式的时候，由于我们的项目是一个单页面应用，所以在路由跳转的时候，就会出现访问不到静态资源而出现 404 的情况，这时候就需要服务端增加一个覆盖所有情况的候选资源：如果 URL 匹配不到任何静态资源，则应该返回同一个 index.html 页面
+
+## 怎么定义 vue-router 的动态路由? 怎么获取传过来的值
+答：在 router 目录下的 index.js 文件中，对 path 属性加上 /:id，使用 router 对象的 params.id 获取。
+
+## Vue的路由实现：hash模式 、 history模式、abstract模式
+hash模式：在浏览器中符号“#”，#以及#后面的字符称之为hash，用window.location.hash读取；
+特点：hash虽然在URL中，但不被包括在HTTP请求中；用来指导浏览器动作，对服务端安全无用，hash不会重加载页面。
+hash 模式下，仅 hash 符号之前的内容会被包含在请求中，如 http://www.xxx.com，因此对于后端来说，即使没有做到对路由的全覆盖，也不会返回 404 错误。
+hash 模式的实现原理
+早期的前端路由的实现就是基于 location.hash 来实现的。其实现原理很简单，location.hash 的值就是 URL 中 # 后面的内容。比如下面这个网站，它的 location.hash 的值为 '#search'：
+
+https://www.abc.com#search
+hash 路由模式的实现主要是基于下面几个特性：
+URL 中 hash 值只是客户端的一种状态，也就是说当向服务器端发出请求时，hash 部分不会被发送；
+hash 值的改变，都会在浏览器的访问历史中增加一个记录。因此我们能通过浏览器的回退、前进按钮控制hash 的切换；
+可以通过 a 标签，并设置 href 属性，当用户点击这个标签后，URL 的 hash 值会发生改变；或者使用  JavaScript 来对 loaction.hash 进行赋值，改变 URL 的 hash 值；
+我们可以使用 hashchange 事件来监听 hash 值的变化，从而对页面进行跳转（渲染）。
+
+history模式：history采用HTML5的新特性；且提供了两个新方法：pushState（），replaceState（）可以对浏览器历史记录栈进行修改，以及popState事件的监听到状态变更。
+history 模式下，前端的 URL 必须和实际向后端发起请求的 URL 一致，如 http://www.xxx.com/items/id。后端如果缺少对 /items/id 的路由处理，将返回 404 错误。Vue-Router 官网里如此描述：“不过这种模式要玩好，还需要后台配置支持……所以呢，你要在服务端增加一个覆盖所有情况的候选资源：如果 URL 匹配不到任何静态资源，则应该返回同一个 index.html 页面，这个页面就是你 app 依赖的页面。”
+history 模式的实现原理
+HTML5 提供了 History API 来实现 URL 的变化。其中做最主要的 API 有以下两个：history.pushState() 和 history.repalceState()。这两个 API 可以在不进行刷新的情况下，操作浏览器的历史纪录。唯一不同的是，前者是新增一个历史记录，后者是直接替换当前的历史记录，如下所示：
+window.history.pushState(null, null, path);
+window.history.replaceState(null, null, path);
+history 路由模式的实现主要基于存在下面几个特性：
+pushState 和 repalceState 两个 API 来操作实现 URL 的变化 ；
+我们可以使用 popstate 事件来监听 url 的变化，从而对页面进行跳转（渲染）；
+history.pushState() 或 history.replaceState() 不会触发 popstate 事件，这时我们需要手动触发页面跳转（渲染）。
+
+abstract模式 : 支持所有 JavaScript 运行环境，如 Node.js 服务器端。如果发现没有浏览器的 API，路由会自动强制进入这个模式.
+(后续补上)

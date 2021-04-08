@@ -1,14 +1,14 @@
 # 虚拟DOM
-真正的DOM元素非常庞大，直接操作DOM来修改视图的话，很消耗性能。而Javascript很容易处理，可以用Javascript对象来表示DOM树上的结构、属性信息，进而可以用Javascript对象构成的抽象树来表示真实的DOM树。
+真正的DOM元素非常庞大，直接操作DOM来修改视图的话，很消耗性能。而Javascript很容易处理，可以用Javascript对象来表示DOM树上的结构、属性信息，进而可以用Javascript对象构成的抽象树来表示真实的DOM树。虚拟DOM本质上是JavaScript对象,是对真实DOM的抽象。
 
 预先通过JavaScript进行各种计算，把最终的DOM操作计算出来并优化，由于这个DOM操作属于预处理操作，并没有真实的操作DOM，所以叫做虚拟DOM。最后在计算完毕才真正将DOM操作提交，将DOM操作变化反映到DOM树上。
 
 Vue.js将DOM树抽象成一个以Javascript对象为节点的虚拟DOM树，用VNode节点模拟真实DOM。
 
 Vitual DOM算法的步骤：
-- 用 JavaScript 对象结构表示 DOM 树的结构；然后用这个树构建一个真正的 DOM 树，插到文档当中
-- 当状态变更的时候，重新构造一棵新的对象树/重新渲染这个Javascript的对象结构。对比并记录新旧虚拟DOM树的差异
-- 所记录的差异应用到真正的DOM树上，对视图进行更新
+- ① 用 JavaScript 对象结构表示 DOM 树的结构；然后用这个树构建一个真正的 DOM 树，插到文档当中
+- ② diff 算法：当状态变更的时候，重新构造一棵新的对象树/重新渲染这个Javascript的对象结构。对比并记录新旧虚拟DOM树的差异
+- ③ pach 算法：所记录的差异应用到真正的DOM树上，对视图进行更新
 
 Vue通过建立一个虚拟DOM来追踪自己要如何改变真实DOM。
 ```javascript
@@ -160,7 +160,7 @@ JS引擎调用DOM API必须挂起JS引擎，转换传入的参数数据，激活
 为什么需要虚拟DOM进行diff检测差异
 当vue初始化时，会对数据data进行依赖收集，一旦数据变化，响应式系统就会得到通知，通常一个绑定一个数据就需要一个watcher
 
-2. 虚拟dom深度递归算法实现原理 diff 算法
+2. 虚拟dom深度递归算法实现原理 diff 算法 , **vue diff 原理/diff算法，如果有个节点数据发生了变化，vue 是怎么迅速找到对应的节点的**
 更新DOM树，将新老vnode节点进行对比，根据比较结果进行最小单位地修改视图（diff算法），而不是将整个视图根据新的vnode重绘。
 
 当页面数据变化时，Diff算法只比较同一层级的树节点，而非对树进行逐层搜索遍历，时间复杂度为O(N)：
@@ -194,6 +194,10 @@ createKeyToOldIndex（children，beginIndex,endIndex），创建key-index的map�
 3. **列表diff中key的作用**
 key的特殊属性主要用在Vue的虚拟DOM算法，使用key给每一个节点做一个唯一标识，Diff算法就可以在新旧nodes对比时正确辨识VNodes，**key的作用主要是为了精准高效的更新虚拟DOM**。
 
+如果不使用 key，Vue 会使用一种最大限度减少动态元素并且尽可能的尝试修复/再利用相同类型元素的算法。使用 key，它会基于 key 的变化重新排列元素顺序，并且会移除 key 不存在的元素。
+
+有相同父元素的子元素必须有独特的 key。重复的 key 会造成渲染错误
+
 - 准确：决定节点是否被复用。如果不使用key，vue会选择复用节点（尽可能的尝试就地修改/复用相同类型元素），导致之前节点的状态被保留下来，会产生一系列的bug。
 
 为同一层级的同组节点添加一个唯一的key进行区分，可以唯一的确定一组节点。识别出每一组节点，通过比较key发现，节点是同类的，只是位置发生了变化，这样只用移动操作调整位置，而不需要做创建和删除的操作，效率大大提高。
@@ -211,14 +215,65 @@ key的特殊属性主要用在Vue的虚拟DOM算法，使用key给每一个节�
 
 最常见的用例是结合v-for；
 
+当 Vue.js 用 v-for 正在更新已渲染过的元素列表时，它默认用“就地复用”策略。如果数据项的顺序被改变，Vue 将不会移动 DOM 元素来匹配数据项的顺序， 而是简单复用此处每个元素，并且确保它在特定索引下显示已被渲染过的每个元素。
+
 它也可以用于强制替换组件/元素而不是重复使用它。当遇到以下场景时它可能会很有用：
 - 完整触发组件的生命周期钩子
 - 触发过渡，<transition><span :key='text'>{{text}}</span></transition>，当key发生变化时，span总是被替换而不是被修改，因此会触发过渡。
 使用相同标签名元素的过渡切换时，也用到key，目的是让vue可以区分它们，否则vue只会替换其内部属性，不会触发transition过渡效果。
 
-vue diff 原理/diff算法，如果有个节点数据发生了变化，vue 是怎么迅速找到对应的节点的
-Virtual Dom的作用，是否可以提高性能？为什么快？
-key 的作用，如果用 index 做 key 有什么问题，为什么不推荐使用数组的index
+
+key是为Vue中的vnode标记的唯一id,通过这个key,我们的diff操作可以更准确、更快速
+
+diff算法的过程中,先会进行新旧节点的首尾交叉对比,当无法匹配的时候会用新节点的key与旧节点进行比对,然后超出差异.
+
+diff程可以概括为：Vue 的 diff 过程可以概括为：oldCh 和 newCh 各有两个头尾的变量 oldStartIndex、oldEndIndex 和 newStartIndex、newEndIndex，它们会新节点和旧节点会进行两两对比，即一共有4种比较方式：newStartIndex 和oldStartIndex 、newEndIndex 和 oldEndIndex 、newStartIndex 和 oldEndIndex 、newEndIndex 和 oldStartIndex，如果以上 4 种比较都没匹配，如果设置了key，就会用 key 再进行比较，在比较的过程中，遍历会往中间靠，一旦 StartIdx > EndIdx 表明 oldCh 和 newCh 至少有一个已经遍历完了，就会结束比较。这四种比较方式就是首、尾、旧尾新头、旧头新尾.
+
+准确: 如果不加key,那么vue会选择复用节点(Vue的就地更新策略),导致之前节点的状态被保留下来,会产生一系列的bug. 如果加了key，在 sameNode 函数 a.key === b.key 对比中可以避免就地复用的情况。所以会更加准确。
+
+快速: key的唯一性可以被Map数据结构充分利用,相比于遍历查找的时间复杂度O(n),Map的时间复杂度仅仅为O(1).利用 key 的唯一性生成 map 对象来获取对应节点，比遍历方式更快。
+
+```javascript
+function createKeyToOldIdx (children, beginIdx, endIdx) {
+  let i, key
+  const map = {}
+  for (i = beginIdx; i <= endIdx; ++i) {
+    key = children[i].key
+    if (isDef(key)) map[key] = i
+  }
+  return map
+}
+```
+## key 的作用，如果用 index 做 key 有什么问题，为什么不推荐使用数组的index
+
 Virtual DOM 真的比操作原生 DOM 快吗？谈谈你的想法。
-（滴滴、饿了么）写 React / Vue 项目时为什么要在列表组件中写 key，其作用是什么？
+
 React 和 Vue 的 diff 时间复杂度从 O(n^3) 优化到 O(n) ，那么 O(n^3) 和 O(n) 是如何计算出来的？
+
+## 既然Vue通过数据劫持可以精准探测数据变化,为什么还需要虚拟DOM进行diff检测差异?
+考点: Vue的变化侦测原理
+
+前置知识: 依赖收集、虚拟DOM、响应式系统
+
+现代前端框架有两种方式侦测变化,一种是pull一种是push
+
+pull: 其代表为React,我们可以回忆一下React是如何侦测到变化的,我们通常会用setStateAPI显式更新,然后React会进行一层层的Virtual Dom Diff操作找出差异,然后Patch到DOM上,React从一开始就不知道到底是哪发生了变化,只是知道「有变化了」,然后再进行比较暴力的Diff操作查找「哪发生变化了」，另外一个代表就是Angular的脏检查操作。
+
+push: Vue的响应式系统则是push的代表,当Vue程序初始化的时候就会对数据data进行依赖的收集,一但数据发生变化,响应式系统就会立刻得知,因此Vue是一开始就知道是「在哪发生变化了」,但是这又会产生一个问题,如果你熟悉Vue的响应式系统就知道,通常一个绑定一个数据就需要一个Watcher,一但我们的绑定细粒度过高就会产生大量的Watcher,这会带来内存以及依赖追踪的开销,而细粒度过低会无法精准侦测变化,因此Vue的设计是选择中等细粒度的方案,在组件级别进行push侦测的方式,也就是那套响应式系统,通常我们会第一时间侦测到发生变化的组件,然后在组件内部进行Virtual Dom Diff获取更加具体的差异,而Virtual Dom Diff则是pull操作,Vue是push+pull结合的方式进行变化侦测的.
+
+5. 介绍虚拟DOM（https://www.jianshu.com/p/616999666920）
+
+虚拟DOM的优劣如何?
+优点:
+
+保证性能下限: 虚拟DOM可以经过diff找出最小差异,然后批量进行patch,这种操作虽然比不上手动优化,框架的虚拟 DOM 需要适配任何上层 API 可能产生的操作，它的一些 DOM 操作的实现必须是普适的，所以它的性能并不是最优的；但是比起粗暴的DOM操作性能要好很多,因此虚拟DOM可以保证性能下限
+
+无需手动操作DOM: 虚拟DOM的diff和patch都是在一次更新中自动进行的,我们无需手动操作DOM,极大提高开发效率,只需要写好 View-Model 的代码逻辑，框架会根据虚拟 DOM 和 数据双向绑定，帮我们以可预期的方式更新视图，极大提高我们的开发效率；
+
+跨平台: 虚拟DOM本质上是JavaScript对象,而DOM与平台强相关,相比之下虚拟DOM可以进行更方便地跨平台操作,例如服务器渲染、移动端开发等等
+
+缺点:
+
+无法进行极致优化: 在一些性能要求极高的应用中虚拟DOM无法进行针对性的极致优化,比如VScode采用直接手动操作DOM的方式进行极端的性能优化
+
+虚拟DOM实现原理? [面试官: 你对虚拟DOM原理的理解?](https://mp.weixin.qq.com/s?__biz=MzI3NjM1OTI3Mw==&mid=2247483738&idx=1&sn=3f38e3ad9dddfa9740c9f3f4eb8b412c&chksm=eb77f05cdc00794a8b87f46b5bef4d854227b800c0a3b71178f8cc1624ecafa049c8339981ae&scene=21#wechat_redirect)

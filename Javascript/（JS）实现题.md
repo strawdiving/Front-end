@@ -615,8 +615,7 @@ setInterval需要注意的点，使用 setTimeout实现 setInterval
 - 如果自己写个转发中间件，思路是什么？
 实现 deepClone，要求能成功克隆带有循环引用的对象
 多种方式实现深拷贝、对比优缺点; 实现一个deepClone需要兼容set、map、symbol、object；深浅clone，以及优化方案
-如何去除url中的#号
-获取url参数的方法
+
 通过什么做到并发请求，并发请求资源数上限（6个）
 手写防抖和节流（防抖debounce和节流throttle）工具函数、并理解其内部原理和应用场景
 打印出来html里所有标签
@@ -682,3 +681,17 @@ function a(){
     alert(10)
 }
 ```
+实现一个方法，参数是一个generator函数，执行结果是执行完所有generator中的yield
+
+7. [1,2,3].map(parseInt) 执行结果
+1、实现sum(1)(2)(3).valueOf()，实现这么一个sum函数，返回6
+3. 实现（10）.add(10).add(10) 函数柯里化？
+2.taskSum(1000,()=>{console.log(1)}).task(1200,()=>{console.log(2)}).task(1300,()=>{console.log(3)})，这里等待1s，打印1，之后等待1.2s，打印2，之后打印1.3s，打印3
+
+1、多空格字符串格式化为数组
+日期转化为2小时前，1分钟前等、固定日期与当前时间格式化处理；输入一个日期 返回几秒前 几天前或者几月前；
+倒计时功能
+换行字符串格式化
+
+写一个url解析函数，包括hash
+1. function request(urls, maxNumber, callback) 要求编写函数实现，可以批量请求数据，所有的 URL 地址在 urls 参数中，根据urls数组内的url地址进行并发网络请求，最大并发数maxNumber,当所有请求完毕后调用callback函数(已知请求网络的方法可以使用fetch api)

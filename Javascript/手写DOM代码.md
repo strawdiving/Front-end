@@ -5,8 +5,6 @@
 5. 点击table的td显示td内容
 6. 两个同源tab之间的交互，数据同步
 7. 代码实现连续点击3次每次间隔不超过1秒然后弹出页面（类似安卓的关于手机彩蛋）；
-8. 长列表渲染(一个列表，假设有100000个数据，怎么办)
-9. 页面搜索功能的实现
 10. 图片预览功能
 ```javascript
     <input type="file" name="file" onchange="showPreview(this)" />
@@ -22,60 +20,6 @@
       fr.readAsDataURL(file);
 	  }
 	}
-```
-11. 文本信息文件下载
-可以将文本或JS字符串信息借助Blob转换成二进制，然后作为< a >元素的 href 属性，配合 download 属性，实现下载。
-
-希望在前端侧直接触发某些资源的下载，最方便快捷的方法就是使用HTML5原生的 download 属性，例如：
-```html
-<a href="large.jpg" download>下载</a>
-```
-
-```javascript
-// content: 需要下载的文本或字符串内容; filename: 下载到系统中的文件名称
-var download = function ( content, filename) {
-  // 创建隐藏的可下载链接
-  var eleLink = document.createElement('a')
-  eleLink.download = filename
-  eleLink.style.display = 'none'
-
-  if(!(blob instangceof Blob)) {
-    // 字符内容变成blob地址
-    var blob = new Blob([content])
-  }
-  eleLink.href = URL.createObjectURL(blob)
-
-  // 触发点击
-  document.body.appendChild(eleLink)
-  eleLink.click()
-
-  // 移除
-  document.body.removeChild(eleLink)
-}
-```
-
-在chrome中，模拟点击创建的< a >元素即使不append到页面中，也是可以触发下载的。但Firefox中不行，所以appendChild和removeChild的处理是为了兼容 Firefox。
-
-对于非文本文件，也可以直接JS触发下载。如果要下载一张图片，可以将图片转成base64格式，然后下载。 将页面元素转换到canvas上，再转成base64格式下载。
-
-```javascript
-var funDownload = function(domImg, filename) {
-
-// 创建隐藏的可下载链接
-
-// 图片转base64地址
-var canvas = doxument.createElement('canvas')
-var context = canvas.getContext('2d')
-var width = domImg.naturalWidth
-var height = domImg,naturalHeight
-context.drawImage(domImg,0,0)
-
-// 如果是png图片，则canvas.toDataURL('image/png')
-eleLink.href = canvas.toDataURL('image/jpeg')
-// 触发点击
-// 移除
-}
-......
 ```
 
 第 63 题：如何设计实现无缝轮播
@@ -138,18 +82,11 @@ methods: {
 
 ```
 
-
-文件上传如何做断点续传
-搜索请求如何处理（防抖）
-搜索请求中文如何请求
-
 构建常见的 Web 应用程序的布局和交互，例如类似 Netflix 网站那样的。
 
-实现小部件，如日期选择器、轮播或电子商务网站购物车。
+实现小部件，如日期选择器、电子商务网站购物车。
 
 2. 分割字符串；实际考察知识点：对「正则表达式」的了解
-3. 富文本编辑器的实现；
-4. 文件上传的实现；
 
 - 往ul里面添加10个li，如果有十个元素要修改样式，怎么避免多次回流
 ```javascript
@@ -236,8 +173,6 @@ hello inner → hello innermost → hello outer
 
 组件库的样式自定义是如何实现的
 
-
-
 页面上有1万个button如何绑定事件
 如何判断是button
 页面上生成一万个button，并且绑定事件，如何做（JS原生操作DOM）
@@ -245,8 +180,9 @@ hello inner → hello innermost → hello outer
 
 页面上有一个input，还有一个p标签，改变input后p标签就跟着变化，如何处理
 监听input的哪个事件，在什么时候触发
+页面搜索功能的实现
 input 搜索如何防抖，如何处理中文输入
-在输入框中如何判断输入的是一个正确的网址。
+在输入框中如何判断输入的是一个正确的网址
 实现模糊搜索结果的关键词高亮显示
 类似百度搜索的提示框，兼容各大浏览器，可用键盘控制.
 

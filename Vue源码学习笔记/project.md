@@ -6,7 +6,7 @@ Vue.js的源代码都放在src目录中。src目录下有多个并列的文件�
 - compiler/
   - directives/
   - parser/，把template转化为AST
-    
+
 - core/
   - observer/
     - dep.js，Dep类，数据观察和视图依赖相关联的关键
@@ -58,6 +58,43 @@ Vue的MVVM工作方式的核心，即如何实现observer，directive(parser)，
 - **Compiler指令解析器**，  对每个元素节点的指令（directive）进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数；
 - **Watcher订阅者**，  作为连接Observer和Compiler的桥梁，能订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数；
 - **Dep消息订阅器**，  内部维护了一个数组，用来收集订阅者（watcher），数据变动触发dep.notify()函数,再调用订阅者的update方法。
+
+```javascript
+// 这是将要被劫持的对象
+const data = {
+  name: '',
+};
+
+function say(name) {
+  if (name === '古天乐') {
+    console.log('给大家推荐一款超好玩的游戏');
+  } else if (name === '渣渣辉') {
+    console.log('戏我演过很多,可游戏我只玩贪玩懒月');
+  } else {
+    console.log('来做我的兄弟');
+  }
+}
+
+// 遍历对象,对其属性值进行劫持
+Object.keys(data).forEach(function(key) {
+  Object.defineProperty(data, key, {
+    enumerable: true,
+    configurable: true,
+    get: function() {
+      console.log('get');
+    },
+    set: function(newVal) {
+      // 当属性值发生变化时我们可以进行额外操作
+      console.log(`大家好,我系${newVal}`);
+      say(newVal);
+    },
+  });
+});
+
+data.name = '渣渣辉';
+//大家好,我系渣渣辉
+//戏我演过很多,可游戏我只玩贪玩懒月
+```
 
 #### 工作流程
 new Vue() ——Vue进入初始化阶段，

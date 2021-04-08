@@ -478,3 +478,9 @@ Vuex 允许在Store中定义 “ Getter”（类似于 Store 的计算属性）�
 对vuex的看法
 为什么 Vuex 的 mutation 和 Redux 的 reducer 中不能做异步操作？
 双向绑定和 vuex 是否冲突
+
+## vuex是什么？怎么使用？哪种功能场景使用它？
+只用来读取的状态集中放在store中； 改变状态的方式是提交mutations，这是个同步的事物； 异步逻辑应该封装在action中。
+在main.js引入store，注入。新建了一个目录store，….. export 。
+场景有：单页应用中，组件之间的状态、音乐播放、登录状态、加入购物车
+图片描述

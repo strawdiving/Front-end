@@ -99,3 +99,16 @@ git stash clear 的代码 sha 会被记录到 .git/lost-found 中，通过 git f
 git fsck --lost-found | awk '/dangling commit/ {print $3}' | xargs -I {} git show {} >> TMP_FILE;
 
 这个经验也说明了另外一个问题，你要很小心，很可能你 stash/focePush/forceDeleteBranch 仍然可以在仓库中找到，如果在代码中不小心提交过密码或其他敏感信息，通过简单的 delete branch 或者 reset —hard && force push 等方式是不够的。
+
+## github连不上
+
+获取github.com地址
+
+访问：https://github.com.ipaddress.com/#ipinfo 获取cdn和ip：
+
+得到：140.82.114.4 http://github.com
+
+修改 hosts文件映射上面查找到的IP
+
+在hosts文件里添加 `140.82.114.4 github.com`
+

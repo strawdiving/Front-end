@@ -273,8 +273,10 @@ http content-type 有哪几种，有什么区别
 http1.1时如何复用tcp连接
 Http报文的请求会有几个部分
 介绍下HTTP状态码
-403、301、302是什么
-说一下200和304的理解和区别
+302.304.301.401.403的区别？
+说一下200和304的理解和区别, 204和304分别有什么作用？
+
+- 有了【Last-Modified，If-Modified-Since】为何还要有【ETag、If-None-Match】
 
 - get和post有什么区别?什么情况下用到?
 

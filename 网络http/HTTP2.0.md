@@ -41,3 +41,5 @@ HTTP2 和 1.1 的 keep alive 啥区别？
 
 HTTP/2 将如何影响 JavaScript 应用程序打包？
    列出 HTTP/2 与其上一个版本的基本区别。
+
+   HTTP/2.0 都有哪些特性？头部压缩的原理？

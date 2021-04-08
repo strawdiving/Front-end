@@ -25,6 +25,7 @@ Ajax技术的核心是XMLHttpRequest对象，这个对象充当着浏览器中�
 - 手写Ajax，XMLHttpRequest
 原生Ajax实现过程；
 一个 XMLHttpRequest 实例有多少种状态？
+ajax 的原生写法（创建 XHR 对象， open() ， setRequestHeader() ， send()onreadystatechange ） )
 
 - axios和ajax的区别
 区别 axios是通过promise实现对ajax技术的一种封装，就像jQuery实现ajax封装一样。 简单来说： ajax技术实现了网页的局部数据刷新，axios实现了对ajax的封装。 axios是ajax ajax不止axios。

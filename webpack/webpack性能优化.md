@@ -1,8 +1,36 @@
+前端工程化：
+- 前端开发要自成体系，包括构建、部署和运维，不再和后端耦合，后端通过RESTful API提供服务
+- 设计要分层，来应对需求和技术的变化
+
+模块化就是将一个大文件拆分成相互依赖的小文件，再进行统一的拼装和加载。只有这样，才有多人协作的可能
+
+模块的打包和加载问题：1. 用Webpack+Babel将所有模块打包成一个文件同步加载，也可以打成多个chunk异步加载；
+
+前端项目的性能优化：
+
+vue有很多页面，用vue-router配置路由，打包好项目后，页面打开很慢，使用路由懒加载，进入哪个页面，加载哪个页面
+
+webpack:
+  - tree shaking 去除没有使用的代码
+  - 提取公共包，有被问到
+  - 拆分模块，按需加载
+  - 优化图片，使用 base64 代替小图
+  - file name with hash (etag)
+
+webpack4，要另外安装独立的webpack-cli命令行工具包
+production阶段：
+- 开启所有的优化代码
+- 更小的bundle大小
+- 去除掉只在开发阶段运行的代码
+- Scope hoistion和Tree-Shaking
+- 自动启用uglifyjs对代码进行压缩
+- 按需加载
+
 ## webpack优化前端性能
 优化webpack的输出结果，让打包的最终结果在浏览器运行快速高效。
 - 压缩删除多余的代码，注释，简化代码的写法等，UglifyJSPlugin,ParallelUglifyPlugin压缩JS文件；optimise-css-assets-webpack-plugin压缩css
 - 利用CDN加速，在构建过程中，将引用的静态资源路径修改为CDN上对应的路径。利用webpack的output参数和各个loader的publicPath参数来修改资源路径
-- Tree Shaking,将代码中永远不会走到的片段删除掉。在启动webpack时追加参数 --optimize-minimize来实现                              
+- Tree Shaking,将代码中永远不会走到的片段删除掉。在启动webpack时追加参数 --optimize-minimize来实现
 - Code Splitting，将代码按路由维度或组件分块，这样做到按需加载，同时充分利用浏览器缓存
 - 提取公共第三方库，SplitChunksPlugin插件（webpack4)（webpack4)进行公共模块提取，利用浏览器缓存可以长期缓存这些无需频繁变动的公共代码
 - 使用tree-shaking和scope hoisting来删除多余代码
@@ -91,13 +119,13 @@ module.exports = {
       new UglifyJsPlugin({
         cache: true,
         parallel: true,
-        sourceMap: true 
+        sourceMap: true
       }),
       new OptimizeCSSAssetsPlugin({})  // use OptimizeCSSAssetsPlugin
     ],
     splitChuncks: {
         cacheGroups: {
-        styles: {            
+        styles: {
           name: 'styles',
           test: /\.scss|css$/,
           chunks: 'all',    //将多个css chunk合并成一个css文件 merge all the css chunk to one file
@@ -139,20 +167,20 @@ webpack --optimize-minimize 进行压缩
 --optimize-minimize的底层实现是一个UglifyJsPlugin（webpack4已经内部配置，删除代码中的console 语句 注释的语句 以及空格等）
 ```javascript
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin'); module.exports = { plugins:
- [ new UglifyJsPlugin({ 
-     // 允许并发 
+ [ new UglifyJsPlugin({
+     // 允许并发
      parallel: true,
-      // 开启缓存 
+      // 开启缓存
       cache: true,
-       compress: 
+       compress:
        { // 删除所有的console语句
-        drop_console: true 
-        }, 
+        drop_console: true
+        },
         output: {
-             // 不保留注释 
-             comment: false, // 使输出的代码尽可能紧凑 
-             beautify: false 
-             } 
+             // 不保留注释
+             comment: false, // 使输出的代码尽可能紧凑
+             beautify: false
+             }
              })
  ] }
 ```
