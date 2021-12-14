@@ -29,3 +29,50 @@ font-awesome图标库版本要注意：
 日期时间组件：
    对日期进行筛选，设定defaultTime，设定禁用日期/可选日期时间范围disableDate
 
+## 权限设置
+### 指令权限：实现按钮级别的权限判断
+1.  v-permission指令
+
+```javascript
+const roles = store.getter.roles
+const { value } = binding
+
+if(value && value instanceof Array && value.length > 0) {
+   const permissionRoles = value
+   // 看当前用户的roles是否符合v-permission中列出来的，来控制组件/按钮的可见性
+   const hasPermission = roles.some(role => {
+      return permissionRoles.includes(role)
+   })
+   if(!hasPermission) {
+      { el.parentNode && el.parentNode.removeChild(el) }
+   }
+} else {
+   报错 'need roles'
+}
+```
+
+- 使用：`<el-tag v-permission="['admin']"></el-tag>`，表明admin角色可见
+
+根据当前用户的roles是否匹配v-permission中列出来的角色，来控制组件/按钮的可见性。
+
+如：v-permission=['admin', 'editor']
+
+- 局限：Tab组件不可用v-permission，必须手动设置v-if；解决办法：可以使用全局权限判断函数
+```javascript
+<el-tab-pane v-if="checkPermission(['admin'])"/>
+```
+checkPermission用法和v-permission类似
+
+### 菜单权限
+通过获取当前用户的权限，去对比路由表，生成当前用户具有权限可访问的路由表，通过 router.addRoutes 动态挂载到router上。
+
+另一个思路：在后台给每个页面动态配置权限，将路由表存到后端，用户登录后得到roles，前端根据roles向后端请求可访问的路由表，从而动态生成可访问页面，用router.addRoutes挂载到router上。
+
+高级用户配置其他用户可见的图表，页面上根据roles显示可见的图表。
+
+main.js中，导航卫士beforeRoute，如果没有login信息，则在每个route前加上/login
+
+登录：不同权限对应不同路由，菜单也根据不同权限异步生成。
+填写账号密码后，向服务器端验证是否正确，通过后，服务器端返回一个token，拿到token后，存储在cookie中，保证刷新页面后能记住登录状态。
+
+权限验证：通过token获取用户对应的role，动态根据role算出其对应有权限的路由，通过router.addRoutes动态挂载路由，由vuex管理动态路由

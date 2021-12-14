@@ -93,3 +93,9 @@ React非父子、兄弟组件传值：状态管理--Redux、Mobx等等。
 state是怎么注入到组件的，从reducer到组件经历了什么样的过程
 redux/redux-saga
 其他状态管理？Mobx
+
+## React-Router
+如何配置React-Router
+React怎么做数据的检查和变化
+react-router怎么实现路由切换
+react-router里的<Link>标签和<a>标签有什么区别

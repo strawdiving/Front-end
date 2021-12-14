@@ -100,8 +100,10 @@ JSON Web令牌（JWT）是一种JSON对象，在RFC 7519中定义为在两方之
 
 - 用户登录，成功后服务器返回Token给客户端。
 - 客户端收到数据后保存在客户端
-- 客户端再次访问服务器，将token放入headers中
-- 服务器端采用filter过滤器校验。校验成功则返回请求数据，校验失败则返回错误码
+- 客户端再次访问服务器，将token放入headers中，向业务接口发送请求
+- 业务接口执行业务逻辑前，凭token验证用户身份
+  合法性（有token),token未过期，token对应的用户权限Auth授权，
+  服务器端采用filter过滤器校验。校验成功则返回请求数据，校验失败则返回错误码
 
 token的认证方式类似于**临时的证书签名**，并且是一种服务端无状态的认证方式，非常适合RESTful API的场景。所谓无状态就是服务端不会保存身份认证相关的数据。
 
@@ -116,10 +118,50 @@ token的认证方式类似于**临时的证书签名**，并且是一种服务�
 token中的数据是明文保存的（虽然用base64做下编码，但这不是加密，仍然可以被别人看到，所以不能存放敏感信息）；用token就不用保存session id，只是生成token验证token，虽然让服务器有一些计算压力（例如加密、编码和解码），用CPU计算时间换取session存储空间。机器集群就可以自由地水平扩展。
 
 - 简述 JWT 的生成过程和优缺点，怎么主动注销 JWT 和续签 JWT
+JWT（Json web token)，默认不加密
+服务器认证后，生成一个JSON对象，发给client
+
+JWT分为3个部分，Header(头部)，Payload, Signature(签名)，中间用"."隔开，即Header.Payload.Signature，再将JWT对象用base64Url转成字符串，返回给用户。
+```javascript
+Header: {
+  "alg": "HS256", //签名算法 HS256
+  "typ": "JWT"，// token的类型，JWT
+}
+Payload: // 存放实际需要传递的数据
+
+Signature: 对前两部分的签名，防止数据篡改
+           需要一个密钥secret（只有服务器知道），用Header里指定的算法，按公式产生签名
+```
+Header可以有7个字段:
+- iss, 签发人
+- exp, 过期时间
+- sub, 主题
+...
+- jti, 编号
+还可以定义私有字段
+
+- 缺点：
+服务器不保存session的状态，使用过程中无法废除某个token，或更改token权限。
 
 jwt 无法作废已经颁布的令牌。由于服务端不需要存储session状态，因此使用过程中无法废弃某个token或更改token的权限。也就是说，token一旦签发了，到期之前就会始终有效，除非服务器部署额外的逻辑。
 
 payload存储的用户信息通过base64加密，可以直接解密，所以不能存放敏感数据。
+
+生成token-- json web token:
+```javascript
+function(req, res) {
+  token = jwt.sign({ _id: user.id, admin: user.role === 'admin' }, 'secret123', { expiresIn: 3600*24*3 })
+  res.json({ status: 'ok', data: { token: token } })
+}
+// 生成token, node的jwt库jsonwebtoken
+jsonwebtoken.sign(info, secret, options) // info即payload
+// 解析用户数据
+jsonwebtoken.verify(token.secret, callback)
+// 拦截请求
+app.use(function(req, res, next) {
+  jsonwebtoken.verify(req.token, ...)}
+})
+```
 
 ## cookie token和session的区别
 token的优点：
@@ -199,3 +241,49 @@ cookie,session,token,withCredentials，httpOnly
 介绍下前端加密的常见场景和方法
     MD5/RSA
 介绍下数字签名的原理
+
+## session
+client --> server，建立一个session，发送响应，头部包含set-cookie，里面包含了sessionId
+client <-- (set-cookie)-- server
+
+client --cookie--> server，在请求头中加入cookie，server接收请求，分解cookie，验证信息，核对成功后，返回response
+
+用session只需要在client保存一个id，大量数据存在server。session保存了用户的认证信息，登录状态。因为session有状态，一般存在服务器内存中
+
+而token，服务端无状态（server不保存身份认证相关数据）
+
+- token认证灵活，可以选择性认证，只有需要认证时才发送；session每次请求都会发送cookie
+- token客户端存储灵活，cookie,localStorage,sessionStorage
+- token可跨域，允许多域名认证，可附加在任何请求上；
+  cookie绑定单域名，A域名生成的cookie无法用于b域名。sessionId不能作为不同域名的共同认证id
+- token免疫CSRF（跨站请求伪造），一般和cookie相关
+  不免疫XSS（跨站脚本攻击）
+
+session存于server，可理解为一个状态列表，拥有一个唯一sessionId。通常存于cookie中。server收到cookie后接触sessionId, 再去session列表查找，查找到相应session。依赖于cookie
+
+token，server把用户信息加密（token）传给client，server收到token后解密可知是哪个用户。
+
+## cookie
+cookie的工作机制是用户识别和状态管理，为了管理用户状态，web网站会通过浏览器把一些数据临时写入用户计算机，当用户访问该网站时，可通过通信方式取回之前发送的cookie
+
+Cookie，请求首部字段，服务器接收到的当前页面设置的任何cookie
+Set-Cookie，响应首部字段，开始状态管理所使用的Cookie信息
+
+当server开始管理client的状态时，会事先告知各种信息：
+
+NAME=VALUE；名称和值
+expires=DATE，有效期，没有则是浏览器关闭为止，仅限于维持浏览器回话期间。
+path=PATH, server上的文件目录
+domain=域名，默认为创建cookie的server的域名
+Secure，仅HTTPS通信时才发送cookie
+HTTPOnly，加以限制，使cookie不能被JS脚本访问，主要防止XSS 对cookie的窃取
+
+
+restful API ,rest是无状态的，也就是不用cookie保存session
+session表示会话状态，通过sessionId确定client的身份，找回状态
+token注重授权，拿到token可享特定的功能权限
+
+一旦cookie从server发送至client，server端就不能显式删除cookie，但可以覆盖已过期的cookie，实现对client cookie的实质性删除操作
+
+Cookie NAME=VALUE
+告知server，当client想获取HTTP状态管理支持时，就会在请求中包含从server接收到的cookiehnjnxjjfcdjmm ,./mm,./<,,,,,,,///m.,/?>

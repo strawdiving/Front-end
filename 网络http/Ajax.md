@@ -47,16 +47,37 @@ axios是基于Promise，用于浏览器和node.js的http客户端，本身具有
 ## 拦截器
 添加拦截器，可以拦截请求或响应
 ```javascript
+const service = axios.create({
+    baseURL: '/',
+    timeout: 5000
+})
+
+// 请求拦截器
 axios.interceptors.request.use(config => {
 // do something before sending request
+if(store.getters.token) {
+    config.headers['x-token'] = store.getters.token
+}
 return config
 }, error => {
     //do something with error
     return Promise.reject(error)
 })
+
+// 响应拦截器，通过在response里自定义code来标示请求状态，如非法token等
 axios.interceptors.response.use(response => {
 // do something to response
-return response
+    if (response.data.code !== 200) {
+        Message({
+            message: res.message,
+            type: 'error'
+        })
+        if (response.data.code === 50008) {
+            // do something
+        }
+    } else {
+        return response
+    }
 }, error => {
     //do something with error
     return Promise.reject(error)

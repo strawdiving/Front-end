@@ -1,14 +1,14 @@
-### 前端如何实现即时通讯
+### 前端如何实现即时通讯，如何实现 Tab（标签）页之间，客户端与服务器的实时通讯
 - Long-Polling、Websockets 和 Server-Sent Event 之间有什么区别？
 1. 短轮询：每隔一段时间客户端就发出一个请求，去获取server最新的数据，一定程度模拟了即时通讯
-2. commet，一种是基于Ajax的长轮询方式，一种是基于iframe的流方式，一般叫做长连接
+2. comet，一种是基于Ajax的长轮询方式，一种是基于iframe的流方式，一般叫做长连接
 长轮询的缺点：服务器hold连接会消耗资源，返回数据顺序无保证，
 长连接的缺点：server维护长连接消耗资源
 3. SSE（Server-Sent-Events）：一种允许server向client推送数据的HTML5技术。client发起请求，打开event stream，后端就会一直向client推送数据。
 优点：基于HTTP而生，不需太多改造就能用
 缺点：基于文本传输效率没有websocket高，不是严格的双向通信，client向server发送请求，无法复用之前的连接，需要重新发独立的请求。
 4. Websocket（双向通信）
-全新的，独立的协议，基于TCP协议，和http兼容，不融入http。作用是建立全双工，持久化通信。
+全新的，独立的协议，基于TCP协议，和http兼容，不融入http。作用是建立全双工，持久化通信。性能好，延迟低
 
 web worker,为Javascript创造多线程环境，允许主线程创建Worker线程，将一些任务分配给后者执行。
 Service Workers，本质上充当Web应用程序与client之间的代理服务器，也可在网络可用时充当网络和浏览器之间的代理，创建有效的离线体验。
@@ -50,14 +50,20 @@ HTTP1.1:
 ### restful的method —— GET,POST,PUT,DELETE
 
 ### 不同请求类型的区别
-1.1 GET VS POST
-- 数据传输方式：GET通过URL传输数据，POST数据通过请求体传输
-- 安全性：POST数据在请求体，有一定安全保证，GET在URL中，通过历史记录，缓存很容易查到数据信息
-- 数据类型：GET,ASCII字符；POST无限制
-- 刷新后退等操作对GET无害，POST可能会重复提交表单
-- 特性不同，GET只读，不会引起server状态变化，且幂等；POST非安全非幂等
+1.1 **GET VS POST**
+(1) 刷新后退等操作对GET无害，而POST请求会告知用户数据会被重新提交，可能会重复提交表单；
+(2) 数据传输方式：GET通过URL传输数据，POST数据通过请求体传输。
+(3) GET请求只能进行url编码，而POST请求支持多种编码方式。
+(4) GET请求长度有限制，发送数据时，GET请求向URL添加数据，URL长度是有限制的，最大长度是2048个字符，POST请求无长度限制；
+(5) 数据类型：GET请求只允许ASCII字符，POST请求无限制，支持二进制数据；
+(6) 安全性：
+    GET请求可以收藏为书签，POST请求不可以收藏为书签；
+    GET请求可以被缓存，POST请求不可以被缓存；
+    GET请求的参数可以被保留在浏览器的历史中，POST请求不会被保留；
+    GET请求的安全性较差，数据被暴露在浏览器的URL中，通过历史记录，缓存很容易查到数据信息，所以不能用来传递敏感信息；POST请求的数据在请求体，安全性较好，数据不会暴露在URL中；
+(7) 特性不同: GET只读，不会引起server状态变化，且幂等(多次请求不会对资源造成影响)；POST非安全非幂等
+(8) GET请求会产生一个TCP数据包，POST请求会产生两个TCP数据包，因为GET请求会将http header和data数据一并发送出去，而POST请求会先发送http header数据，服务端响应100(continue)，然后POST请求再发送http data数据，服务端再响应200返回数据。
 
-HTTP method Post一个file的时候file放在哪的？
 1.2 http 请求幂等性
 幂等，同一个请求方法执行多次和仅执行一次的效果完全相同
 
@@ -75,7 +81,7 @@ put的语义是更新对应文章下的资源，幂等
 PATCH,用来对已知资源进行局部更新，只需要携带需要修改的信息。
 
 PUT是直接覆盖资源，局部修改时会带很多无用信息。
-## HTTP状态码和状态文本，301 与 302 的区别？200和304的区别
+## HTTP状态码和状态文本，301 与 302、307的区别？200和304的区别，301，302，304的区别，204和304分别有什么作用
 1xx，临时回应，表示客户端请继续
 1. 2xx，请求成功
 200，OK，请求成功
@@ -111,7 +117,7 @@ PUT是直接覆盖资源，局部修改时会带很多无用信息。
 501，Not Implemented，请求超出server能力范围（如是server不支持的方法）
 505，http version not supported，服务器不支持或拒绝支持请求中使用的HTTP版本
 
-## HTTP Head（键值对）
+## HTTP Head（键值对），Cache-Control、ETag、Status Codes 和 Transfer-Encoding
 1. HTTP Request/Response的Header
 **常用请求头部：**
 - Accept：浏览器接受的格式（内容/媒体类型）
@@ -186,7 +192,6 @@ PUT是直接覆盖资源，局部修改时会带很多无用信息。
 
 ## HTTP Request Body请求体
 主要用于提交表单场景，只要发送的body服务器端认可就行。常见的格式：application/json,application/x-www-form-urlencoded（form标签提交产生的请求）,multipart/form-data（文件上传）,text/xml
-
 
 ### 一个tcp连接能发几个http请求？
 HTTP1.0版本，一般不支持长连接，每次请求发完，TCP连接就会断开，因此一个TCP连接发送一个HTTP请求；
@@ -272,47 +277,16 @@ Image：图片一般放 CDN，大部分情况不需要 Cookie，故影响有限�
 http content-type 有哪几种，有什么区别
 http1.1时如何复用tcp连接
 Http报文的请求会有几个部分
-介绍下HTTP状态码
-302.304.301.401.403的区别？
-说一下200和304的理解和区别, 204和304分别有什么作用？
 
-- 有了【Last-Modified，If-Modified-Since】为何还要有【ETag、If-None-Match】
+### 有了【Last-Modified，If-Modified-Since】为何还要有【ETag、If-None-Match】
 
-- get和post有什么区别?什么情况下用到?
-
-(1) GET请求在浏览器回退和刷新时是无害的，而POST请求会告知用户数据会被重新提交；
-(2) GET请求可以收藏为书签，POST请求不可以收藏为书签；
-(3) GET请求可以被缓存，POST请求不可以被缓存；
-(4) GET请求只能进行url编码，而POST请求支持多种编码方式。
-(5) GET请求的参数可以被保留在浏览器的历史中，POST请求不会被保留；
-(6) GET请求长度有限制，发送数据时，GET请求向URL添加数据，URL长度是有限制的，最大长度是2048个字符，POST请求无长度限制；
-(7) GET请求只允许ASCII字符，POST请求无限制，支持二进制数据；
-(8) GET请求的安全性较差，数据被暴露在浏览器的URL中，所以不能用来传递敏感信息，POST请求的安全性较好，数据不会暴露在URL中；
-(9) GET请求具有幂等性(多次请求不会对资源造成影响)，POST请求不幂等；
-(10) GET请求会产生一个TCP数据包，POST请求会产生两个TCP数据包，因为GET请求会将http header和data数据一并发送出去，而POST请求会先发送http header数据，服务端响应100(continue)，然后POST请求再发送http data数据，服务端再响应200返回数据。
-
-Post一个file的时候file放在哪的？
-HTTP Response的Header里面都有些啥？
-
-Http请求的过程与原理
-HTTP 请求——GET 和 POST 以及相关标头，如 Cache-Control、ETag、Status Codes 和 Transfer-Encoding；
-浏览器向服务器发送请求，相应数据包被拦截怎么办
-http缓存控制
-缓存相关的HTTP请求头
-性能优化为什么要减少 HTTP 访问次数？
+### Post一个file的时候file放在哪的？
 http有几次挥手和握手？
+
 REST 与 RPC；
 
-从浏览器里访问一个地址，从网络的 tcp/ip 协议、聊到操作系统 io、内存管理、进程管理和文件管理，再聊到负载均衡、限流算法、分布式事务，相比之下前端真的简单很多，不过知识储备多肯定是有用的。
-
-HTTP 首部（Header）和实体（Body）的分隔符是什么，用正则如何匹配
-HTTP请求报文和响应报文的具体组成，能理解常见请求头的含义，有几种请求方式，区别是什么
 - HTTP 报文
-  请求行 + 头部信息 + 空白行 + body  有被问到说空白行的意义，我一直以为就是纯粹来标识 headers 的结束，但是面试官说不止这个功能，我后面看了HTTP 权威指南 也没有找到，Stack Overflow 也没找到。。。希望有人知道可以跟我说一下。
-HTTP所有状态码的具体含义，看到异常状态码能快速定位问题
-HTTP 状态码：301、302、307 的区别
+  请求行 + 头部信息 + 空白行 + body  有被问到说空白行的意义，我一直以为就是纯粹来标识 headers 的结束，但是面试官说不止这个功能。
+  HTTP 首部（Header）和实体（Body）的分隔符是什么，用正则如何匹配
 
-如何实现 Tab（标签）页之间，客户端与服务器的实时通讯
-
-5. CDN的作用和原理
 

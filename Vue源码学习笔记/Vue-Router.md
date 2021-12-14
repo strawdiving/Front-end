@@ -1,6 +1,31 @@
 ## Vue Router路由
+### 功能
+1. 嵌套的路由/视图表
+2. 模块化的、基于组件的路由配置
+3. 路由参数、查询、通配符
+4. 基于Vue过渡系统的视图过渡效果
+5. 细粒度的导航控制
+6. 带有自动激活的CSS class的链接
+7. HTML5历史模式或hash模式，在IE9中自动降级
+8. 自定义的滚动条行为
 
-1. vue单页多页的区别
+### 配置路由
+1. 定义路由组件
+可以是直接定义，也可以是导入已定义好的组件：`import Home from './components/home.vue`
+2. 定义路由（路由对象数组）
+  ```javascript
+  const routes = [
+    { path: '/home', component: Home },
+    { path: '*', redirect: '/home' }
+  ]
+  // path是自定义的路径，通过该路径可以找到对应的组件，component是该路由对应的组件
+  ```
+3. 实例化Vue Router对象
+```javascript
+const router = new Vue Router({ routes, mode: 'history' })
+```
+
+## vue单页多页的区别
 单页面应用，是把多个页面的内容实现在同一个实际页面内的技术，因为失去了页面的天然解耦，所以要解决耦合问题。要在一个“物理页面”内，通过架构设计实现若干个“逻辑页面”。
 
 逻辑页面应该做到独立开发和独立发布，一种思路是每个逻辑页面一个js，用一个SPA框架加载js文件。
@@ -73,7 +98,7 @@ const router = new VueRouter({
 ```
 Hash模式是使用URL的Hash来模拟一个完整的URL，因此URL改变时页面并不会重载
 
-当使用history模式时，URL就像正常的url，例如 http://yoursite.com/user/id。
+当使用history模式时，URL就像正常的url，例如 http://yoursite.com/user/id。以通常的页面访问路径，需要服务端配置。
 
 History模式则会直接改变URL，所以在路由跳转时会丢失一些地址信息，在刷新或者直接访问路由地址的时候会匹配不到静态资源。因为我们的应用是要后台配置单页面应用，如果后台没有正确的配置，例如，当用户在浏览器直接访问http://yoursite.com/user/id 就会返回404。
 
@@ -106,34 +131,6 @@ hash模式仅改变hash部分的内容，而hash部分是不会包含在http请�
 官方推荐的解决办法是在服务端增加一个覆盖所有情况的候选资源，如果URL匹配不到任何静态资源，则应该返回同一个index.html页面，这个页面就是你app依赖的页面。同时，这么做以后，服务器就不再返回404错误页面，因为对于所有路径都会返回index.html文件。为了避免这种情况，在Vue应用里覆盖所有的路由情况，然后再给出一个404页面。
 
 或者如果使用Node.js服务器，可以用服务端路由匹配到来的URL，并在没有匹配到路由时返回404，以实现回退。
-
-
-如何配置React-Router
-路由的动态加载模块
-前端怎么控制管理路由
-使用路由时出现问题如何解决
-React怎么做数据的检查和变化
-react-router怎么实现路由切换
-react-router里的<Link>标签和<a>标签有什么区别
-<a>标签默认事件禁掉之后做了什么才实现了跳转
-
-- active-class是哪个组件的属性？嵌套路由怎么定义
-vue-router模块的router-link组件
-
-
-   1. vue-router: 搭建SPA
-       路由,组件的配置
-       路由间的传值
-       路由跳转
-       路由的导航守卫
-
-       记住在router.js 和 组件页面中的使用方式
-注意点：
-1.params只能用name来引入路由，query用path来引入
-2.params类似于post，query更加类似于我们ajax中get传参，说的再简单一点，前者在浏览器地址栏中不显示参数，后者显示，所以params传值相对安全一些。
-3.取值用法类似分别是this.$route.params.name和this.$route.query.name。
-4.params传值一刷新就没了，query传值刷新还存在
-
 ## Vue路由跳转方式有哪几种？
 1. router-link
 
@@ -180,8 +177,19 @@ this.$router.push({name:'home',params: {id:'1'}})  // 只能用 name
 ```
 2.2 query和params区别
 
-query类似 get, 跳转之后页面 url后面会拼接参数,类似?id=1, 非重要性的可以这样传, 密码之类还是用params刷新页面id还在
+query类似 get, 跳转之后页面 url后面会拼接参数,类似?id=1, 非重要性的可以这样传, 密码之类还是用params，刷新页面id还在
 params类似 post, 跳转之后页面 url后面不会拼接参数 , 但是刷新页面id 会消失
+
+// 传递
+this.$router.push({path: './xxx', params: {xx:xxx}})
+this.$router.push({path: './xxx', query: {xx:xxx}})
+
+// 接收
+this.$route.params；this.$route.query
+params 是路由的一部分,必须要有。query 是拼接在 url 后面的参数，没有也没关系
+params 不设置的时候，刷新页面或者返回参数会丢，query 则不会有这个问题
+
+使用params进行传参，不能用path，要用name，否则接收不到参数的，
 
 3. this.$router.replace() (用法同上,push)
 
@@ -193,24 +201,8 @@ vue-router 路由实现（https://zhuanlan.zhihu.com/p/37730038）
 路由就是用来跟后端服务器进行交互的一种方式，通过不同的路径，来请求不同的资源，请求不同的页面是路由的其中一种功能
 
 ## $route和$router的区别
-$router 为 VueRouter 路由实例，对象包括了路由的跳转方法，钩子函数等。想要导航到不同 URL，则使用 $router.push 方法
-$route 为“路由信息对象”，当前 router 跳转对象里面可以获取ath，params，hash，query，fullPath，matched，name等路由信息参数
-
-21. vue-router 使用params与query传参有什么区别
-vue-router 可以通过 params 与 query 进行传参
-
-// 传递
-this.$router.push({path: './xxx', params: {xx:xxx}})
-this.$router.push({path: './xxx', query: {xx:xxx}})
-
-// 接收
-this.$route.params
-
-this.$route.query
-params 是路由的一部分,必须要有。query 是拼接在 url 后面的参数，没有也没关系
-params 不设置的时候，刷新页面或者返回参数会丢，query 则不会有这个问题
-
-使用params进行传参，不能用path，要用name，否则接收不到参数的，
+- $router 为 VueRouter 路由实例，对象包括了路由的跳转方法，钩子函数等。想要导航到不同 URL，则使用 $router.push 方法
+- $route 为“路由信息对象”，当前 router 跳转对象里面可以获取path，params，hash，query，fullPath，matched，name等路由信息参数
 
 ## Vue 如何去除url中的 #
 vue-router 默认使用 hash 模式，所以在路由加载的时候，项目中的 url 会自带 #。如果不想使用 #， 可以使用 vue-router 的另一种模式 history
@@ -251,3 +243,58 @@ history.pushState() 或 history.replaceState() 不会触发 popstate 事件，�
 
 abstract模式 : 支持所有 JavaScript 运行环境，如 Node.js 服务器端。如果发现没有浏览器的 API，路由会自动强制进入这个模式.
 (后续补上)
+
+## 路由参数变化组件不更新
+同一path的页面跳转时路由参数变化，但是组件没有对应的更新。
+
+原因：主要是因为获取参数写在了created或者mounted路由钩子函数中，路由参数变化的时候，这个生命周期不会重新执行。
+
+解决方案1：watch监听路由
+
+```javascript
+watch: {
+ // 方法1 //监听路由是否变化
+  '$route' (to, from) {
+   if(to.query.id !== from.query.id){
+            this.id = to.query.id;
+            this.init();//重新加载数据
+        }
+  }
+}
+//方法 2  设置路径变化时的处理函数
+watch: {
+'$route': {
+    handler: 'init',
+    immediate: true
+  }
+}
+```
+解决方案2 ：为了实现这样的效果可以给router-view添加一个不同的key，这样即使是公用组件，只要url变化了，就一定会重新创建这个组件。
+```javascript
+<router-view :key="$route.fullpath"></router-view>
+```
+
+
+路由的动态加载模块
+前端怎么控制管理路由
+使用路由时出现问题如何解决
+
+- <a>标签默认事件禁掉之后做了什么才实现了跳转
+使用@click.native。原因：router-link会阻止click事件，.native指直接监听一个原生事件
+
+- active-class是哪个组件的属性？嵌套路由怎么定义
+vue-router模块的router-link组件
+
+
+   1. vue-router: 搭建SPA
+       路由,组件的配置
+       路由间的传值
+       路由跳转
+       路由的导航守卫
+
+       记住在router.js 和 组件页面中的使用方式
+注意点：
+1.params只能用name来引入路由，query用path来引入
+2.params类似于post，query更加类似于我们ajax中get传参，说的再简单一点，前者在浏览器地址栏中不显示参数，后者显示，所以params传值相对安全一些。
+3.取值用法类似分别是this.$route.params.name和this.$route.query.name。
+4.params传值一刷新就没了，query传值刷新还存在

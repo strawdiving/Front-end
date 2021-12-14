@@ -14,7 +14,9 @@ Vue.js的源代码都放在src目录中。src目录下有多个并列的文件�
     - index.js，Observer类，附加（attach）到每个被观察的对象，一旦附加以后，观察者observer将目标对象的属性转换成getter/setter来收集依赖关系，并分发更新
   - instance/
     - index.js，vm构造函数
-    - init.js，vm实例初始化
+    - init.js，vm实例初始化，初始化data,props,methods,computed,watch
+    _init() ——> initLifecycle, initEvents, initRender, initInjection(在data,props之前), initState, initeProvide(在data,props之后解析)
+    callHook, "beforeCreated", callHOok, "created"
     - state.js，初始化data,props,methods,computed,watch
     - lifecycle.js，生命周期
     - events.js，事件
@@ -97,7 +99,7 @@ data.name = '渣渣辉';
 ```
 
 #### 工作流程
-new Vue() ——Vue进入初始化阶段，
+- new Vue() ——Vue进入初始化阶段，
 1. 遍历data选项中的属性，用Object.defineProperty将它们转为getter/setter，实现数据变化监听功能
 
 在src/core/observer/index.js中，
@@ -114,12 +116,5 @@ Object.defineProperty(obj,key,{
 
 2. Vue的指令编译器Compiler对元素节点的指令（directive）进行扫描和解析，初始化视图，并订阅watcher更新视图，此时watcher会将自己添加到消息订阅器（Dep）中
 
-初始化完毕后，当数据变化时，Observer中的setter方法被触发，setter会立即调用Dep.notify(),Dep开始遍历所有的订阅者（watcher）,并调用订阅者的update方法，订阅者收到通知后，对视图进行相应更新。
-
-
-#### 使用Object.defineProperty的缺点
-Object.defineProperty默认只能劫持值类型数据，对引用类型的数据内部修改无法劫持，要重写覆盖原型方法。
-1. 无法监控数组下标的变化，`arr[2]=1`这样的下标赋值操作无法被监听。监控数组对象时，实质上监控的是数组的地址，地址不变就不会被监测到；
-2. 无法监听数组的length，`arr.length`这样的数据更改无法被监听
-3. 只能劫持对象的属性，所以要对对象的每个属性进行遍历，可能需要深度遍历（Vue 2.x通过递归+遍历data对象来实现对数据的监控），如果能劫持一个完整的对象，才是更好的选择
+- 初始化完毕后，当数据变化时，Observer中的setter方法被触发，setter会立即调用Dep.notify(),Dep开始遍历所有的订阅者（watcher）,并调用订阅者的update方法，订阅者收到通知后，对视图进行相应更新。
 

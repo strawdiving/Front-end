@@ -59,3 +59,21 @@ Promise链式，实现必须上一个异步完成后再去跑下一个任务
 
 讨论与 Promise 相关的问题。
 - 提示：及早求值（eager evaluation），尴尬的取消机制，用 then() 方法伪装 map() 和 flatMap() 等。
+
+### 用async/await代替promise
+使异步代码形式上更接近于同步代码，语义更明确，语法更简洁，代码阅读性高。
+
+async定义的函数，表明内有异步事件，返回Promise对象，其最终resolve的值就是函数中return的内容
+
+await getJSON()，await后面跟的是Promise，在resolve之后才执行并输出resolve的值
+
+用async/await，要加错误处理，try catch
+
+错误处理：promise串行的错误，会在最近的catch中被捕获，不能定位是哪个环节的错误；async/await异常堆栈指向了正确的函数
+
+调试：async/await容易调试，可以执行步进操作，就像同步调用。而then调试器不会进入后续then，只能跟踪同步。
+
+只有一个异步请求，用promise, then, catch
+嵌套请求，用async/await
+
+并行请求：await Promise.all([a(), b()])

@@ -22,6 +22,14 @@
 - Model 将新的数据发送到 View，用户得到反馈
 - 所有通信都是单向的
 
+- View,把数据以某种方式呈现给用户
+- Model，数据
+- Controller，接收并处理来自用户的请求，将Model返回给用户
+
+问题：
+- 代码中大量调用DOM API时，处理繁琐，难维护
+- Model频繁发生变化时，开发者需要主动更新到View.用户操作导致Model变化时，同样需要将数据同步到Model中，难维护
+
 2. MVVM
 
 MVVM 模式，顾名思义即 Model-View-ViewModel 模式。它萌芽于2005年微软推出的基于 Windows 的用户界面框架 WPF ，前端最早的 MVVM 框架 knockout 在2010年发布。
@@ -72,7 +80,15 @@ view中声明了数据的双向绑定，框架也会监听view层（表单）值
 ## Vue双向绑定原理, vue 发布订阅
 利用Object.defineProperty劫持对象的访问器，在属性值发生变化时，可以获取变化，然后根据变化进行后续响应。
 
-采用数据劫持结合发布者-订阅者模式的方式，通过 Object.defineProperty() 来劫持各个属性的 setter，getter，在数据变动时发布消息给订阅者，触发相应监听回调
+采用数据劫持结合发布者-订阅者模式的方式，通过 Object.defineProperty() 来劫持各个属性的 setter，getter，在数据变动时发布消息给订阅者，触发相应监听回调。主要分为几个步骤：
+
+1. 需要observe的数据对象进行递归遍历，包括子属性对象的属性，都加上setter和getter。这样的话，给这个对象的某个值赋值，就会触发setter，就能监听到了数据变化
+
+2. compile解析模板指令，将模板中的变量替换成数据，然后初始化渲染页面视图，并将每个指令对应的节点绑定更新函数，添加监听数据的订阅者，一旦数据有变动，收到通知，更新视图。
+
+3. Watcher订阅者是Observer和Compile之间通信的桥梁，主要做的事情：（1）在自身实例化时往属性订阅器(dep)里面添加自己；(2) 自身必须有一个update()方法; (3) 待属性变动dep.notice()通知时，能调用自身的update()方法，并触发Compile中绑定的回调，则功成身退。
+
+4. MVVM作为数据绑定的入口，整合Observer、Compile和Watcher三者，通过Observer来监听自己的model数据变化，通过Compile来解析编译模板指令，最终利用Watcher搭起Observer和Compile之间的通信桥梁，达到数据变化 -> 视图更新；视图交互变化(input) -> 数据model变更的双向绑定效果。
 
 ```javascript
 const data = {
@@ -136,27 +152,6 @@ vue的数据双向绑定 将MVVM作为数据绑定的入口，整合Observer，C
     })
 </script>
 
-
-
-## Proxy与Object.defineProperty的优劣对比?
-
-[Vue3为什么选择Proxy做双向绑定？](https://mp.weixin.qq.com/s?__biz=MzI3NjM1OTI3Mw==&mid=2247483695&idx=1&sn=8f4d74b58f4102eced8089bcaac4c443&chksm=eb77f029dc00793f502d4a39819e488d560e6bf7d268f3e987a03d43d71a07a2edab59d8d78f&scene=21#wechat_redirect)
-Proxy的优势如下:
-
-Proxy可以直接监听对象而非属性
-
-Proxy可以直接监听数组的变化
-
-Proxy有多达13种拦截方法,不限于apply、ownKeys、deleteProperty、has等等是Object.defineProperty不具备的
-
-Proxy返回的是一个新对象,我们可以只操作新的对象达到目的,而Object.defineProperty只能遍历对象属性直接修改
-
-Proxy作为新标准将受到浏览器厂商重点持续的性能优化，也就是传说中的新标准的性能红利
-
-Object.defineProperty的优势如下:
-
-兼容性好,支持IE9
-
 ## 直接给一个数组项赋值，Vue 能检测到变化吗？
 由于 JavaScript 的限制，Vue 不能检测到以下数组的变动：
 当你利用索引直接设置一个数组项时，例如：vm.items[indexOfItem] = newValue
@@ -217,7 +212,9 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
 对象添加属性，Vue也不能自动检测
 
 变异方法：
-Vue 包含一组观察数组的变异方法，所以它们也将会触发视图更新。这些方法如下：
+**Vue 包含一组观察数组的变异方法，所以它们也将会触发视图更新。**
+
+这些方法如下：
 push(), pop(), shift() ,unshift(), splice(), sort(), reverse()
 
 替换数组：
@@ -238,12 +235,6 @@ vm.items.splice(indexOfItem, 1, newValue)
 
 继承了Array，对数组的所有能改变数组自身的方法重写，重写后先执行它们自身的原有逻辑，并对能增加数组长度push,shift,unshift做了判断，获取到插入值，把新添加的值变成响应式对象，并调用ob.dep.notify手动触发依赖通知。
 如果target为数组，通过重写的splice添加进数组，defineReactive，将新添的属性变成响应式对象，dep.notify手动触发依赖通知
-
-Vue3.0使用Proxy代理对象：
-- Proxy可以直接监听对象而非属性
-- Proxy可以监听数组的变化
-- Proxy有很多拦截方法，apply,deleteProperty,has等是defineProperty不具备的
-- Proxy返回新对象，我们可以只操作新对象达到目的，而Object.defineProperty只能遍历对象属性进行修改
 
 ## vue的v-model原理
 v-model，怎么封装的？
@@ -283,11 +274,50 @@ methods: {
 ## **computed 与 watch 的内在如何实现及其区别**
 1. computed，是computed watcher
 - 计算属性，也就是计算值，更多用于计算值的场景，常用于模板渲染
-- 具有缓存性，computed的值在getter执行后会缓存，只有它依赖的属性发生变化后，下一次获取computed的值时才会重新调用对应的getter来计算
+- 具有缓存性，computed的值在getter执行后会缓存，只有它依赖的属性发生变化后，下一次获取computed的值时才会重新调用对应的getter来计算。（支持缓存，只有依赖数据发生改变，才会重新进行计算）。
+
+computed属性值会默认走缓存，计算属性是基于它们的响应式依赖进行缓存的，也就是基于data中声明过或父组件传递的props中的数据经过计算得到的值。
+- 不支持异步，当computed内部有异步操作时无效，无法监听数据的变化
+- 如果一个属性是由其他属性计算而来的，这个属性依赖其他属性，是一个多对一或者一对一，一般用computed
+- 如果computed属性属性值是函数，那么默认会走get方法；函数的返回值就是属性的属性值；在computed中的，属性都有一个get和一个set方法，当数据变化时，调用set方法。
 - 适用于计算比较消耗性能的计算场景,当你在模板内使用了复杂逻辑的表达式时，应当使用计算属性。
+
 2. watch，是user watch
 - 更多是“观察”的作用，类似于某些数据的监听回调，用于观察props或本组件的值，当数据变化时执行回调进行后续操作
-- 无缓存性，页面重新渲染时值不变化也会执行
+- 无缓存性，数据变，直接会触发相应的操作
+- 监听的函数接受两个参数，第一个是最新的值，第二个是之前的值
+- 当一个属性发生变化时，需要执行对应的操作，一对多
+- 支持异步
+- 监听数据必须是data中声明过或父组件传递的props中的数据，当数据变化时，触发其他操作，函数有两个参数
+  - immediate: 组建加载立即触发回调函数执行
+  - deep: 监听器会一层层往下遍历，给对象的所有属性都加上这个监听器，但这样性能开销会非常大，任何修改obj里面任何一个属性都会触发handler。
+
+  **优化：可以使用字符串的形式监听：**
+
+  ```javascript
+  watch: {
+    'obj.a': {
+      handler(newVal) {
+        console.log(newVal)
+      },
+      immediate: true
+    }
+  }
+  ```
+
+  ```javascript
+  watch:{
+  inpValObj:{
+    handler(newVal,oldVal){
+      console.log(newVal)
+      console.log(oldVal) // oldVal和newVal一样
+    },
+    deep:true
+  }
+}
+  ```
+deep: true 监听对象的变化时，它们索引同一个对象/数组,Vue 不会保留修改之前值的副本;
+所以深度监听虽然可以监听到对象的变化,但是无法监听到具体对象里面那个属性的变化
 
 需要在某个数据变化时做一些事情，就用watcher来观察这个数据变化
 需要进行数值计算时，而且依赖于其他数据，则设计为computed
@@ -333,7 +363,6 @@ m
 执行的时候，当主线程执行栈执行完毕时，对callbacks进行遍历，依次执行相应的回调函数。
 
 $nextTick 是在下次 DOM 更新循环结束之后执行延迟回调，在修改数据之后使用 $nextTick，则可以在回调中获取更新后的 DOM
-
 ## 页面渲染原理
 vue从data改变到页面渲染的过程
 
@@ -343,12 +372,12 @@ Vue实例有一个完整的生命周期，从开始创建，初始化数据，�
 生命周期的作用：生命周期中有多个事件钩子，让我们在控制整个Vue实例的过程时更容易形成好的逻辑。
 new Vue()-->this._init()
 initCycle(),initEvent
-1. beforeCreate，组件实例被创建之初，组件属性生效之前，initState之前。在实例创建之间执行，数据未加载状态；
+1. beforeCreate，组件实例被创建之初，组件属性生效之前，initState之前。在实例创建之间执行，数据未加载状态；vue实例的挂载元素el和数据对象data都为undefined，还未初始化。
 initState,injection,provide
 2. created,**组件实例已经完全创建**，属性也绑定，真实dom未生成，$el不可用,vm可用。在实例创建、数据加载后，能初始化数据，dom渲染之前执行；
 编译模板，把Vue代码中的指令进行执行，最终在内存中生成一个编译好的最终模板字符串，把模板字符串渲染为内存中的dom。此时，只是在内存中渲染好了模板，并没有挂载到真正的页面中。
-3. beforeMount，挂载开始之前被调用，相关render函数首次被调用。虚拟dom已创建完成，在数据渲染前最后一次更改数据；
-4. mounted，页面、数据渲染完成，真实dom挂载完成；el被新创建的vm.$el替换（将内存中编译好的模板真实替换到页面上），并**挂载到实例上**去之后调用该钩子；如果要操作页面上的DOM，最早在mounted中进行
+3. beforeMount，挂载开始之前被调用，相关render函数首次被调用。虚拟dom已创建完成，在数据渲染前最后一次更改数据；vue实例的$el和data都初始化了，但还是挂载之前为虚拟的dom节点。
+4. mounted，页面、数据渲染完成，vue实例真实dom挂载完成；el被新创建的vm.$el替换（将内存中编译好的模板真实替换到页面上），并**挂载到实例上**去之后调用该钩子；如果要操作页面上的DOM，最早在mounted中进行
 vue实例初始化完毕，进入运行阶段
 5. beforeUpdate，组件数据更新前调用，重新渲染之前触发；发生在虚拟 DOM 打补丁之前
 虚拟DOM树重新渲染，diff后渲染到真实页面中，完成从data->view的更新
@@ -356,6 +385,8 @@ vue实例初始化完毕，进入运行阶段
 7. beforeDestroy，组件销毁前调用（实例仍然完全可用），data，method等仍可用
 解除watchers，销毁子组件，移除所有事件监听
 8. destroyed，组件销毁后调用
+
+在执行destroy方法后，对data的改变不会再触发周期函数，说明此时vue实例已经解除了事件监听以及和dom的绑定，但是dom结构仍然存在。
 
 activited	keep-alive专属，组件被激活时调用
 deadctivated	keep-alive专属，组件被销毁时调用
@@ -426,17 +457,6 @@ React是pull的方式侦测变化,当React知道发生变化后,会使用Virtual
 
 Vue是pull+push的方式侦测变化的,在一开始就知道那个组件发生了变化,因此在push的阶段并不需要手动控制diff,而组件内部采用的diff方式实际上是可以引入类似于shouldComponentUpdate相关生命周期的,但是通常合理大小的组件不会有过量的diff,手动优化的价值有限,因此目前Vue并没有考虑引入shouldComponentUpdate这种手动优化的生命周期.
 
-## Vue的组件通信
-1. props/$emit+v-on，通过props将数据从父->子传递，通过$emit和v-on将数据从子->父传递
-2. EventBus：通过EventBus进行信息的发布和订阅，通过一个空的vue实例作为中央事件总线，用它来触发和监听事件$emit,$on；在按钮事件中调用Event.$emit
-因为不确定何时触发事件，一般在组件的mounted或created中，Event.$on监听事件
-3. vuex全局数据管理库，可通过vuex管理全局的数据流
-4. $attr/$listeners，Vue2.4加入，可进行跨级的组件通信，$attr父组件中绑定的非props属性，供子组件访问；通过v-on =‘$listeners'，包含父组件中绑定的非原生事件，子组件可以访问$listeners来自定义监听器
-5. provide/inject，父组件通过provide向所有子孙后代注入依赖，不论组件层次多深，在起上下游成立的时间里始终生效。子组件中使用inject注入祖先组件提供的变量。
-6. $parent/$children&ref，访问父子实例，ref在普通DOM上使用，指向的是DOM元素，在子组件上，就指向组件实例。
-
-组件间通信方法（父子, 兄弟, 跨级）, $listener和$attr
-
 ## keep-alive实现原理
 keep-alive是 Vue 内置的一个组件，名称匹配的组件会被缓存。在组件间切换，可以使被包含的组件保留状态，避免重复渲染。
 
@@ -481,16 +501,26 @@ include 和 exclude 的属性允许组件有条件地缓存。二者都可以用
   <component></component>
 </keep-alive>
 ```
+
+- 使用场景
+场景:做一个 tab 切换时就会涉及到组件动态加载
+
+这样每次组件都会重新加载,会消耗大量性能,所以<keep-alive> 就起到了作用
+
+切换效果没有动画效果,这个也不用着急,可以利用内置的<transition>
+
+```javascript
+<transition>
+  <keep-alive>
+    <component :is="currentTabComponent"></component>
+  </keep-alive>
+</transition>
+```
+
 ## Vue的data为什么要写成function，返回一个对象
 组件是用来复用的，vue构建的时候会用Vue.extend将组件包成一个类，页面使用的时候，会创建包成类的实例，vue中的data里面的数据，可能不止被一个组件所调用。如果直接写成对象，每一个实例都共享data数据了,在调用的时候就会被修改，各个组件之间的值会有影响
 
-如果 data 是一个对象，对象本身属于引用类型，当我们修改其中的一个属性时，会影响到所有Vue实例的数据。如果将 data 作为一个函数返回一个对象，那么每一个实例的 data 属性都是独立的，不会相互影响了
-
-## Vue为什么需要一个根元素
-## Vue的挂载怎么实现，el和$mount有什么区别
-
-vue 代码复用的方式
-## 技术选型上为何选择Vue，Vue的缺陷
+如果 data 是一个对象，对象本身属于引用类型，当复用组件时，由于数据对象都指向同一个data对象，当我们修改其中的一个属性时，会影响到所有Vue实例的数据。如果将 data 作为一个函数返回一个对象，由于每次返回的都是一个新对象（Object的实例），引用地址不同，那么每一个实例的 data 属性都是独立的，不会相互影响了。
 
 ## 了解Vue3吗，相对于Vue2做了哪些优化。Vue2.0和Vue3.0区别
 - Vue3.0都有哪些重要新特性？
@@ -507,8 +537,23 @@ vue 代码复用的方式
 《Vue3 究竟好在哪里？（和 React Hook 的详细对比）》
 
 ## vue3.0 特性的了解
+1. 监测机制的改变
 
-1.监测机制的改变
+Object.defineProperty默认只能劫持值类型数据，对引用类型的数据内部修改无法劫持，要重写覆盖原型方法。
+- 无法监控数组下标的变化，`arr[2]=1`这样的下标赋值操作无法被监听。监控数组对象时，实质上监控的是数组的地址，地址不变就不会被监测到；
+- 无法监听数组的length，`arr.length`这样的数据更改无法被监听
+- 只能劫持对象的属性，所以要对对象的每个属性进行遍历，可能需要深度遍历（Vue 2.x通过递归+遍历data对象来实现对数据的监控），如果能劫持一个完整的对象，才是更好的选择
+
+Vue3.0 使用了ES6的Proxy代理对象，用于取代defineProperty
+- Proxy可以直接监听对象而非属性;可劫持整个对象，并返回一个新对象，我们可以只操作新的对象达到目的。而Object.defineProperty只能遍历对象属性直接修改
+- Proxy可以监听数组的变化
+- Proxy有有多达13种拦截方法,不限于apply、ownKeys、deleteProperty,has等是defineProperty不具备的
+- Proxy返回新对象，我们可以只操作新对象达到目的，而Object.defineProperty只能遍历对象属性进行修改
+
+问题：ES6新特性，兼容性不好，且无法用polyfill兼容，Object.defineProperty的优势就是兼容性好,支持IE9
+
+[Vue3为什么选择Proxy做双向绑定？](https://mp.weixin.qq.com/s?__biz=MzI3NjM1OTI3Mw==&mid=2247483695&idx=1&sn=8f4d74b58f4102eced8089bcaac4c443&chksm=eb77f029dc00793f502d4a39819e488d560e6bf7d268f3e987a03d43d71a07a2edab59d8d78f&scene=21#wechat_redirect)
+
 Vue3.0 将带来基于代理 Proxy 的 observer 实现，提供全语言覆盖的反应性跟踪。这消除了 Vue 2 当中基于 Object.defineProperty 的实现所存在的很多限制：①只能监测属性，不能监测对象；②检测属性的添加和删除；③检测数组索引和长度的变更；④支持 Map、Set、WeakMap 和 WeakSet。
 新的 observer 还提供了以下特性：
 用于创建 observable 的公开 API。这为中小规模场景提供了简单轻量级的跨组件状态管理解决方案。
@@ -517,26 +562,82 @@ Vue3.0 将带来基于代理 Proxy 的 observer 实现，提供全语言覆盖�
 不可变的 observable：我们可以创建值的“不可变”版本（即使是嵌套属性），除非系统在内部暂时将其“解禁”。这个机制可用于冻结 prop 传递或 Vuex 状态树以外的变化。
 更好的调试功能：我们可以使用新的 renderTracked 和 renderTriggered 钩子精确地跟踪组件在什么时候以及为什么重新渲染。
 
-2.模板
+2. 模板
 模板方面没有大的变更，只改了作用域插槽，2.x 的机制导致作用域插槽变了，父组件会重新渲染，而 3.0 把作用域插槽改成了函数的方式，这样只会影响子组件的重新渲染，提升了渲染的性能。
 同时，对于 render 函数的方面，vue3.0 也会进行一系列更改来方便习惯直接使用 api 来生成 vdom 。
-3.对象式的组件声明方式
+
+3. 对象式的组件声明方式
 vue2.x 中的组件是通过声明的方式传入一系列 option，和 TypeScript 的结合需要通过一些装饰器的方式来做，虽然能实现功能，但是比较麻烦。3.0 修改了组件的声明方式，改成了类式的写法，这样使得和 TypeScript 的结合变得很容易。
 此外，vue 的源码也改用了 TypeScript 来写。其实当代码的功能复杂之后，必须有一个静态类型系统来做一些辅助管理。现在 vue3.0 也全面改用 TypeScript 来重写了，更是使得对外暴露的 api 更容易结合 TypeScript。静态类型系统对于复杂代码的维护确实很有必要。
-4.其它方面的更改
+
+4. 其它方面的更改
 vue3.0 的改变是全面的，上面只涉及到主要的 3 个方面，还有一些其它的更改：
 支持自定义渲染器，从而使得 weex 可以通过自定义渲染器的方式来扩展，而不是直接 fork 源码来改的方式。
 支持 Fragment（多个根节点）和 Protal（在 dom 其它部分渲染组建内容）组件，针对一些特殊的场景做了处理。
 基于 treeshaking 优化，提供了更多的内置功能。
 
 ## Vue hooks的使用
-## 如何批量引入组件
-require.context()
+## 如何批量引入组件 ———— require.context()
 
 可以使用require.context（）函数创建自己的上下文。 它允许您传入一个目录进行搜索，一个标志指示是否应该搜索子目录，还有一个正则表达式来匹配文件。
 
-## vue常用的修饰符？
-答：.prevent: 提交事件不再重载页面；.stop: 阻止单击事件冒泡；.self: 当事件发生在该元素本身而不是子元素的时候会触发；.capture: 事件侦听，事件发生的时候会调用
+require.context(directory, useSubDirectories, regExp)
+
+   - directory：需要检索的目录
+   - useSubDirectories：是否检索子目录
+   - regExp：匹配文件的正则表达式，一般是文件名
+
+   场景：如页面需要导入多个组件，原始写法：
+   ```javascript
+   import titleCom from '@/components/home/titleCom'
+   import bannerCom from '@/components/home/bannerCom'
+   import cellCom from '@/components/home/cellCom'
+   components: {
+     titleCom, bannerCom, cellCom
+   }
+   ```
+   利用require.context()可以写成：
+
+   ```javascript
+   const path = require('path')
+   const files = require.context('@/components/home', false, /\.vue$/)
+   const modules = {}
+   files.keys().forEach(key => {
+     const name = path.basename(key, '.vue')
+     modules[name] = files[key].default || files[key]
+   })
+   components: modules
+   ```
+## vue常用的事件修饰符？
+- .prevent: 阻止默认行为；
+- .stop: 阻止事件冒泡；
+- .self: 仅绑定元素自身触发，当事件发生在该元素本身而不是子元素的时候会触发；
+- .capture: 事件侦听，事件发生的时候会调用
+- .once: 2.1.4 新增,只触发一次
+- .passive: 2.3.0 新增,滚动事件的默认行为 (即滚动行为) 将会立即触发,不能和.prevent 一起使用
+- .sync 修饰符
+
+在 vue@1.x 的时候曾作为双向绑定功能存在，即子组件可以修改父组件中的值;
+在 vue@2.0 的由于违背单项数据流的设计被干掉了;
+从 2.3.0 起vue重新引入了.sync修饰符，但是这次它只是作为一个编译时的语法糖存在。它会被扩展为一个自动更新父组件属性的 v-on 监听器。
+
+## 事件
+v-on可以监听多个方法
+
+```javascript
+<input type="text" v-on="{ input:onInput,focus:onFocus,blur:onBlur, }">
+```
+
+```javascript
+<comp :foo.sync="bar"></comp>
+
+// 会被扩展为
+<comp :foo="bar" @update:foo="val => bar = val"></comp>
+
+// 当子组件需要更新 foo 的值时，它需要显式地触发一个更新事件
+
+this.$emit('update:foo', newValue)
+```
 
 ## 组件化
 前端主要工作是UI开发，而把UI上的各种元素分解成组件，规定组件的标准，实现组件运行的环境就是组件化了。
@@ -545,134 +646,17 @@ require.context()
 ## Vue-Cli
 vue.js的脚手架工具。说白了就是一个自动帮你生成好项目目录，配置好Webpack，以及各种依赖包的工具。
 
-### 如何设计一个组件
+## Vue.js的template编译（从 template转换成真实 DOM的实现机制）
+简而言之，就是先转化成AST树，再得到的render函数返回VNode（Vue的虚拟DOM节点）。详细步骤：
+1. 通过compile编译器，将template模板经过处理（parse）后，编译成AST语法树（abstract syntax tree 即 源代码的抽象语法结构的树状表现形式），compile是createCompiler的返回值，createCompiler是用以创建编译器的。
 
-第 94 题：vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
+另外compile还负责合并option。
 
-数据双向绑定单向绑定优缺点
-Vue 的响应式原理中 Object.defineProperty 有什么缺陷？
-为什么在 Vue3.0 采用了 Proxy，抛弃了 Object.defineProperty？
-使用 JavaScript Proxy 实现简单的数据绑定
+2. AST会经过generate(将AST语法树转化成render function字符串的过程)生成渲染render函数。执行渲染函数后会获得一个VNode，里面有（标签名、子节点、文本等等），虚拟DOM patch函数负责把虚拟DOM变为真正DOM。
 
-1. React和 vue选型和优缺点、核心架构的区别
-
-熟练使用 Vue的 API、基本指令、钩子函数，实例的属性和方法； 组件基础: 创建,注册,添加属性方法,套用等...
-插槽slot：v-slot, slot-scope
-在 Vue 中，子组件为何不可以修改父组件传递的 Prop；如果修改了，Vue 是如何监控到属性的修改并给出警告的。
-
-observer，watcher，compile
-从 template转换成真实 DOM的实现机制
-vue构建过程原理,具体流程
-模板到DOM大致流程:
-  template模板经过parse处理后返回AST 获得一棵AST后再经过generate()生成渲染函数
-  执行渲染函数后会获得一个VNode，即虚拟DOM patch函数，负责把虚拟DOM变为真正DOM。
-
-自定义插件
-
-## 如何实现一个指令
-  -- - 自定义指令（v-check、v-focus）的方法有哪些?它有哪些钩子函数？还有哪些钩子函数参数
-    全局定义指令：在vue对象的directive方法里面有两个参数，一个是指令名称，另外一个是函数。
-    组件内定义指令：directives 钩子函数：bind（绑定事件触发）、inserted(节点插入的时候触发)、update（组件内相关更新） 钩子函数参数：el、binding
-
-1.创建局部指令
-
-```javascript
-var app = new Vue({
-    el: '#app',
-    data: {
-    },
-    // 创建指令(可以多个)
-    directives: {
-        // 指令名称
-        dir1: {
-            inserted(el) {
-                // 指令中第一个参数是当前使用指令的DOM
-                console.log(el);
-                console.log(arguments);
-                // 对DOM进行操作
-                el.style.width = '200px';
-                el.style.height = '200px';
-                el.style.background = '#000';
-            }
-        }
-    }
-})
-```
-2. 全局指令
-
-```javascript
-Vue.directive('dir2', {
-    inserted(el) {
-        console.log(el);
-    }
-})
-```
-3. 指令的使用
-```html
-<div id="app">
-    <div v-dir1></div>
-    <div v-dir2></div>
-</div>
-```
-## vue如何自定义一个过滤器？
-
-可以用全局方法 Vue.filter() 注册一个自定义过滤器，它接收两个参数：过滤器 ID 和过滤器函数。过滤器函数以值为参数，返回转换后的值
-Vue.filter('reverse', function (value) {
-  return value.split('').reverse().join('')
-})
-<!-- 'abc' => 'cba' -->
-<span v-text="message | reverse"></span>
-过滤器也同样接受全局注册和局部注册
-
-html代码：
-
-```html
-<div id="app">
-     <input type="text" v-model="msg" />
-     {{msg| capitalize }}
-</div>
-```
-JS代码：
-
-```javascript
-var vm=new Vue({
-    el:"#app",
-    data:{
-        msg:''
-    },
-    filters: {
-      capitalize: function (value) {
-        if (!value) return ''
-        value = value.toString()
-        return value.charAt(0).toUpperCase() + value.slice(1)
-      }
-    }
-})
-```
-
-全局定义过滤器
-
-```javascript
-Vue.filter('capitalize', function (value) {
-  if (!value) return ''
-  value = value.toString()
-  return value.charAt(0).toUpperCase() + value.slice(1)
-})
-```
-过滤器接收表达式的值 (msg) 作为第一个参数。capitalize 过滤器将会收到 msg的值作为第一个参数。
-
-
-vue2新增内容?独立构建（standalone）和运行时构建（runtime-only）的差别和应用?
-
-介绍状态机
-
-怎么看待组件层级嵌套很多层
-
-vue 怎么进行性能优化的
-
-9. v-if 和 v-show 区别
-使用了 v-if 的时候，如果值为 false ，那么页面将不会有这个 html 标签生成。
-v-show 则是不管值为 true 还是 false ，html 元素都会存在，只是 CSS 中的 display 显示或隐藏
+## v-if 和 v-show 区别
+1. v-if在条件切换时，会对标签进行适当的创建和销毁，开销相对来说会比v-show大；v-if是惰性的，只有条件为真时才会真正渲染标签，如果初始条件不为真，就不会去渲染标签。
+2. v-show则无论初始条件是否成立，都会渲染标签，但仅在初始化时加载一次。它做的只是css切换，控制display 显示或隐藏。
 
 ## 服务端渲染 SSR or 预渲染
 Vue.js 是构建客户端应用程序的框架。默认情况下，可以在浏览器中输出 Vue 组件，进行生成 DOM 和操作 DOM。然而，也可以将同一个组件渲染为服务端的 HTML 字符串，将它们直接发送到浏览器，最后将这些静态标记"激活"为客户端上完全可交互的应用程序。
@@ -707,3 +691,39 @@ SEO 难度较大：由于所有的内容都在一个页面中动态替换显示�
 
 缺点：不支持低版本的浏览器，最低只支持到IE9；不利于SEO的优化（如果要支持SEO，建议通过服务端来进行渲染组件）；第一次加载首页耗时相对长一些；不可以使用浏览器的导航按钮需要自行实现前进、后退。
 
+## assets和static的区别
+两个都是用来存放项目中所使用的静态资源文件。
+
+- assets中的文件在运行npm run build的时候会打包，简单来说就是会被压缩体积，代码格式化之类的。打包之后也会放到static中。
+- static中的文件则不会被打包。
+
+建议：将图片等未处理的文件放在assets中，打包减少体积。而对于第三方引入的一些资源文件如iconfont.css等可以放在static中，因为这些文件已经经过处理了。
+## vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
+
+## 数据双向绑定单向绑定优缺点
+
+使用 JavaScript Proxy 实现简单的数据绑定
+
+1. React和 vue选型和优缺点、核心架构的区别
+
+在 Vue 中，子组件为何不可以修改父组件传递的 Prop；如果修改了，Vue 是如何监控到属性的修改并给出警告的。
+
+vue2新增内容?独立构建（standalone）和运行时构建（runtime-only）的差别和应用?
+
+介绍状态机
+
+怎么看待组件层级嵌套很多层
+
+vue 怎么进行性能优化的
+
+## Vue为什么需要一个根元素
+通过 $root 获取根元素
+## Vue的挂载怎么实现，el和$mount有什么区别
+
+vue 代码复用的方式
+## 技术选型上为何选择Vue，Vue的缺陷
+
+## 使用render和template的区别
+render适合复杂逻辑,template适合逻辑简单;
+template属于声明式渲染，render属于自定Render函数;
+render的性能较高，template性能较低。

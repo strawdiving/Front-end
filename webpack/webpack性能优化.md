@@ -26,12 +26,16 @@ production阶段：
 - 自动启用uglifyjs对代码进行压缩
 - 按需加载
 
+
 ## webpack优化前端性能
 优化webpack的输出结果，让打包的最终结果在浏览器运行快速高效。
 - 压缩删除多余的代码，注释，简化代码的写法等，UglifyJSPlugin,ParallelUglifyPlugin压缩JS文件；optimise-css-assets-webpack-plugin压缩css
 - 利用CDN加速，在构建过程中，将引用的静态资源路径修改为CDN上对应的路径。利用webpack的output参数和各个loader的publicPath参数来修改资源路径
 - Tree Shaking,将代码中永远不会走到的片段删除掉。在启动webpack时追加参数 --optimize-minimize来实现
 - Code Splitting，将代码按路由维度或组件分块，这样做到按需加载，同时充分利用浏览器缓存
+将代码分块，（目的是为了利用缓存），需要某个代码块时再加载它，还可以利用缓存，下次用到时直接从缓存读取
+  - 分离业务代码和第三方库，第三方库不太更新，利用缓存来加载
+  - 按需加载（import()),访问某个路由时再加载对应组件。尤其是用户权限只能访问某些页面时，没必要加载无权限的页面
 - 提取公共第三方库，SplitChunksPlugin插件（webpack4)（webpack4)进行公共模块提取，利用浏览器缓存可以长期缓存这些无需频繁变动的公共代码
 - 使用tree-shaking和scope hoisting来删除多余代码
 
@@ -42,8 +46,10 @@ scope hoisting： 作用域提升,让webpack打包出来的代码文件更小
 分析出模块之间的依赖关系，尽可能把打散的模块合并到一个函数中去，前提是不能造成代码冗余。 只有那些被引用了一次的模块才能被合并。
 因为要分析模块之间的依赖，所以必须使用ES6模块化语句。
 
-移除了commonchunck插件，改用optimization属性进行更灵活的配置
-optimize.splitChunks
+移除了commonchunck插件，改用optimization属性进行更灵活的配置——optimize.splitChunks
+
+找到依赖2次以上的模块，移到vendor chunk里，比如app.js和vendor.js中，都引用了vuex和axios，移到vendor chunk里。
+
 ```javascript
 module.exports = {
   optimization: {
@@ -151,8 +157,7 @@ webpack的配置,loader解析器只解析我们需要解析的代码，如babel-
 
 配置loader时，使用缓存设置，将loader转译结果缓存至文件系统，loader: 'babel-loader?cacheDirectory=true
 
-可借助webpack-bundle-analyzer代码压缩结果图形化展示工具看看打包后的项目中，哪些代码体积比较大
-它会以矩形树图的形式将包内各个模块的大小和依赖关系呈现出来
+可借助webpack-bundle-analyzer代码压缩结果图形化展示工具，分析打包后的chunk，看看哪些代码体积比较大（第三方库占体积大）。它会以矩形树图的形式将包内各个模块的大小和依赖关系呈现出来
 
 ```javascript
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin; module.exports = { plugins: [ new BundleAnalyzerPlugin() ] }
@@ -187,6 +192,79 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin'); module.exports = { pl
 
 可以在生产环境的webpack.config.js里配置插件
 在tree-shaking触发打包后，仅仅是撇开了模块的引用，但还是要结合压缩工具来进行，这才是完整的一次tree-shaking
+
+## 提高webpack的打包速度
+- happypack/thread-loader，利用进程并行编译loader，利用缓存使rebuild更快
+- 外部扩展（externals）,将不怎么需要更新的第三方库脱离webpack打包，不被打入bundle中，从而减少打包时间，不如jQuery用script标签引入
+- dll，DllPlugin和DllReferencePlugin引入dll，让一些基本不会改动的代码先打包成静态资源，避免反复编译浪费资源。
+- 利用缓存，webpack.cache，babel-loader.cacheDirectory都可以利用缓存提高rebuild效率
+- 缩小文件搜索范围，如babel-loader，可以用include: path.resolce(__dirname,'src'),效率提升有限，一般要exclude node_modules
+
+## 提高webpack构建速度
+- 多入口情况下，使用CommonsChunksPlugin提取公共代码
+- externals，提取常用库
+将这部分代码拆出去，用CDN引入
+```javascript
+configureWebpack: (config) => {
+  config.externals = {
+    vue: 'Vue',
+    'vue-router': 'VueRouter',
+    echarts: 'echarts',
+    moment: 'moment',
+    'element-ui': 'ELEMENT',
+    vant: 'vant',
+  }
+}
+```
+可用CDN外链方式引入，在index.html中script
+```html
+<html>
+  <head>
+     <link
+      rel="stylesheet"
+      href="https://static.fanneng.com/static/comments/element/2.13.0/element-ui.css?download=0"
+    />
+    <link
+      rel="stylesheet"
+      href="https://static.fanneng.com/static/comments/vant/2.5/index.css?download=0"
+    />
+  </head>
+
+  <body>
+    <script src="https://static.fanneng.com/static/comments/vue/2.6.10/vue.min.js"></script>
+    <script src="https://static.fanneng.com/static/comments/vue-router/3.1.3/vue-router.min.js"></script>
+    <script src="https://static.fanneng.com/static/comments/element/2.13.0/element-ui.js"></script>
+    <script src="https://static.fanneng.com/static/comments/vant/2.5/vant.min.js"></script>
+    <script src="https://static.fanneng.com/static/comments/echarts/4.5.0/echarts.min.js"></script>
+  </body>
+</html>
+```
+
+- DllPlugin和DllReferencePlugin预编译资源模块，对引用了但绝不会修改的npm包进行预编译，再用DllReferencePlugin将预编译的模块加载进来。
+- happypack多线程加速编译
+- webpack-uglify-parellel多核压缩来提升uglifyPlugin的压缩速度
+- 使用tree-shaking和scope hoisting来删除多余代码
+
+scope hoisting： 作用域提升,让webpack打包出来的代码文件更小
+
+    代码体积更小，因为函数声明语句会产生大量代码；
+    代码在运行时因为创建的函数作用域更少了，内存开销也随之变小。
+分析出模块之间的依赖关系，尽可能把打散的模块合并到一个函数中去，前提是不能造成代码冗余。 只有那些被引用了一次的模块才能被合并。
+因为要分析模块之间的依赖，所以必须使用ES6模块化语句。
+```javascript
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
+
+module.exports = {
+    resolve: {
+    // 针对 Npm 中的第三方模块优先采用 jsnext:main 中指向的 ES6 模块化语法的文件
+    mainFields: ['jsnext:main', 'browser', 'main']
+  },
+  plugins: [
+    // 开启 Scope Hoisting
+    new ModuleConcatenationPlugin(),
+  ],
+};
+```
 
 ### 去除build文件中的残余文件
 添加hash后，会导致改变文件内容后重新打包时，文件名不同而内容越来越多，可以使用clean-webpack-plugin

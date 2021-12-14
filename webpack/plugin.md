@@ -72,3 +72,6 @@ plugins: [
 
 ## 进阶： 写一个plugin
 plugin监听webpack广播的事件，在合适时通过webpack的API改变结果。
+
+## plugin与loader的区别
+## webpack里面的插件是怎么实现的

@@ -1,9 +1,11 @@
+
 Websocket,websocket的工作原理和机制
 一次http请求，目的是建立websocket通信，建立连接之后，Websocket的c和s都能主动向对方发送和接收数据，之间的通信和HTTP无关了，因此可以跨域。
 
 传统http请求，其并发请求能力依赖于同时发起多个TCP连接访问服务器实现的，websocket允许在一条ws连接上同时并发多个请求；
 http协议头太大，且请求携带的头大部分是重复的，无法利用上一条请求的连接，而websocket是复用长连接
 需要实现客户端刷新消息时，传统利用定时ajax请求实现，大多数时候都浪费资源
+
 websocket支持服务端推送消息
 
 websocket实现全双工通信，可以传输基于消息的文本和二进制数据。除了最初建立连接时需要借助HTTP协议，其他时候基于TCP完成通信。
@@ -41,6 +43,32 @@ WebSocket 协议为实时双向通信而设计，提供高效、灵活的文本�
 
 在大部分情境下，你都能通过这些功能选择与浏览器保持类似长连接的功能
 
-- websockets是如何进行握手的
+- websocket是如何进行握手的
 websocket的使用场景
 理解 WebSocket协议的底层原理、与 HTTP的区别
+
+## Websocket是HTML5中的新协议，支持持久连接。HTTP不支持持久连接
+HTTP是一个请求，一个响应，且响应时被动的，不能主动发起；
+WebSocket，服务器完成协议升级后，HTTP-->Websocket，server能主动推送消息给client
+Websocket只需要一次HTTP握手，整个通讯建立在一次连接/状态中，避免了HTTP的非状态性，server一直知道client的信息，直到关闭请求
+
+Websocket主要提供了全双工、持久化的连接，和HTTP一样工作在TC层上，主要解决了长轮询的问题
+
+websocket可以广播
+
+缺点：资源消耗大
+
+### 长轮询
+client发送消息后，如果没等到server的响应，请求就阻塞等server返回消息，知道server返回消息，client才发起新的HTTP轮询请求（HTTP会复用前一个HTTP请求的TCP链接）
+
+阻塞等待模式，此时如果client需再发一次消息，就要建立新的TCP连接，资源浪费
+
+而server想再推新的响应消息给client，要等待client发起新的请求
+
+WebSocket允许c/s在任意时间任意发送消息，且异步处理接收到的消息
+
+Websocket第一次连接时，跟server握手，会用到HTTP协议，在Upgrade里指明该次握手是建立Websocket（Upgrage: Websocket)，握手后，c/s间通信将按照websocket的协议来通信
+
+Websocket只需要建立一次连接，随后websocket报文只有6字节的开销，没有很大的header要处理
+
+websocket是异步通信模式。
