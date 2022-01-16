@@ -50,8 +50,7 @@ Vue的MVVM工作方式的核心，即如何实现observer，directive(parser)，
 
 ### 双向数据绑定
 
-
-- **Observer数据监听器**，  能对数据对象的所有属性进行监听，如有变动，可拿到最新值并通知订阅者。
+- **Observer数据监听器**，能对数据对象的所有属性进行监听，如有变动，可拿到最新值并通知订阅者。
 
 实现方法：使用Object.defineProperty，来劫持各个属性的getter/setter（数据劫持），在数据变动时，（在setter里）发布消息给订阅者（Watcher），触发相应的监听回调。
 
@@ -118,3 +117,15 @@ Object.defineProperty(obj,key,{
 
 - 初始化完毕后，当数据变化时，Observer中的setter方法被触发，setter会立即调用Dep.notify(),Dep开始遍历所有的订阅者（watcher）,并调用订阅者的update方法，订阅者收到通知后，对视图进行相应更新。
 
+## 依赖收集阶段
+在Vue的mounted过程中，通过mountComponent，会实例化一个渲染watcher
+updateComponent, vm._update(vm.render)
+
+vm.render 通过一次渲染操作对vm上的数据访问，触发了数据对象的getter，通过dep.depend()，将当前watcher添加到这个数据的dep的subs（订阅者）数组中（知道每个数据有哪些依赖）
+
+在这个过程中，触发所有数据的getter，完成当前vm的依赖收集过程
+
+- 在new Vue实例化过程中，initData等初始化数据时，遍历data中的属性，用observe()数据监听器；用Object.defineProperty，劫持了各个属性的getter/setter，对数据进行监听，将其变成响应式数据
+- Observer类，监听器，遍历对象的所有属性，对其进行双向绑定
+- 初始化完毕后，当数据有变化时，触发数据的setter方法，调用dep.notify()通知该数据的的每个watcher，进行回调，调用watcher的update方法，对视图进行更新
+- Dep，消息订阅器，内部维护一个数组，用来收集watcher订阅器

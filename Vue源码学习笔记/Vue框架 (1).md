@@ -241,16 +241,29 @@ v-model，怎么封装的？
 怎么封装个组件，把 v-model 暴露出去
 
 说说对v-model的了解？
+
+v-model就是vue的双向绑定的指令，在表单<input>, <textarea>, <select>元素上创建双向数据绑定，能将页面上控件输入的值同步更新到相关绑定的data属性，也会在更新data绑定属性的时候，更新页面上输入控件的值。
+
+它会根据控件类型自动选择正确的方法来更新元素。它负责监听用户的输入事件以更新数据。v-model会忽略所有表单元素的value,checked,selected特性的初始值而总是将Vue实例的数据作为数据来源。
+
 我们在 vue 项目中主要使用 v-model 指令在表单 input、textarea、select 等元素上创建双向数据绑定，我们知道 v-model 本质上不过是语法糖，v-model 在内部为不同的输入元素使用不同的属性并抛出不同的事件：
+
 text 和 textarea 元素使用 value 属性和 input 事件；
 checkbox 和 radio 使用 checked 属性和 change 事件；
 select 字段将 value 作为 prop 并将 change 作为事件。
+
+### input输入值后更新data
+页面初始化的时候，vue的编译器会编译该html模板文件，将页面上的dom元素遍历，生成一个虚拟DOM树。再递归遍历虚拟DOM的每一个节点，当匹配到其是一个元素而非纯文本，则继续遍历每一个属性。
+
+如果遍历到v-model这个属性，则会为这个节点添加一个input事件，当监听从页面输入值时，触发oninput事件并传递数据来更新vue实例中的data对应的属性值。
+
 以 input 表单元素为例：
 
 <input v-model='something'>
 相当于
 
 <input v-bind:value="something" v-on:input="something = $event.target.value">
+
 如果在自定义组件中，v-model 默认会利用名为 value 的 prop 和名为 input 的事件，如下所示：
 父组件：
 
@@ -267,6 +280,10 @@ methods: {
      this.$emit('input', '小红')
   },
 },
+
+data的属性赋值后更新input的值
+
+同样初始化vue实例时，会递归遍历data的每个属性，并且通过defineProperty来监听每个属性的get,set方法，从而一旦某个属性重新赋值，则能监听到变化来操作相应的页面控制。
 
 ## 什么是vue的计算属性？
 答：在模板中放入太多的逻辑会让模板过重且难以维护，在需要对数据进行复杂处理，且可能多次使用的情况下，尽量采取计算属性的方式。好处：①使得数据处理结构清晰；②依赖于数据，数据更新，处理结果自动更新；③计算属性内部this指向vm实例；④在template调用时，直接写计算属性名即可；⑤常用的是getter方法，获取数据，也可以使用set方法改变数据
@@ -294,7 +311,7 @@ computed属性值会默认走缓存，计算属性是基于它们的响应式依
 
   **优化：可以使用字符串的形式监听：**
 
-  ```javascript
+```javascript
   watch: {
     'obj.a': {
       handler(newVal) {
@@ -303,9 +320,9 @@ computed属性值会默认走缓存，计算属性是基于它们的响应式依
       immediate: true
     }
   }
-  ```
+```
 
-  ```javascript
+```javascript
   watch:{
   inpValObj:{
     handler(newVal,oldVal){
@@ -315,7 +332,7 @@ computed属性值会默认走缓存，计算属性是基于它们的响应式依
     deep:true
   }
 }
-  ```
+```
 deep: true 监听对象的变化时，它们索引同一个对象/数组,Vue 不会保留修改之前值的副本;
 所以深度监听虽然可以监听到对象的变化,但是无法监听到具体对象里面那个属性的变化
 
@@ -340,7 +357,6 @@ computed: 计算属性是基于它们的依赖进行缓存的,只有在它的相
 只要发生重新渲染，method 调用总会执行该函数
 
 计算属性（computed）、方法（methods）和侦听属性（watch）的区别与使用场景
-m
 
 总之，重新计算开销很大的话请选计算属性，不希望有缓存的请选methods。
 
@@ -358,11 +374,12 @@ m
 ## $nextTick
 目的是产生一个回调函数，加入task或micro task中，起到异步触发（下一个tick触发）的目的。
 
-将传入的回调压入callbacks数组，当不在等待状态时，调用timerFunc（优先检测是否支持promise，mutationObserver，timerFunc返回Promise,不支持流返回setImediate,setTimeout），加回调加入microtask或task中，继续进入等待状态
+将传入的回调压入callbacks数组，当不在等待状态时，调用timerFunc（优先检测是否支持promise，mutationObserver，timerFunc返回Promise,不支持流返回setImmediate,setTimeout），加回调加入micro task或task中，继续进入等待状态
 
 执行的时候，当主线程执行栈执行完毕时，对callbacks进行遍历，依次执行相应的回调函数。
 
 $nextTick 是在下次 DOM 更新循环结束之后执行延迟回调，在修改数据之后使用 $nextTick，则可以在回调中获取更新后的 DOM
+
 ## 页面渲染原理
 vue从data改变到页面渲染的过程
 
@@ -378,6 +395,8 @@ initState,injection,provide
 编译模板，把Vue代码中的指令进行执行，最终在内存中生成一个编译好的最终模板字符串，把模板字符串渲染为内存中的dom。此时，只是在内存中渲染好了模板，并没有挂载到真正的页面中。
 3. beforeMount，挂载开始之前被调用，相关render函数首次被调用。虚拟dom已创建完成，在数据渲染前最后一次更改数据；vue实例的$el和data都初始化了，但还是挂载之前为虚拟的dom节点。
 4. mounted，页面、数据渲染完成，vue实例真实dom挂载完成；el被新创建的vm.$el替换（将内存中编译好的模板真实替换到页面上），并**挂载到实例上**去之后调用该钩子；如果要操作页面上的DOM，最早在mounted中进行
+（可以访问到dom）
+
 vue实例初始化完毕，进入运行阶段
 5. beforeUpdate，组件数据更新前调用，重新渲染之前触发；发生在虚拟 DOM 打补丁之前
 虚拟DOM树重新渲染，diff后渲染到真实页面中，完成从data->view的更新
@@ -397,6 +416,10 @@ deadctivated	keep-alive专属，组件被销毁时调用
 
 A组件包裹B组件，B组件包裹C组件，它们的 componentDidMount 触发顺序如何
 Vue 的父组件和子组件生命周期钩子执行顺序是什么
+
+对同步渲染的子组件，mounted的执行是先子后父。
+
+执行销毁时，触发子组件的销毁钩子函数，一层一层递归调用。
 
 生命周期及对应的行为，vue父子组件生命周期执行顺序
   - created和beformounted 中间发生了什么
@@ -522,60 +545,6 @@ include 和 exclude 的属性允许组件有条件地缓存。二者都可以用
 
 如果 data 是一个对象，对象本身属于引用类型，当复用组件时，由于数据对象都指向同一个data对象，当我们修改其中的一个属性时，会影响到所有Vue实例的数据。如果将 data 作为一个函数返回一个对象，由于每次返回的都是一个新对象（Object的实例），引用地址不同，那么每一个实例的 data 属性都是独立的，不会相互影响了。
 
-## 了解Vue3吗，相对于Vue2做了哪些优化。Vue2.0和Vue3.0区别
-- Vue3.0都有哪些重要新特性？
- Composition API 和 Tree-shaking 方面，对应比较React Hooks和webpack 的Tree-shaking
-- Vue3.0 对比Vue2.0的优势在哪？
-- Vue3.0和React 16.X 都有哪些区别和相似处？
-重点突出两者开始相互借鉴，互有优点。记得夸夸Vue3.0抄过来，却做得更好的部分。
-- Vue3.0是如何实现代码逻辑复用的？
-可以先对比Composition API和mixin的差异，并凸显出Vue2.0那种代码上下反复横跳的缺点
-
-参考：
-《抄笔记：尤雨溪在 Vue3.0 Beta 直播里聊到了这些…》
-
-《Vue3 究竟好在哪里？（和 React Hook 的详细对比）》
-
-## vue3.0 特性的了解
-1. 监测机制的改变
-
-Object.defineProperty默认只能劫持值类型数据，对引用类型的数据内部修改无法劫持，要重写覆盖原型方法。
-- 无法监控数组下标的变化，`arr[2]=1`这样的下标赋值操作无法被监听。监控数组对象时，实质上监控的是数组的地址，地址不变就不会被监测到；
-- 无法监听数组的length，`arr.length`这样的数据更改无法被监听
-- 只能劫持对象的属性，所以要对对象的每个属性进行遍历，可能需要深度遍历（Vue 2.x通过递归+遍历data对象来实现对数据的监控），如果能劫持一个完整的对象，才是更好的选择
-
-Vue3.0 使用了ES6的Proxy代理对象，用于取代defineProperty
-- Proxy可以直接监听对象而非属性;可劫持整个对象，并返回一个新对象，我们可以只操作新的对象达到目的。而Object.defineProperty只能遍历对象属性直接修改
-- Proxy可以监听数组的变化
-- Proxy有有多达13种拦截方法,不限于apply、ownKeys、deleteProperty,has等是defineProperty不具备的
-- Proxy返回新对象，我们可以只操作新对象达到目的，而Object.defineProperty只能遍历对象属性进行修改
-
-问题：ES6新特性，兼容性不好，且无法用polyfill兼容，Object.defineProperty的优势就是兼容性好,支持IE9
-
-[Vue3为什么选择Proxy做双向绑定？](https://mp.weixin.qq.com/s?__biz=MzI3NjM1OTI3Mw==&mid=2247483695&idx=1&sn=8f4d74b58f4102eced8089bcaac4c443&chksm=eb77f029dc00793f502d4a39819e488d560e6bf7d268f3e987a03d43d71a07a2edab59d8d78f&scene=21#wechat_redirect)
-
-Vue3.0 将带来基于代理 Proxy 的 observer 实现，提供全语言覆盖的反应性跟踪。这消除了 Vue 2 当中基于 Object.defineProperty 的实现所存在的很多限制：①只能监测属性，不能监测对象；②检测属性的添加和删除；③检测数组索引和长度的变更；④支持 Map、Set、WeakMap 和 WeakSet。
-新的 observer 还提供了以下特性：
-用于创建 observable 的公开 API。这为中小规模场景提供了简单轻量级的跨组件状态管理解决方案。
-默认采用惰性观察。在 2.x 中，不管反应式数据有多大，都会在启动时被观察到。如果你的数据集很大，这可能会在应用启动时带来明显的开销。在 3.x 中，只观察用于渲染应用程序最初可见部分的数据。
-更精确的变更通知。在 2.x 中，通过 Vue.set 强制添加新属性将导致依赖于该对象的 watcher 收到变更通知。在 3.x 中，只有依赖于特定属性的 watcher 才会收到通知。
-不可变的 observable：我们可以创建值的“不可变”版本（即使是嵌套属性），除非系统在内部暂时将其“解禁”。这个机制可用于冻结 prop 传递或 Vuex 状态树以外的变化。
-更好的调试功能：我们可以使用新的 renderTracked 和 renderTriggered 钩子精确地跟踪组件在什么时候以及为什么重新渲染。
-
-2. 模板
-模板方面没有大的变更，只改了作用域插槽，2.x 的机制导致作用域插槽变了，父组件会重新渲染，而 3.0 把作用域插槽改成了函数的方式，这样只会影响子组件的重新渲染，提升了渲染的性能。
-同时，对于 render 函数的方面，vue3.0 也会进行一系列更改来方便习惯直接使用 api 来生成 vdom 。
-
-3. 对象式的组件声明方式
-vue2.x 中的组件是通过声明的方式传入一系列 option，和 TypeScript 的结合需要通过一些装饰器的方式来做，虽然能实现功能，但是比较麻烦。3.0 修改了组件的声明方式，改成了类式的写法，这样使得和 TypeScript 的结合变得很容易。
-此外，vue 的源码也改用了 TypeScript 来写。其实当代码的功能复杂之后，必须有一个静态类型系统来做一些辅助管理。现在 vue3.0 也全面改用 TypeScript 来重写了，更是使得对外暴露的 api 更容易结合 TypeScript。静态类型系统对于复杂代码的维护确实很有必要。
-
-4. 其它方面的更改
-vue3.0 的改变是全面的，上面只涉及到主要的 3 个方面，还有一些其它的更改：
-支持自定义渲染器，从而使得 weex 可以通过自定义渲染器的方式来扩展，而不是直接 fork 源码来改的方式。
-支持 Fragment（多个根节点）和 Protal（在 dom 其它部分渲染组建内容）组件，针对一些特殊的场景做了处理。
-基于 treeshaking 优化，提供了更多的内置功能。
-
 ## Vue hooks的使用
 ## 如何批量引入组件 ———— require.context()
 
@@ -676,7 +645,7 @@ Vue.js 是构建客户端应用程序的框架。默认情况下，可以在浏�
 如果你的项目的 SEO 和 首屏渲染是评价项目的关键指标，那么你的项目就需要服务端渲染来帮助你实现最佳的初始加载性能和 SEO。如果你的 Vue 项目只需改善少数营销页面（例如  /products， /about， /contact 等）的 SEO，那么你可能需要预渲染，在构建时 (build time) 简单地生成针对特定路由的静态 HTML 文件。优点是设置预渲染更简单，并可以将你的前端作为一个完全静态的站点，具体你可以使用 prerender-spa-plugin 就可以轻松地添加预渲染 。
 
 ## 对 SPA 单页面的理解，它的优缺点分别是什么？
-SPA（ single-page application ）仅在 Web 页面初始化时加载相应的 HTML、JavaScript 和 CSS。一旦页面加载完成，SPA 不会因为用户的操作而进行页面的重新加载或跳转；取而代之的是利用路由机制实现 HTML 内容的变换，UI 与用户的交互，避免页面的重新加载。
+SPA（ single-page application ）仅在 Web 页面初始化时加载相应的 HTML、JavaScript 和 CSS。一旦页面加载完成，SPA 不会因为用户的操作而进行页面的重新加载或跳转；取而代之的是利用路由机制实现 HTML 内容的变换，UI 与用户的交互，避免页面的重新加载。仅刷新局部资源。
 优点：
 用户体验好、快，内容的改变不需要重新加载整个页面，避免了不必要的跳转和重复渲染；
 基于上面一点，SPA 相对对服务器压力小；
@@ -685,6 +654,17 @@ SPA（ single-page application ）仅在 Web 页面初始化时加载相应的 H
 初次加载耗时多：为实现单页 Web 应用功能及显示效果，需要在加载页面的时候将 JavaScript、CSS 统一加载，部分页面按需加载；
 前进后退路由管理：由于单页应用在一个页面中显示所有的内容，所以不能使用浏览器的前进后退功能，所有的页面切换需要自己建立堆栈管理；
 SEO 难度较大：由于所有的内容都在一个页面中动态替换显示，所以在 SEO 上其有着天然的弱势。
+
+- 结构：一个主页面+许多模块的组件
+- 体验：页面切换快，体验佳；当初次加载文件过多时，需要做相关的调优
+- 资源文件：组件公用的资源只需要加载一次
+- 适用场景：对体验度和流畅度有较高要求的应用，不利于SEO（可借助SSR优化SEO）
+- 过渡动画：Vue提供了transition的封装组件，容易实现
+- 内容更新：相关组件的切换，即局部更新
+- 路由模式：hash/history
+- 相关成本：前期开发成本较高，后期维护较容易
+
+核心：前端路由
 
 ### vue等单页面应用及其优缺点
 答：优点：Vue 的目标是通过尽可能简单的 API 实现响应的数据绑定和组合的视图组件，核心是一个响应的数据绑定系统。MVVM、数据驱动、组件化、轻量、简洁、高效、快速、模块友好。
@@ -708,7 +688,7 @@ SEO 难度较大：由于所有的内容都在一个页面中动态替换显示�
 
 在 Vue 中，子组件为何不可以修改父组件传递的 Prop；如果修改了，Vue 是如何监控到属性的修改并给出警告的。
 
-vue2新增内容?独立构建（standalone）和运行时构建（runtime-only）的差别和应用?
+独立构建（standalone）和运行时构建（runtime-only）的差别和应用?
 
 介绍状态机
 
@@ -727,3 +707,16 @@ vue 代码复用的方式
 render适合复杂逻辑,template适合逻辑简单;
 template属于声明式渲染，render属于自定Render函数;
 render的性能较高，template性能较低。
+
+3. Vue和React之间的区别
+Vue 的表单可以使用 v-model 支持双向绑定，相比于 React 来说开发上更加方便，当然了 v-model 其实就是个语法糖，本质上和 React 写表单的方式没什么区别。
+
+改变数据方式不同，Vue 修改状态相比来说要简单许多，React 需要使用 setState 来改变状态，并且使用这个 API 也有一些坑点。并且 Vue 的底层使用了依赖追踪，页面更新渲染已经是最优的了，但是 React 还是需要用户手动去优化这方面的问题。
+
+React 16 以后，有些钩子函数会执行多次，这是因为引入 Fiber 的原因，这在后续的章节中会讲到。
+
+React 需要使用 JSX，有一定的上手成本，并且需要一整套的工具链支持，但是完全可以通过 JS 来控制页面，更加的灵活。Vue 使用了模板语法，相比于 JSX 来说没有那么灵活，但是完全可以脱离工具链，通过直接编写 render 函数就能在浏览器中运行。
+
+在生态上来说，两者其实没多大的差距，当然 React 的用户是远远高于 Vue 的。
+
+在上手成本上来说，Vue 一开始的定位就是尽可能的降低前端开发的门槛，然而 React 更多的是去改变用户去接受它的概念和思想，相较于 Vue 来说上手成本略高。

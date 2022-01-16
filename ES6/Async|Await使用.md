@@ -194,7 +194,7 @@ function createPromise(needCatch) {
 ```
 A1,A2都执行成功，且返回值为10。
 
-如果 onRejected 抛出一个错误或返回一个本身失败的 Promise ，  通过 catch() 返回的Promise 被rejected；否则，它将显示为成功（resolved）。
+如果 onRejected 抛出一个错误或返回一个本身失败的 Promise ，通过 catch() 返回的Promise 被rejected；否则，它将显示为成功（resolved）。
 
 异步错误处理一般要涉及到为每个操作编写错误处理的回调。将错误传递到调用堆栈的顶部可能会非常复杂，通常要在每个回调开始的地方显式检查是否有错误抛出，这种方法冗长且容易出错。此外，如果没有恰当进行处理，Promise中抛出的异常将导致悄无声息的失败，导致错误检查不全面。
 
@@ -298,3 +298,45 @@ function createPromise() {
 执行async函数，会即刻执行其函数体，直到遇到await命令；遇到await命令后，执行权会转向async函数外部，即不管async函数内部执行而开始执行外部代码。执行完外部代码（本轮事件循环）后，才继续执行之前await命令后面的代码。
 
 await指令，会使用Promise.resolve包裹其后的表达式，并为其设置回调函数。无论Promise是立刻有结果，还是过段时间后，其回调函数都会被推迟到本轮事件循环的末尾执行。
+
+## 问题
+手动实现 async await
+对async、await的理解，内部原理,Async/Await怎么实现
+Async/Await 如何通过同步的方式实现异步
+使用Async会注意哪些东西
+Async里面有多个await请求，可以怎么优化（请求是否有依赖）
+async + await: 异步编程的终极方案 promise + generator的语法糖
+es6 generator 是什么，async/await 实现原理
+## 用async/await代替promise
+使异步代码形式上更接近于同步代码，语义更明确，语法更简洁，代码阅读性高。
+
+async定义的函数，表明内有异步事件，返回Promise对象，其最终resolve的值就是函数中return的内容
+
+await getJSON()，await后面跟的是Promise，在resolve之后才执行并输出resolve的值
+
+用async/await，要加错误处理，try catch
+
+错误处理：promise串行的错误，会在最近的catch中被捕获，不能定位是哪个环节的错误；async/await异常堆栈指向了正确的函数
+
+调试：async/await容易调试，可以执行步进操作，就像同步调用。而then调试器不会进入后续then，只能跟踪同步。
+
+只有一个异步请求，用promise, then, catch
+嵌套请求，用async/await
+
+并行请求：await Promise.all([a(), b()])
+
+## async函数实际上是Generator函数的语法糖
+
+async function 声明用于定义一个返回 AsyncFunction 对象的异步函数。执行async函数时，遇到await关键字时，await 语句产生一个promise，await 语句以后的代码被暂停执行，等promise有结果（状态变为settled）之后再接着执行。
+
+关键字await
+
+await是一个让出线程的标志，await后面的函数会先执行一遍，然后就跳出整个async函数来执行后面的执行栈的代码，等本轮事件循环执行完了之后，又会跳回到async函数中等待await
+
+await 后面表达式的返回值，如果返回值为非promise则继续执行async函数后面的代码，否则将返回的promise放入promise队列
+
+关键字await使async函数一直等待（执行栈固然不可能停下来等待，await将其后面的内容包装成promise交给web APIs后，执行栈会跳出async函数，继续执行），直到promise执行完并返回结果
+
+await下面的代码只有当await后面的promise返回结果后才会执行
+
+而 await func(),像执行普通函数一样，执行func(), 然后跳出async函数，继续向下执行

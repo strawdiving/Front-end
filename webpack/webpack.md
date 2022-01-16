@@ -1,6 +1,47 @@
 # 前端工程化-Webpack
 前端工程化的理解，webpack等工具在项目中的作用
+
+前端工程化：
+- 前端开发要自成体系，包括构建、部署和运维，不再和后端耦合，后端通过RESTful API提供服务
+- 设计要分层，来应对需求和技术的变化
+
+模块化就是将一个大文件拆分成相互依赖的小文件，再进行统一的拼装和加载。只有这样，才有多人协作的可能
+
+模块的打包和加载问题：1. 用Webpack+Babel将所有模块打包成一个文件同步加载，也可以打成多个chunk异步加载；
 ## webpack打包原理
+webpack是一个打包工具，它的宗旨是一切静态资源皆可打包。webpack是现代前端技术的基石，常规的jquery,css,html静态网页开发已经落后，现在是MVVM的时代，数据驱动界面。 且前端社区涌现很多好的实践
+
+- 模块化
+- TypeScript
+- Scss,less等CSS预处理器
+
+利用他们开发的文件往往需要额外的处理才能被浏览器识别，而手动处理很繁琐，所以有了自动化构建工具，如Grunt,Gulp, Webpack
+
+webpack的工作方式：webpack是模块化的解决方案，把项目当做一个整体，通过一个给定的主文件（入口文件，如index.js），webpack将从这个文件开始找到你的项目的所有依赖文件，使用loaders处理它们，最后
+打包成一个（或多个）浏览器能识别的Javascript文件（Bundled Javascript）
+
+1. 从入口文件开始，对其进行依赖分析
+2. 对其所有依赖再次递归进行依赖分析
+3. 构建出模块的依赖图集
+4. 进行打包，根据依赖图集，使用CommonJS规范实现加载，构建出最终代码
+通过构造一个立即执行函数(function () {})()，手动定义module，exports和require变量，最后实现代码在浏览器运行的目的。
+
+（注：Grunt和Gulp的工作方式：在一个配置文件中，指明对某些文件进行类似编译，组合，压缩等任务的具体步骤，工具可以自动替你完成这些任务。是能够优化前端的开发流程的工具）
+如：
+Source Folder(Javascript ES6)---> Read all files from folder ---> Process files through first task(plugin) ---> Transpile to JS(es5)
+---> Save or Stream file to next task ---> Bundles JS modules ---> Save file ---> Bundled Javascript
+
+webpack的处理速度更快更直接，能打包更多不同类型的文件。
+
+webpack的生态圈：
+- Babel：配置ES2015
+- HMR：配置本地热更新
+- ESlint：检查代码格式
+- Tree-shaking：去除无用的代码
+- Vue-cli：项目脚手架
+
+webpack将现代js开发中的各种新型有用的技术，集合打包。
+
 webpack是基于模块化打包的工具。自动化处理模块，webpack把一切当成模块，当webpack处理应用程序时，它会递归地构建一个依赖图，其中包含应用程序需要的每个模块，然后将这些模块打包成一个或多个bundle。
 webpack有强大的loader和plugin插件生态，打包后的文件实际上是一个立即执行函数，这个函数执行一个参数，参数是模块对象，键为各个模块的路径，值为模块内容。立即执行函数内部处理模块之间的引用，执行模块等。更适合文件依赖复杂的应用。
 

@@ -400,14 +400,6 @@ vertical-align & line-height
 vertical-align 为什么没有绝对垂直居中？
 line-height 的具体含义是什么？
 
-42 png、jpg、jpeg、gif 这些图片格式解释一下，分别什么时候用。有没有了解过webp？JPG,png，webp图片特点,场景，如何选择图片格式
-说说你对base64 URL 的了解
-
-png是便携式网络图片（Portable Network Graphics）是一种无损数据压缩位图文件格式.优点是：压缩比高，色彩好。 大多数地方都可以用。
-jpg是一种针对相片使用的一种失真压缩方法，是一种破坏性的压缩，在色调及颜色平滑变化做的不错。在www上，被用来储存和传输照片的格式。
-gif是一种位图文件格式，以8位色重现真色彩的图像。可以实现动画效果.
-webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，大小比png小了45%。缺点是压缩的时间更久了，兼容性不好，目前谷歌和opera支持。
-
 - 已知如下代码，如何修改才能让图片宽度为 300px ？注意下面代码不可修改。
 < img src="1.jpg" style="width:480px!important;”>
 - 为什么通常在发送数据埋点请求的时候使用的是 1x1 像素的透明 gif 图片？
@@ -427,8 +419,6 @@ webp格式是谷歌在2010年推出的图片格式，压缩率只有jpg的2/3，
     动画属性的差异: 1、display:none：完全不受transition属性的影响，元素立即消失
     2、visibility：hidden：元素消失的时间跟transition属性设置的时间一样，但是没有动画效果.
     3、opacity:0,动画属性生效,能够进行正常的动画效果.
-
-44. 介绍css3中position:sticky
 
 45. inline和block元素列举,block和inline-block区别?内联元素包含块元素的表现？块元素和内联元素渲染区别?
 
@@ -501,37 +491,31 @@ animation 关键帧动画：
 (6) animation-direction: 方向
 (7) animation-fill-mode: 禁止模式
 
-10. 介绍position属性包括CSS3新增
+10. 介绍position属性包括CSS3新增, position:sticky
 
-
-formData和原生的ajax有什么区别
-介绍下表单提交，和formData有什么关系
-
-react-router 里的 <Link> 标签和 <a> 标签有什么区别
-如何禁掉 <a> 标签默认事件，禁掉之后如何实现跳转。
-
-理解 Viewport的原理和用法，分辨率、 px、 ppi、 dpi、 dp的区别和实际应用
-如何实现H5手机端的适配
-屏幕适配 以及 页面自适应
-移动端页面适配解决方案、不同机型适配方案
-- 移动端长度单位
-如何解决移动端 Retina 屏 1px 像素问题
-移动端适配1px的问题
 <b>和<strong>的区别
-padding百分比是相对于父级宽度还是自身的宽度
+
 外边距合并
 
+理解 Viewport的原理和用法，分辨率、 px、 ppi、 dpi、 dp的区别和实际应用
+
+如何实现H5手机端的适配
+
+屏幕适配 以及 页面自适应, 不同机型适配方案
+
+如何解决移动端 Retina 屏 1px 像素问题
+移动端适配1px的问题, 移动端页面适配解决方案, 移动端长度单位
 
 - 1. CSS选择器( 三大特性 ）
 CSS所有选择器及其优先级、使用场景，哪些可以继承，如何运用 at规则
 特异性——如何计算选择器的特异性，以及级联如何影响属性；
 
-CSS实现隐藏页面的方式
 CSS 选择器的解析顺序是从右到左，还是从左到右，为什么
 说说CSS重要难点?
+
 - 怎么避免 css 冲突
 CSS模块化方案、如何配置按需加载、如何防止 CSS阻塞渲染
-你知道attribute和property的区别么
+
 css初始化
 svg与canvas
 HTML文档流的排版规则， CSS几种定位的规则、定位参照物、对文档流的影响，如何选择最好的定位方式，

@@ -1,5 +1,6 @@
 ## DOM,事件
 -  JavaScript 的事件流模型都有什么？
+DOM事件流的具体实现机制、不同浏览器的差异、事件代理
 
 事件流分为三个阶段：
 1. 事件捕获阶段
@@ -79,7 +80,6 @@ querySelectAll和ByClassName所获取元素的区别?如何绑定事件?
 1. 浏览器提供的符合 W3C标准的 DOM操作 API、浏览器差异、兼容性
 3. 大量 DOM操作、海量数据的性能优化(合并操作、 Diff、 requestAnimationFrame等)
 4. 浏览器海量数据存储、操作性能优化
-5. DOM事件流的具体实现机制、不同浏览器的差异、事件代理
 
 offsetTop和scrollTop和scrollHeight分别代表什么
 

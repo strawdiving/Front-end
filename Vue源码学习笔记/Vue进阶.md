@@ -8,7 +8,6 @@
 如果你的代码跨越了不同模块（例如不同的 JavaScript 文件），Webpack 可以将这些零散的代码“构建”到浏览器可读的单个文件中。
 Webpack 还可以作为构建管道，你可以在构建代码之前对代码进行转换，例如使用 Babel、Sass 或 TypeScript，还可以使用一系列插件来优化你的应用程序。
 
-
 Vue进阶
 
 1. 深入理解Virtual DOM，和渲染函数（Render Functions)，理解模板和渲染函数之间的对应关系，了解其使用方法和适用场景。
@@ -19,8 +18,8 @@ Vue进阶
 
 4. 阅读Vue源码，理解内部实现细节
 
-
 响应式（reactiv）数据，指令、插值等模板功能。
+
 组件，了解如何声明组件，以及如何通过prop和event在他们之间发生交互；如何组合组件，这对Vue构建健壮、可伸缩的应用程序来说至关重要。
 
 Vue,Vue-Router,VueX,Webpack,Vue CLI

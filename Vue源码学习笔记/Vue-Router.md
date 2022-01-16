@@ -58,7 +58,7 @@ Hash方法是在路由中带有一个“#”，URL的片段标识符 ——> 跟
 
 每一次改变hash，就会在浏览器的访问历史中增加一个记录。
 
-当URL的片段标识符更改时，将触发（window的）haschange事件。主要原理是通过监听“#”后的URL路径标识符的更改而触发的浏览器 haschange 事件，然后通过获取 location.hash 得到当前的路径标识符，而进行一些路由跳转的操作。
+当URL的片段标识符更改时，将触发（window的）haschange事件。主要原理是通过监听“#”后的URL路径标识符的更改而触发的浏览器 haschange 事件，然后通过获取 location.hash 得到当前的路径标识符，通过设置hash值而进行一些路由跳转的操作。
 
 - location.href，完整的URL
 - location.hash，URL的锚部分
@@ -76,6 +76,8 @@ Hash方法是在路由中带有一个“#”，URL的片段标识符 ——> 跟
 
 注：因为Hash方法是利用了相当于页面锚点的功能，所以与原来的通过锚点定位来实现页面滚动定位的方式冲突，导致定位到错误的路由路径，所以需要采用别的办法。
 
+由于hash发生变化的url都会被浏览器记录下来，所以浏览器的前进后退可以使用。尽管浏览器没有请求服务器，但页面状态和url关联起来。
+
 ## history模式
 HTML5提供了一些路由操作的API：
 
@@ -85,9 +87,17 @@ HTML5提供了一些路由操作的API：
 - history.back()，相当于 history.go(-1)，和浏览器回退按钮效果相同
 
 
-- history.pushState() 添加一条路由历史记录，如果设置跨域网址则报错
+- history.pushState(stateObj, title, url) 添加一条路由历史记录，如果设置跨域网址则报错
+  - 参数1: state，一个与指定网址相关的状态对象，popstate事件触发时，该对象会传入回调函数，如果不需要可填null
+  - 参数2:title，新页面的标题，可选，可填null
+  - 参数3，新网址，必须与当前页面在同一个域，浏览器的网址将显示这个网址
+  添加新纪录后，浏览器地址栏显示新地址，但并不会跳转到新地址，它只是成为history中的最近记录。pushState方法不会触发页面刷新，只是history对象变化，地址栏会变
 - history.replaceState()，替换当前页在路由历史记录的信息
+  参数同pushState，会修改当前的history对象记录，history的长度不会变
 - popstate事件：当活动的历史记录发生变化，就会触发popstate事件，在点击浏览器的前进后退按钮，或调用go,forward,back方法时都会触发
+  同一个文档的history对象出现变化时，就会触发popstate事件。
+
+  注：调用pushState或replaceState不会触发popstate事件。该事件只会在浏览器某些行为下触发，比如点击后退/前进按钮，或调用go, forward, back方法。
 
 充分利用**history.pushState** API来完成URL跳转而无须重新加载页面。
 ```javascript
@@ -274,17 +284,18 @@ watch: {
 <router-view :key="$route.fullpath"></router-view>
 ```
 
-
 路由的动态加载模块
 前端怎么控制管理路由
 使用路由时出现问题如何解决
 
-- <a>标签默认事件禁掉之后做了什么才实现了跳转
+- <a>标签默认事件禁掉之后做了什么才实现了跳转.如何禁掉 <a> 标签默认事件，禁掉之后如何实现跳转
+
 使用@click.native。原因：router-link会阻止click事件，.native指直接监听一个原生事件
+
+- react-router 里的 <Link> 标签和 <a> 标签有什么区别
 
 - active-class是哪个组件的属性？嵌套路由怎么定义
 vue-router模块的router-link组件
-
 
    1. vue-router: 搭建SPA
        路由,组件的配置

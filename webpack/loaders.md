@@ -26,7 +26,6 @@ webpack配sass需要哪些loader，配css需要哪些loader
 
 3. loader的执行顺序为什么是后写的先执行
 
-4.
 ## 进阶： 写一个loader
 loader把读到的源文件的内容转义成新的文件内容，且每个loader通过链式操作，把源文件一步步翻译成想要的样子。
 要遵循单一原则，即一个loader只做一种“转义”工作。

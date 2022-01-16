@@ -83,3 +83,9 @@ axios.interceptors.response.use(response => {
     return Promise.reject(error)
 })
 ```
+
+
+formData和原生的ajax有什么区别
+
+介绍下表单提交，和formData有什么关系
+

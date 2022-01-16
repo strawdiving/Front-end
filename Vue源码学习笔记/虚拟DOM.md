@@ -191,7 +191,8 @@ createKeyToOldIndex（children，beginIndex,endIndex），创建key-index的map�
 比较的过程中，变量会向中间靠，一旦startIndex>endIndex，表明oldCh和newCh至少有一个已经遍历完了，就会结束比较，然后删除旧节点（不删除标记为undefined的节点）或者新增新节点。
 
 对diff算法进行优化.
-3. **列表diff中key的作用**
+
+3. **列表diff中key的作用** key 的作用，如果用 index 做 key 有什么问题，为什么不推荐使用数组的index
 key的特殊属性主要用在Vue的虚拟DOM算法，使用key给每一个节点做一个唯一标识，Diff算法就可以在新旧nodes对比时正确辨识VNodes，**key的作用主要是为了精准高效的更新虚拟DOM**。
 
 如果不使用 key，Vue 会使用一种最大限度减少动态元素并且尽可能的尝试修复/再利用相同类型元素的算法。使用 key，它会基于 key 的变化重新排列元素顺序，并且会移除 key 不存在的元素。
@@ -203,6 +204,7 @@ key的特殊属性主要用在Vue的虚拟DOM算法，使用key给每一个节�
 为同一层级的同组节点添加一个唯一的key进行区分，可以唯一的确定一组节点。识别出每一组节点，通过比较key发现，节点是同类的，只是位置发生了变化，这样只用移动操作调整位置，而不需要做创建和删除的操作，效率大大提高。
 
 比如： 三个input框，如果用index作为索引，如果删除了第2个，index从1 2 3变成1 2而不是1 3，Vue会认为把2变成了3，把3删除了。
+
 比如key的取值可以是索引index吗？ 索引是按位置排序的，如果调换位置后，原来的A(key=1),B(key=2),C(key=3)，变成了C(key=1),B(key=2),A(key=3)，失去了key的功能，没有办法唯一确定一组节点了。
 
 如果数组内删除了一个对象，则该元素后面的元素下标都前移了一位，之前key对应的数据和DOM就乱了，除非重新匹配key
@@ -248,7 +250,6 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   return map
 }
 ```
-## key 的作用，如果用 index 做 key 有什么问题，为什么不推荐使用数组的index
 
 Virtual DOM 真的比操作原生 DOM 快吗？谈谈你的想法。
 

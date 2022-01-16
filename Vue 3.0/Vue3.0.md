@@ -19,6 +19,8 @@ setup组件选项在创建组件**之前**执行，一旦 props 被解析，就�
 - 只能访问以下property：props、attrs、slots、emit
 - 不能访问以下组件选项：data、computed、methods
 
+setup是一个将属性和函数返回到模板的函数而已，我们在这里声明所有的响应性属性，计算属性、watch和生命周期钩子，再将它们返回，以便在模板中使用。
+
 我们从setup返回的所有内容，都将暴露给组件的其他部分 （计算属性、方法、生命周期钩子等）以及组件的模板。
 
 注：从setup返回的 refs 在模板中访问时是自动解开的，不需要在模板中使用.value。
@@ -99,7 +101,7 @@ const counter = ref(0)
 console.log(counter.value)
 counter.value ++
 ```
-ref接受参数，并将其包裹在一个带有value property的对象中返回，然后就可以使用该property访问或改变响应式变量的值。
+ref接受参数，并将其包裹在一个带有value属性的对象中返回，然后就可以使用该property访问或改变响应式变量的值。
 
 将值封装在一个对象中，看似没有必要，但为了保持JS中不同数据类型的行为统一，这是必须的。因为JS中Number或String等基本类型是通过值传递的，而不是通过引用传递的。
 
@@ -187,5 +189,8 @@ export default {
 }
 ```
 
+使用模板时，setup返回property，返回渲染函数的话，不需要模板，如果要将property暴露给其他外部访问，可以使用expose
+
 ## 使用this
 在 setup()内部，this不会是该活跃实例的引用，因为setup()是在解析其他组件选项之前被调用的，所以setup(）内部的this的行为与其它选项中的this完全不同。这在和其它选项式API一起使用setup()时可能会导致混淆。
+

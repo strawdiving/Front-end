@@ -33,8 +33,6 @@ vue-element-admin
 vue2-elm
 开源项目：小程序，可视化大屏
 
-8. webpack
-
 9. 《啊哈、算法》——done，补充数据结构的基本实现
   《算法图解》—— 分治、贪婪、动态规划的补充（bookmarks)
    排序算法内容补充（bookmarks里整理补充）

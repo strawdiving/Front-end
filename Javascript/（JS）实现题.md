@@ -8,8 +8,6 @@ console.log(a); // [1,2,3,4,5,1,4,9,16,25]
 ```
 
 2. 0.1+0.2===0.3 为何返回 false
-3. Javascript 中有哪些不同的数据类型
-   主要数据类型（6 类）和引用类型(对象)
 4. 解决以下异步代码问题
    检索并计算属于同一教室中每个学生的平均分数，例子中教室 ID 为 75。每个学生可以在一年内参加一门或多门课程。以下 API 可用于检索所需数据。
 
@@ -75,7 +73,6 @@ call 和 apply 的区别是什么，哪个性能更好一些
 7. new 关键字的作用
 
 在 Javascript 中，new 是用于实例化对象的运算符。另，要注意[[Construct]]和[[Call]]
-如何实现一个 new
 
 8. JavaScript 中的迭代器（iterators）和迭代（iterables）是什么？ 你知道什么是内置迭代器吗？
 
@@ -104,11 +101,13 @@ function makeAPIRequest(url, timeout = 200, headers) {
 ```
 
 第 2 题：`['1', '2', '3'].map(parseInt)` what & why ?
+  结果：[1, NaN, NaN]
+  `['1', '2', '3'].map((item, index) => parseInt(item, index))`
+  实际调用的是parseInt(string, radix)
 第 65 题：`a.b.c.d` 和 `a['b']['c']['d']`，哪个性能更高？
 第 72 题：为什么普通 `for` 循环的性能远远高于 `forEach` 的性能，请解释其中的原因。
 第 21 题：有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
 Object.prototype.toString.call() 、 instanceof 以及 Array.isArray()
-第 3 题：（挖财）什么是防抖和节流？有什么区别？如何实现？
 
 第 5 题：介绍下深度优先遍历和广度优先遍历，如何实现？
 第 6 题：请分别用深度优先思想和广度优先思想实现一个拷贝函数？
@@ -130,7 +129,7 @@ for (var i = 0; i < 10; i++) {
 var b = 10;
 (function b() {
   b = 20;
-  console.log(b);
+  console.log(b); // 20
 })();
 ```
 
@@ -138,21 +137,11 @@ var b = 10;
 
 ```javascript
 var b = 10;
+// console.log(b)
 (function b() {
   b = 20;
   console.log(b);
 })();
-```
-
-第 36 题：使用迭代的方式实现 flatten 函数。
-
-第 38 题：（京东）下面代码中 a 在什么情况下会打印 1？
-
-```javascript
-var a = ?;
-if(a == 1 && a == 2 && a == 3){
-     console.log(1);
-}
 ```
 
 第 41 题：下面代码输出什么
@@ -160,11 +149,11 @@ if(a == 1 && a == 2 && a == 3){
 ```javascript
 var a = 10;
 (function () {
-  console.log(a);
+  console.log(a); // undefined
   a = 5;
-  console.log(window.a);
+  console.log(window.a); // 10
   var a = 20;
-  console.log(a);
+  console.log(a); // 20
 })();
 ```
 
@@ -190,8 +179,10 @@ var a = { n: 1 };
 var b = a;
 a.x = a = { n: 2 };
 
-console.log(a.x);
-console.log(b.x);
+// a: { n: 2 }, b: { n:1, x: { n:2 } } }
+
+console.log(a.x); // undefined
+console.log(b.x); // { n:2 }
 ```
 
 第 50 题：（百度）实现 (5).add(3).minus(2) 功能。
@@ -235,29 +226,6 @@ add(1)(2, 3); // 6
 add(1, 2)(3); // 6
 add(1, 2, 3); // 6
 
-第 76 题：输出以下代码运行结果
-
-```javascript
-// example 1
-var a={}, b='123', c=123;
-a[b]='b';
-a[c]='c';
-console.log(a[b]);
-
----------------------
-// example 2
-var a={}, b=Symbol('123'), c=Symbol('123');
-a[b]='b';
-a[c]='c';
-console.log(a[b]);
-
----------------------
-// example 3
-var a={}, b={key:'123'}, c={key:'456'};
-a[b]='b';
-a[c]='c';
-console.log(a[b]);
-```
 
 第 98 题：（京东）写出如下代码的打印结果
 
@@ -269,7 +237,7 @@ function changeObjProperty(o) {
 }
 let webSite = new Object();
 changeObjProperty(webSite);
-console.log(webSite.siteUrl);
+console.log(webSite.siteUrl); // "http://www.baidu.com"
 ```
 
 第 100 题：（京东）请写出如下代码的打印结果
@@ -289,16 +257,14 @@ Foo.prototype.a = function () {
 Foo.a = function () {
   console.log(4);
 };
-Foo.a();
+Foo.a(); // 4
 let obj = new Foo();
-obj.a();
-Foo.a();
+obj.a(); // 2
+Foo.a(); // 1
 ```
-
 
 第 42 题：（喜马拉雅）实现一个 sleep 函数
 比如 sleep(1000) 意味着等待 1000 毫秒，可从 Promise、Generator、Async/Await 等角度实现
-
 
 - 说出以下打印结果
 
@@ -315,68 +281,28 @@ console.log(obj[a]);
 解答： 20；
 考察 JS 数据类型，ES6 中属性名表达式。在上题中 obj[b]=20 的赋值操作后， obj 其实已经变成了 {a:10,[objectObject]:20}，这是因为如果属性名表达式是一个对象的话，那么默认情况下会自动将对象转为字符串 [objectObject]，最后一步获取 obj[a]时，a 本身也是一个对象，所以会被转换为获取 obj[objectObject]也就是上一步赋值的 20。
 
-- 数组去重的方法
+第 76 题：输出以下代码运行结果
 
 ```javascript
-let originalArray = [1,2,3,4,5,3,2,4,1]
+// example 1
+var a={}, b='123', c=123;
+a[b]='b';
+a[c]='c';
+console.log(a[b]); // 'c'
 
-// 方式1
-const result = Array.from(new Set(originalArray))
-// -> [1, 2, 3, 4, 5]
+---------------------
+// example 2
+var a={}, b=Symbol('123'), c=Symbol('123');
+a[b]='b';
+a[c]='c';
+console.log(a[b]); // 'b'
 
-// 方式2
-const result = []
-const map = new Map()
-
-for (let v of originalArray) {
-  if (!map.has(v)) {
-    map.set(v,true)
-    result.push(v)
-  }
-}
-// -> [1, 2, 3, 4, 5]
-
-// 方式3
-const result = []
-for (let v of originalArray) {
-  if (!result.includes(v)) {
-    result.push(v)
-  }
-}
-// -> [1, 2, 3, 4, 5]
-
-// 方式4
-
-for (let i=0; i<originalArray.length; i++) {
-  for (let j=i+1; j<originalArray.length; j++) {
-    if (originalArray[i] === originalArray[j]) {
-      originalArray.splice(j,1)
-      j--
-    }
-  }
-}
-// -> [1, 2, 3, 4, 5]
-
-// 方式5
-const obj = {}
-const result = originalArray.filter(item => obj.hasOwnProperty(typeof item+item) ? false: (obj[typeof item+item] = true))
-}
-```
-- 对象数组如何去重？
-心里想着每个对象的内存地址本身就不一样，去重的意义何在，非要去重的话，那只能通过 JSON.stringify序列化成字符串(这个方法有一定的缺陷)后进行对比，或者递归的方式进行键-值对比，但是对于大型嵌套对象来说还是比较耗时的.
-
-根据每个对象的某一个具体属性来进行去重，因为考虑到服务端返回的数据中可能存在id重复的情况，需要前端进行过滤，如下：
-```javascript
-const list = [
-  {id:1, a:1},
-  {id:2, a:2},
-  {id:3, a:3},
-  {id:1, a:4},
-]
-const result = list.reduce((acc,cur) => {
-  const ids = acc.map(item => item.id)
-  return ids.includes(cur.id) ? acc : [...acc,cur]
-}, [])
+---------------------
+// example 3
+var a={}, b={key:'123'}, c={key:'456'};
+a[b]='b';
+a[c]='c';
+console.log(a[b]); // 'c'
 ```
 
 - 说出以下代码的执行结果
@@ -408,25 +334,6 @@ obj.say()
 // 方式3
 var say = obj.say //创建一个临时变量存放函数定义，然后单独调用
 say()
-```
-
-- 手动实现一个bind
-```javascript
-Function.prototype.bind = function(context,...args1) {
-  if (typeof this !== 'function) {
-    throw new Error('not a function')
-  }
-  let fn = this
-  let resFn = function(...args) {
-    return fn.apply(this instanceof resFn ? this : context, args1.concat(args2))
-  }
-
-  const DumpFunction = function DumpFunction() {}
-  DumpFunction.prototype = this.prototype
-  resFn.prototype = new DumpFunction()
-
-  return resFn
-}
 ```
 
 - 以下代码的执行结果
@@ -465,8 +372,6 @@ request('https://some/path',
   (err) => { console.log(err)}
 })
 ```
-
-
 -
 ```javascript
 var a = {x:1};
@@ -476,7 +381,6 @@ console.log(a);
 console.log(b)
 ```
 怎么赋值的，基本数据类型和复杂数据类型的不同，typeof 能正确判断数据类型吗，怎么正确判断数据类型
-
 
 实现 sum 函数
 ```javascript
@@ -620,22 +524,108 @@ setInterval需要注意的点，使用 setTimeout实现 setInterval
 手写防抖和节流（防抖debounce和节流throttle）工具函数、并理解其内部原理和应用场景
 打印出来html里所有标签
 实现一个lazyMan
+
 多种方式实现数组去重、扁平化、对比优缺点
+- 数组去重的方法
+
+```javascript
+let originalArray = [1,2,3,4,5,3,2,4,1]
+
+// 方式1
+const result = Array.from(new Set(originalArray))
+// -> [1, 2, 3, 4, 5]
+
+// 方式2
+const result = []
+const map = new Map()
+
+for (let v of originalArray) {
+  if (!map.has(v)) {
+    map.set(v,true)
+    result.push(v)
+  }
+}
+// -> [1, 2, 3, 4, 5]
+
+// 方式3
+const result = []
+for (let v of originalArray) {
+  if (!result.includes(v)) {
+    result.push(v)
+  }
+}
+// -> [1, 2, 3, 4, 5]
+
+// 方式4
+
+for (let i=0; i<originalArray.length; i++) {
+  for (let j=i+1; j<originalArray.length; j++) {
+    if (originalArray[i] === originalArray[j]) {
+      originalArray.splice(j,1)
+      j--
+    }
+  }
+}
+// -> [1, 2, 3, 4, 5]
+
+// 方式5
+const obj = {}
+const result = originalArray.filter(item => obj.hasOwnProperty(typeof item+item) ? false: (obj[typeof item+item] = true))
+}
+```
+- 对象数组如何去重？
+心里想着每个对象的内存地址本身就不一样，去重的意义何在，非要去重的话，那只能通过 JSON.stringify序列化成字符串(这个方法有一定的缺陷)后进行对比，或者递归的方式进行键-值对比，但是对于大型嵌套对象来说还是比较耗时的.
+
+根据每个对象的某一个具体属性来进行去重，因为考虑到服务端返回的数据中可能存在id重复的情况，需要前端进行过滤，如下：
+```javascript
+const list = [
+  {id:1, a:1},
+  {id:2, a:2},
+  {id:3, a:3},
+  {id:1, a:4},
+]
+const result = list.reduce((acc,cur) => {
+  const ids = acc.map(item => item.id)
+  return ids.includes(cur.id) ? acc : [...acc,cur]
+}, [])
+```
+
 数组乱序
 手写call、apply、bind
+- 手动实现一个bind
+```javascript
+Function.prototype.bind = function(context,...args1) {
+  if (typeof this !== 'function) {
+    throw new Error('not a function')
+  }
+  let fn = this
+  let resFn = function(...args) {
+    return fn.apply(this instanceof resFn ? this : context, args1.concat(args2))
+  }
+
+  const DumpFunction = function DumpFunction() {}
+  DumpFunction.prototype = this.prototype
+  resFn.prototype = new DumpFunction()
+
+  return resFn
+}
+```
 继承（ES5/ES6）
 写一个函数，可以控制最大并发数
 jsonp的实现
 eventEmitter实现事件发布、订阅, eventBus(先把框架搭好，包含emit,on,off,once)
 实现instanceof
 实现new
+
 实现数组flat、filter等方法
+第 36 题：使用迭代的方式实现 flatten 函数。
+
 可以说出两种实现双向绑定的方案、可以手动实现；手写 Proxy / Object.defineProperty  要求两者的比较以及如何运用。
 3.手写函数柯里化工具函数、并理解其应用场景和优势
 5.手写 JSON.stringify、 JSON.parse
 6.手写一个模版引擎，并能解释其中原理
 7.手写 懒加载、 下拉刷新、 上拉加载、 预加载等效果
-
+什么是防抖和节流？有什么区别？如何实现？
 -
 ```javascript
 alert(a)
@@ -667,9 +657,9 @@ a();
 ```
 考点：第一变量声明提前，第二函数声明优先于变量声明！
 
-1.underfind
+1.undefined
 2.报错
-在之前说过，预解析是把带有var和function关键字的事先声明，但不会赋值。所以一开始是underfind，然后报错是因为执行到a()的时候，a并不是一个函数。
+在之前说过，预解析是把带有var和function关键字的事先声明，但不会赋值。所以一开始是undefined，然后报错是因为执行到a()的时候，a并不是一个函数。
 
 ```javascript
 //函数表达式，和变量声明同等

@@ -1,31 +1,4 @@
-## createApp
-返回一个提供应用上下文的应用实例。应用实例挂载的整个组件树共享同一个上下文。
 
-```javascript
-const app = Vue.createApp({})
-```
-createApp之后可以链式调用其他方法，在应用API中。
-### 参数
-- 接收一个根组件选项对象作为第一个参数
-- 使用第二个参数，可以将根 prop 传给应用程序
-
-```javascript
-const app = Vue.createApp(
-  {
-    data() {
-      return {}
-    },
-    props: ['username']
-  },
- { username: 'Evan' }
-)
-```
-
-```html
-<div id="app">
-  {{ username }}
-</div>
-```
 
 ## h
 h返回一个“虚拟节点” VNode：一个普通对象，其中包含向Vue描述它应在页面上渲染哪种节点的信息，包括所有子节点的描述。它的目的是用于手动编写的渲染函数：
