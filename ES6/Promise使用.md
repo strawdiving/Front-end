@@ -1,4 +1,7 @@
 一、Promise对象
+Promise对象表示一个异步操作的结果，可以为异步操作的成功或失败绑定执行函数，让异步方法可以像同步方法一样返回值，但立即返回的是一个能代表未来可能出现结果的Promise对象。
+
+promise是一个值的占位符，这个值在未来的某个时间要么resolve要么reject。
 
 使用一个接收一个回调函数的Promise构造器创建一个promise。
 
@@ -31,6 +34,8 @@ Promise是一个构造函数，用new操作符来创建。
 
 可以理解为：Promise函数体的内部包裹着一个异步的请求或操作或函数，我们可以在这个异步操作完成时使用resolve函数，将我们获得的结果传递出去，或者用reject函数将错误的消息传递出去。
 
+`new Promise((resolve,reject) => {...} ，返回Promise对象`
+
 ```javascript
 // 控制台输入：
 new Promise((resolve,reject) => {resolve('yes!')})
@@ -59,7 +64,7 @@ __proto__: Promise
 - catch()，在一个promise被reject后调用，catch方法接收传递给reject方法的值
 - finally()，不论promise被resolve还是reject，总是调用
 
-当你指定一个promise总是resolve或者总是reject的时候，可以写Promise.resolve或Promise.reject，传入你想要reject或resolve的promise的值。
+当你知道一个promise总是resolve或者总是reject的时候，可以写Promise.resolve或Promise.reject，传入你想要reject或resolve的promise的值。
 ```javascript
 new Promise(res => res('say'))  ===>  Promise.resolve('say')
 new Promise(rej => rej('Error'))  ===>  Promise.reject('Error')
@@ -67,8 +72,8 @@ new Promise(rej => rej('Error'))  ===>  Promise.reject('Error')
 
 Promise对象可以通过then方法，将上一步的结果获取过来（不管是fulfilled还是rejected)；还可以通过catch方法捕获Promise对象在使用catch之前的异常。
 - then方法可以接受两个函数作为参数：
-  - 第一个参数，是一个函数，用来处理resolve的结果，即通过函数resolve()传递出去的结果可以被第一个then方法的第一个函数捕获在，作为它的参数
-  - 第二个参数，可选，用来处理reject的结果。即通过函数reject()传递出去的结果可以被第一个then方法的第二个函数捕获在，作为它的参数
+  - 第一个参数，是一个函数，用来处理resolve的结果，即通过函数resolve()传递出去的结果可以被第一个then方法的第一个函数捕获，作为它的参数
+  - 第二个参数，可选，用来处理reject的结果。即通过函数reject()传递出去的结果可以被第一个then方法的第二个函数捕获，作为它的参数
 
   我们还可以在每一个then方法中创建新的Promise对象，然后将这个对象返回，之后就可以在后面的then方法中继续对这个对象进行操作
 
@@ -137,14 +142,21 @@ getNumber()
 somedata未定义，进到catch方法，并且错误原因传到了reason中。
 
 3. Promise.all
+Promise.all(iterable)：iterable参数对象里的所有promise对象都成功的时候才会触发成功，只要有一个Promise被reject，立即触发返回promise对象的失败。
+
 用来包装许多个Promise实例，组成一个新的Promise对象。新的Promise对象的状态由被包裹的Promise对象的状态决定，如果都被resolve了，则新的Promise对象的状态才是resolve的；只要有一个Promise被reject，则新的Promise对象的状态也是reject的。
 
 提供了并行执行异步操作的能力，并且在所有异步操作执行完后才执行回调。接收一个数组参数，里面的值最终都算返回Promise对象，异步操作是并行执行的，等到它们都执行完后才会进到then里面。那么，三个异步操作返回的数据哪里去了呢？都在then里面呢，all会把所有异步操作的结果放进一个数组中传给then
 
 4. Promise.race
+Promise.race(iterable)：iterable参数中的一个成功或失败都会立即触发返回promise对象的成功或失败。
+
 包装许多个Promise实例，组成一个新的Promise对象。被包裹的Promise对象中有一个的状态发生了改变，新的Promise对象的状态就是那个最先改变的Promise实例的状态。
 
 5. Promise.resolve
+
+Promise.resolve(value)，返回一个状态由value给定的Promise对象，通常用于将一个值以Promise的方式使用。
+
 主要是将一个值转变为一个Promise对象，且生成的Promise的状态是fulfilled，然后使它具有Promise的一些方法和特性，为了满足我们一些特殊情况下的要求。
 
 ```javascript
@@ -165,6 +177,9 @@ console.log(arr)
 Promise.resolve方法会将具有then方法的对象转换为一个Promise对象，然后就立即执行then方法。
 
 6. Promise.reject
+
+Promise.resolve(reason)，返回一个状态为失败的Promise对象。
+
 和Promise.resolve方法一样，只是产生的Promise对象的状态是rejected
 
 ```javascript
@@ -173,3 +188,4 @@ p.catch((err) => {
     console.log(err);
 }); // fail
 ```
+

@@ -1,5 +1,7 @@
 ## 实现原理
-Async函数是使用Generator函数进行异步处理的增强版。相对于Generator函数的改进：
+Async函数是使用Generator函数进行异步处理的增强版，Generator的语法糖。相对于Generator函数的改进：
+
+用途：按顺序完成异步操作，实现更简洁，最符合语义。
 
 1. 更好的语义
 - Generator函数是通过在function后面使用"*"来标识此为Generator函数；
@@ -7,13 +9,17 @@ Async函数是使用Generator函数进行异步处理的增强版。相对于Gen
 - Async函数是在function前加上 async 关键字；
 - Async函数中使用await来等待异步返回结果
 
+async函数完全可以看作多个异步操作包装成的一个Promise对象。
+
+await就是内部then命令的语法糖
+
 2. 内置执行器和返回值是Promise
 - Async函数**内置执行器**，调用async函数就会一步步自动执行和等待异步操作，直到结束。
 - Generator函数要想自动执行异步操作，需要为其创建一个自执行器，通过自执行器来自动化G函数的执行。
 
 ## async函数
 
-async函数在定义时，在function关键字前需要有**async**关键字（意为异步），在async函数内部可以使用await关键字（意为等待），表示会将其后面跟随的结果当成异步操作并等待其完成。
+async函数在定义时，在function关键字前需要有**async**关键字（意为异步，表示函数里有异步操作），在async函数内部可以使用await关键字（意为等待），表示会将其后面跟随的结果当成异步操作并等待其完成。
 
 几种定义方式：
 ```javascript
@@ -37,6 +43,15 @@ let o = {
 
 执行async函数，会固定地返回一个Promise对象。得到该对象后便可设置成功或失败时的回调函数进行监听。如果函数执行顺利并结束，返回的P对象的状态会从等待转变成成功，并**输出return命令的返回结果（没有则为undefined）**。如果函数执行途中失败，JS会认为A函数已经完成执行，返回的P对象的状态会从等待转变成失败，并输出错误信息。
 
+async函数返回一个Promise对象，可使用then添加回调函数。async函数内部return语句返回的值，会成为then方法回调函数的参数。async函数内部抛出的错误，会导致返回的Promise对象变为rejected状态，抛出的错误对象会被catch方法回调函数接收到。
+```javascript
+async function f() {
+  throw new Error('error')
+}
+
+f().then( v => console.log(v), e => console.log(e) )
+```
+
 ```javascript
 A1().then(res => console.log(res)) // 10
 
@@ -45,12 +60,60 @@ async function A1() {
   return n
 }
  ```
+### 状态变化
+async函数返回的Promise对象，必须等到内部所有的await命令后面的Promise对象执行完，才会发生状态变化。除非遇到return语句，或抛出错误。
+
+即，只有async函数内部的异步操作执行完，才会执行then的回调。
 ## await
 只有在async函数内部才可以使用await命令，存在于async函数内部的普通函数也不行。
+
+表示紧跟在后面的表达式需要等待结果，后面可以跟Promise对象和原始类型的值（但这时会自动转成立即resolve的Promise对象）
+
+一般会跟Promise对象，返回该对象的结果，如果非Promise对象，直接返回相应值。
+```javascript
+async function f() { return await 123 }
+f().then(v => console.log(v)) // 123
+
+async function f1() {
+  await Promise.reject('出错了')
+  await Promise.resolve('hello') // 不会执行
+}
+```
+- await后面的Promise对象变为rejected状态，则整个async函数都会中断执行。
+- 如果await后面的异步操作出错，等同于async返回的Promise对象被reject。
+
+- 注意点：await后面的Promise对象，运行结果可能是rejected，最好把异步操作代码放到 try...catch代码块中
+
+  多个await命令后面的异步操作，如果不存在继发关系，最好让他们同时触发
+  ```javascript
+  // 继发关系
+  let foo = await getFoo()
+  let bar = await getBar()
+  // 改为
+  let [foo, bar] = await Promise.all([getFoo(), getBar()])
+  // 或
+  let fooPromise = getFoo() // 同时触发
+  let barPromise = getBar() // 同时触发
+  let foo = await fooPromise
+  let bar = barPromise
+
+  ```
+```javascript
+try {
+  await new Promise(function(resolve, reject) {
+    throw new Error('err')
+  })
+} catch (e) {
+
+}
+return await 'hello'
+```
 
 引擎会统一将await后面的跟随值视为一个Promise，对于不是Promise对象的值，会调用Promise.resolve()进行转化。即便此值为一个Error实例，经过转化后，引擎依然视其为一个成功的Promise，这个成功的Promise传递的数据为Error的实例
 
 当函数执行到await命令时，会暂停执行并等待其后的Promise结束。如果该对象最终成功，将返回成功的返回值，相当于将await xxx替换为返回值。如果P对象最终失败，且错误没有被捕获，引擎会直接停止执行async函数，并将其返回对象的状态改为失败，输出错误信息。
+
+当async函数执行时，一旦遇到await就先返回，等到异步操作完成，再接着执行函数体后面的语句。
 
 async函数中的return x表达式，相当于return await x的简写。
 
@@ -71,7 +134,7 @@ A2().catch(err => console.log(err)) // 2秒后输出10
 
 async function A2 () {
   let n1 = 10
-  let n2 = await new Promise((resolve, reject) => {
+  let n2 = await new ((resolve, reject) => {
     setTimeout(() => {
       reject(10)
     }, 2000)
@@ -79,6 +142,7 @@ async function A2 () {
   return n1 * n2
 }
 ```
+
 
 
 ## 继发与并发

@@ -1,53 +1,27 @@
-# 0.安装webpack
+# 0.安装webpack（webpack v4+）
 [webpack文档](https://webpack.docschina.org/concepts/)
-官方：[webpack安装](https://webpack.docschina.org/guides/installation/) 
+官方：[webpack安装](https://webpack.docschina.org/guides/installation/)
 
-本地安装webpack
 ```javascript
-npm i --save-dev webpack
+//全局安装
+npm install webpack webpack-cli -g
+//安装到项目目录
+npm install webpack webpack-cli --save-dev
 ```
-全局安装webpack
-```
-npm i -g webpack
-```
-如果使用 webpack v4+ 版本，还需要安装 CLI
-```
-npm i save-dev webpack-cli
-```
+在webpack4中，webpack和webpack-cli分开来，更好地管理。
 
 # 项目初始化
-进入项目目录，初始化项目
+进入项目目录，初始化和配置webpack
+```javascript
+npm init // 加-y，即默认所有的配置
+
 ```
-npm init
-```
-系统会提示你填写一些项目相关信息，随后产生package.json文件，
-```json
-package name: (webpack)
-version: (1.0.0)
-description: webpack for vue SPA project
-entry point: (index.js) main.js
-test command:
-git repository:
-keywords:
-author: strawdiving
-license: (ISC)
-```
+终端会问一系列项目名称，描述，作者等信息。
+初始化完成后，自动创建了package.json文件。这是一个标准的npm说明文件，包含了丰富的信息，如项目的依赖模块，自定义的脚本任务等。
+
 ![package.json](http://baidu.com/pic/doge.png)
 
-### 安装webpack-dev-server
-
-[使用 webpack-dev-server](https://webpack.docschina.org/guides/development/#%E4%BD%BF%E7%94%A8-webpack-dev-server)
-
-webpack-dev-server 提供了一个简单的 web server，并且具有 live reloading(实时重新加载) 功能
-
-```
-npm i webpack-dev-server --save-dev
-```
-### 创建目录结构、文件
-1. 新建入口文件
-新建src目录，用来存放各种组件和静态文件，在src目录下新建入口文件main.js
-
-2. 根目录下新建index.html
+1. 根目录下新建index.html
 新建index.html作为项目的主体页面，留出入口文件，入口文件的路径为webpack打包后输出的路径
 ```html
 <!doctype html>
@@ -60,34 +34,69 @@ npm i webpack-dev-server --save-dev
   </body>
 </html>
 ```
-# Webpack配置
-### 配置webpack.config.js
+在 Vue项目中，在src目录下新建html模板文件，并添加挂载点dom（#app）
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>webpack</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
+```
 
-根目录下新建webpack的配置文件webpack.config.js。
-配置入口、出口路径、打包后的文件名，devServer相关配置项。
-
-[使用一个webpack的配置文件](https://webpack.docschina.org/guides/getting-started/#%E4%BD%BF%E7%94%A8%E4%B8%80%E4%B8%AA%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)
+### html-webpack-plugin
+引入[html-webpack-plugin](https://webpack.docschina.org/plugins/html-webpack-plugin/)插件，让webpack把html文件也打包进去。
+```javascript
+npm i --save-dev html-webpack-plugin
+```
 
 ```javascript
 var path = require('path');
 var webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   //项目入口文件
-  entry: './src/main.js', //唯一的入口文件
+  entry: './src/index.js',
   output: {
     //打包出口路径
     path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/', //通过devServer访问路径    
-    filename: 'main.js'//打包后的文件名
+    //通过devServer访问路径
+    publicPath: '/dist/',
+    //打包后的文件名
+    filename: 'main.js'
   },
   mode:'development',
   devServer: {
     historyApiFallback: true,
     overlay: true
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+        filename: 'index.html',
+        template: 'index.html',
+        inject: true
+    })
+  ]
 };
 ```
+这将会产生一个包含以下内容的文件 dist/index.html：
+而webpack入口点会在生成的HTML文件中的 script 标签内。
+
+2. 新建入口文件
+新建src目录，用来存放各种组件和静态文件，在src目录下新建入口文件main.js
+3. 配置webpack.config.js
+
+根目录下新建webpack的配置文件webpack.config.js。
+配置入口、出口路径、打包后的文件名，devServer相关配置项。
+
+### webpack的运行
+
 只需在终端里运行webpack(非全局安装需使用node_modules/.bin/webpack)命令，这条命令会自动引用webpack.config.js文件中的配置选项。
 
 为了简化在命令行中输入复杂指令的操作，可以设置快捷方式，用npm引导任务执行。
@@ -106,7 +115,6 @@ package.json
 webpack [--config webpack.config.js]
 ```
 现在，可以使用npm run build命令，来替代在命令行中输入复杂指令的操作
-更多配置见：[命令行接口](https://webpack.docschina.org/api/cli/)
 
 注：**package.json中的scripts会按照一定顺序寻找命令对应位置，本地的node_modules/.bin路径就在这个寻找清单中，所以无论是全局还是局部安装的webpack，都不需要指明详细的路径了**
 
@@ -141,21 +149,7 @@ npm i vue --save-dev
 
 根据说明，引入vue实际上是引用node_modules/vue/dist/vue.esm.js，路径别名是据此来配置的。
 
-### 在index.html中添加挂载点dom（#app）
-```html
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>webpack</title>
-</head>
-<body>
-  <div id="app">{{message}}</div>
-  <script src="/dist/main.js"></script>
-</body>
-</html>
-```
+
 ### 在main.js中引入vue
 ```javascript
 import Vue from 'vue'
@@ -173,45 +167,6 @@ npm run build
 ```
 此时文件夹内已经生成好打包文件，但是只要js，没有html
 
-### html-webpack-plugin
-引入[html-webpack-plugin](https://webpack.docschina.org/plugins/html-webpack-plugin/)插件，让webpack把html文件也打包进去。
-```javascript
-npm i --save-dev html-webpack-plugin
-```
-
-```javascript 
-var path = require('path');
-var webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-module.exports = {
-  //项目入口文件
-  entry: './src/main.js',
-  output: {
-    //打包出口路径
-    path: path.resolve(__dirname, './dist'),
-    //通过devServer访问路径
-    publicPath: '/dist/',
-    //打包后的文件名
-    filename: 'main.js'
-  },
-  mode:'development',
-  devServer: {
-    historyApiFallback: true,
-    overlay: true
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: 'index.html',
-        inject: true
-    })
-  ]     
-};
-```
-这将会产生一个包含以下内容的文件 dist/index.html：
-而webpack入口点会在生成的HTML文件中的 script 标签内。
-
 # 配置loader
 webpack默认只能解析js文件，因此需要在webpack.config.js中配置相应的解析器。
 loader 用于对模块的源代码进行转换。loader 可以使你在 import 或"加载"模块时预处理文件。因此，loader 类似于其他构建工具中“任务(task)”，
@@ -221,7 +176,7 @@ loader 甚至允许你直接在 JavaScript 模块中 import CSS文件。
 ### 样式文件和图片文件loader配置
 ```javascript
 // 安装scss和相应样式文件解析器
-npm i --save-dev node-sass css-loader vue-style-loader sass-loader 
+npm i --save-dev node-sass css-loader vue-style-loader sass-loader
 // 安装图片文件解析器
 npm i --save-dev file-loader
 ```
@@ -245,7 +200,7 @@ module: {
         use: ['vue-style-loader','css-loader','sass-loader?indentedSyntax']
     },
     {
-         test: /\.(png|jpg|gif|svg)$/,  
+         test: /\.(png|jpg|gif|svg)$/,
          loader: 'file-loader',
          options: {
            name: '[name].[ext]?[hash]'
@@ -259,11 +214,10 @@ module: {
 
 ### 使用babel的loader配置
 Babel 是一个工具链，主要用于在旧的浏览器或环境中将 ECMAScript 2015+ 代码转换为向后兼容版本的 JavaScript 代码，babel可以让我们在项目中自由的使用es6语法，他会为我们将es6语法编译成浏览器普遍通用的es5语法。
-[babel的配置](https://babel.docschina.org/setup#installation)
 
 1. 安装依赖
 ```javascript
-npm i --save-dev babel-loader @babel/core @babel/cli
+npm i --save-dev babel-loader @babel/core  @babel/cli @babel/preset-env
 npm i --save @babel/polyfill //--save 选项而不是 --save-dev，因为这是一个需要在源代码之前运行的 polyfill。
 ```
 - babel-loader,webpack中babel的解析器
@@ -302,7 +256,7 @@ module: {
 ```javascript
 entry: ["@babel/polyfill", './src/main.js'],
 ```
-**注： babel的6.0和7.0不兼容，如果package.json中版本混乱建议降级活升级以统一版本**
+**注： babel的6.0和7.0不兼容，如果package.json中版本混乱建议降级或升级以统一版本**
 
 # Vue单页面应用
 [Vue单页面应用的webpack配置](https://vue-loader.vuejs.org/zh/guide/#%E6%89%8B%E5%8A%A8%E8%AE%BE%E7%BD%AE)

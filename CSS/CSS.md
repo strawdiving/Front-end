@@ -11,13 +11,13 @@ CSS基本功：布局、HTML5、CSS3
 1. What is CSS selector specificity and how does it work?
    **CSS选择器的特异性/特指度以及它如何工作**
 2. CSS 中字母 'C' 的意思是叠层 (Cascading)。请问在确定样式的过程中优先级是如何决定的 (请举例)？如何有效使用此系统？
-#####    常用的选择器
+##### 常用的选择器
 **CSS选择器**：id选择器(#myid)、类选择器(.myclassname)、类型/标签选择器(div, h1, p)、相邻选择器(h1 + p)、子选择器（ul > li）、后代选择器（li a）、通配符选择器（*）、属性选择器（a[rel="external"]）、伪类选择器（a:hover, li:nth-child）
 
 `element { style properties }`
 - 后代选择器——用来寻找特定元素或元素组的后代，由其他两个选择器之间的空格表示
 - ID选择器和类选择器（#和 . 表示）
-- 伪类选择器（: 表示）——伪类是一个添加到选择器的关键字，用于指定选定元素的特殊状态。伪类将样式应用于元素，如链接的状态：active，鼠标的位置：hover，：focus
+- **伪类选择器**（以:做前缀 表示）——伪类是一个添加到选择器末尾的关键字，用于指定选定元素的特殊状态。伪类将样式应用于元素，如链接的状态：active，鼠标的位置：hover，：focus
 
 **链接的样式**
 链接有4种状态，可以用4个伪类装饰：
@@ -36,10 +36,14 @@ a:active——用于设定访客点击链接时链接的外观。即访客按下
 #####  伪元素
  ****Describe pseudo-elements and discuss what they are used for. 请描述伪元素 (pseudo-elements) 及其用途****
 一个添加到选择器的关键字（:: 表示），可以style所选元素的特定部分，如:: first-line，:: before和:: after表示所选元素的第一个/最后一个元素，通常将cosmetic content添加到具有content属性的元素上。
-**::before** 就是以一个子元素的存在，定义在元素主体内容之前的一个伪元素，即在指定元素前添加内容。
+
+用于创建一些不在文档树中的元素，并为其添加样式
+
+**::before** 就是以一个子元素的存在，定义在元素主体内容之前的一个伪元素，即在指定元素前添加内容，并为其添加样式。
 **::after**在元素之后添加生成的内容
-通过这种方式添加的内容，技术术语叫做“生成的内容”，因为这种内容是Web浏览器生成的，并不存在于dom之中，只存在在页面之中。
+通过这种方式添加的内容，技术术语叫做“生成的内容”，因为这种内容是Web浏览器生成的，并不存在于dom之中，只存在在页面之中。虽然可以看到，但不在文档树中。即，**通过对元素的操作进行对元素的改变**
 **::selection**CSS3新增内容，用于指代访客在网页中选中的内容。在这个选择符定义的样式中只能设置color和background-color两个属性。
+
 ##### 通用选择器（* 表示）
 - 作用就像通配符，它匹配任何类型的元素。在与其他选择器结合使用时，通用选择器可以用来对某个元素的所有后代应用样式。
 ##### 高级选择器
@@ -57,18 +61,19 @@ eg. h2+p 定位紧随h2标签之后的段落
 - 普通同辈组合选择符——选取所有指定类型的同辈标签（~）
 eg. h2~p 选取h2标签的所有同辈p标签
 - 属性选择器——可以根据某个属性是否存在或属性的值来寻找元素（[ ]），筛选出设定了特定属性的标签。一些属性可以有多个值，值之间用空格分隔。属性选择器允许根据属性值之一寻找元素。
-^= 以...开头
-$= 以...结尾
-*= 包含...
+  ^= 以...开头
+  $= 以...结尾
+  *= 包含...
 eg. a[href^="http://"]
 - **:target选择符** 该选择符依赖于ID属性，要使用ID链接到网页中的特定位置。
 只要浏览器地址栏中的URL包含#号和ID，ID对应的元素就会成为目标。所以当某个元素的ID出现在URL中时，可以为那个元素定义特定的样式。
-```
-<a href="#signupForm">Sign up</a>
-<form id="signupForm">
-<input type="email" id="email"/>
-</form>
-//单击链接时，后面的表单会成为目标
+
+```html
+    <a href="#signupForm">Sign up</a>
+    <form id="signupForm">
+    <input type="email" id="email"/>
+    </form>
+    //单击链接时，后面的表单会成为目标
 ```
 - **:not()选择符** 否定伪类，用于选择不符合指定条件的标签
 eg. a[href^="http://"]:not(href^="http://mysite.com") 选取绝对地址不是mysite.com的链接。
@@ -135,41 +140,15 @@ Web浏览器渲染标签时会继承各自的内部样式。文本属性大多�
 ID用于标识页面上的特定元素，而且必须是唯一的。
 一般原则：类应该应用于概念上相似的元素，这些元素可以出现在页面上的多个位置（类可以应用于页面上的任意多个元素），而ID应该应用于不同的唯一的元素（ID只能应用于页面上的一个元素）。只有在绝对确定这个元素只会出现一次的情况下，才应该使用ID，如果你认为以后可能需要相似的元素，就使用类。
 **尽量避免使用ID选择符。**大多数情况下，ID选择符都能替换成简单的类选择符或标签选择符，ID选择符的特殊性太高，不易覆盖，会把样式表变得异常复杂。
+
 2. 请问 "resetting" 和 "normalizing" CSS 之间的区别？你会如何选择，为什么？
     **为什么要初始化CSS样式？**——因为浏览器的兼容问题，不同浏览器对有些标签的默认值是不同的，如果没对CSS初始化往往会出现浏览器之间的页面显示差异。
     浏览器为各种标签提供了默认的样式，但是浏览器内置样式之间有差异，为了避免浏览器之间的不一致性，编写样式表时最好统一标准，也就是说，要清除浏览器内置的格式，自行指定相应的格式。
     CSS重置就是在样式表开头放一些核心标签的样式，在这些样式中设置在各种浏览器中表现不一致的属性，统一基准。
+
 4. 描述z-index和及堆栈上下文的形成方式
     控制重叠元素的垂直叠加顺序，可以控制它控制元素的图层位置，只能影响设置了position值的元素。
-5. 请描述 BFC(Block Formatting Context) 及其如何工作
-    对BFC规范(块级格式化上下文：block formatting context)的理解？如何创建bfc？
 
-    box是CSS布局的基本单位，页面由很多box（盒模型）组成
-    Formatting context：块级上下文格式化，页面中的一块渲染区域，有一套渲染规则，BFC规定了内部的Block Box如何布局：
-    定位方案：
-    - 内部的Box会在垂直方向上一个接一个放置。
-    - Box垂直方向的距离由margin决定，属于同一个BFC的两个相邻Box的margin会发生重叠。
-    - 每个元素的margin box 的左边，与包含块border box的左边相接触。
-    - BFC的区域不会与float box重叠。
-    - 计算BFC的高度时，浮动元素也会参与计算。
-    - BFC是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。外面的元素也不会影响到容器里面的子元素。
-    可以把它看做一块独立的区域，让处于BFC内部的元素与外部的相互隔离
-
-    满足下列条件之一就可触发BFC：
-    - 根元素，即html/body，默认情况下只有这一个块级上下文
-    - float的值不为none（默认）
-    - overflow的值不为visible（默认）
-    - display的值为inline-block、table-cell、table-caption、flex
-    - position的值为absolute或fixed
-    作用是防止margin重叠，两栏布局，防止文字环绕，防止元素塌陷等。
-
-介绍下 BFC、IFC、GFC 和 FFC，
-- BFC概念，实现原理，如何触发/创建 ，怎么应用，可以解决哪些问题
-bfc (set middle area overflow is hidden)
-
-8. 有哪些的隐藏内容的方法 (如果同时还要保证屏幕阅读器可用呢)
-
-9. 你用过栅格系统 (grid system) 吗？如果使用过，你最喜欢哪种？介绍一下bootstrap的栅格系统是如何实现的？
 10. 你用过媒体查询，或针对移动端的布局/CSS 吗（响应式设计、Zepto；@media、viewport、JavaScript 正则表达式判断平台）？媒体查询的原理？
     通过媒体查询可以为不同大小和尺寸的媒体定义不同的css，适应相应的设备的显示。允许内容的呈现针对特定设备进行裁剪，而不必改变内容。
     包含一个可选的媒体类型，以及0-多个表达式（宽度、高度、颜色）描述设备的特征，表达式最终被解析为true或false，如果媒体查询中指定的媒体类型匹配设备，且表达式都为true，媒体查询内的样式生效
@@ -180,14 +159,17 @@ bfc (set middle area overflow is hidden)
 
 CSS : @media only screen and (max-device-width:480px) {/css样式/}
 ```
-13. 举例 @media 属性除了screen?
+
 写高效的CSS的“陷阱”
+
 14. 使用 CSS 预处理器的优缺点有哪些？请描述你曾经使用过的 CSS 预处理器的优缺点。
 一般回答 变量 / 嵌套 / 自动前缀 / 条件语句 / 循环语句
     PostCSS、 Sass、 Less的异同，以及使用配置，至少掌握一种
     - 按照一定的逻辑， 把css代码分到了多个较小的文件中， 在做预处理时会自动把多个较小的文件合并成一个CSS文件，以便提升加载速度。还能压缩最终得到的CSS文件。
     - 可以轻易更新共用的值
     - 编写的代码量更少。用Sass混入，只需编写一行代码，Sass会将其转换成所有带厂商前缀的版本。此外，如果发现要在多个不同的样式中使用相同的CSS属性，可以让Sass自动添加那一部分代码。
+
+15. 你在开发或生产环境中使用过哪些 CSS 框架？你觉得应该如何改善他们
 
 15. 如果设计中使用了非标准的字体，你该如何去实现？
     Web浏览器支持Web字体——访问网站时浏览器下载的字体。Web字体也使用font-family属性设置，不过除此以外还要使用一个CSS命令——@ font-face，该指令的作用是告诉Web浏览器从哪儿下载Web字体。
@@ -204,13 +186,12 @@ CSS : @media only screen and (max-device-width:480px) {/css样式/}
         font-family: "League Gothic"; //为字体设定名称
         src: url('fonts/League_Gothic-webfont.woff');
     }
-    ```
-    这里的font-family属性的作用是为字体设定名称，如果想在某个样式中使用这个字体，就要引用这里设定的名称。src属性告诉浏览器在服务器的什么位置寻找字体文件。
 
     p {
         font-family: "League Gothic";
     }
-
+    ```
+    这里的font-family属性的作用是为字体设定名称，如果想在某个样式中使用这个字体，就要引用这里设定的名称。src属性告诉浏览器在服务器的什么位置寻找字体文件。
 
     如果要支持旧版浏览器、手机等，就要指定特定的字体格式。
     如果要在网站中使用某种字体的所有格式，要在字体的URL后面加上`format('字体格式如woff')`，来指明字体格式，每种字体格式的URL后面都要加上这些代码。
@@ -235,20 +216,7 @@ font-face {
 这种方法的好处是，我们只需要指定常规的字体，然后在HTML中使用< em>和< strong>标签，让浏览器判断该加载和使用哪个字体文件。
 如果要支持IE8及以前的版本，不能用上述方法。
 
-23. 你在开发或生产环境中使用过哪些 CSS 框架？你觉得应该如何改善他们
 
-24. 解释您对盒子模型的理解，以及如何告诉CSS浏览器在不同的盒子模型中呈现布局。
-    以及标准情况和IE下的区别
-
-    对文档进行布局时，浏览器的渲染引擎会根据标准之一的CSS基础框盒模型（basic box model），将所有元素表示为一个个矩形的盒子，CSS决定盒子的大小，位置，属性。
-
-    指的是页面在渲染时，DOM元素所采用的布局模型，一个元素占用的空间大小由几个部分组成，内容(content)、内边距(padding)，边框(border)和外边距(margin)。可以通过 box-sizing来进行设置，其中IE盒模型的content包含了padding和border，这是区别于W3C标准盒模型的地方。
-
-    盒模型由content，padding，border，margin组成。
-
-    盒模型之box-sizing，请解释*{box-sizing:border-box;}的作用，并说明使用它的好处
-    标准盒模型的width，height为content的宽高，默认使用标准盒模型。box-sizing = content-box
-    将box-sizing属性设为 border-box，设置属性使用的时候更方便
 25. 响应式网站编程与使用移动优先策略之间的区别
     **响应式设计**
     响应式网站设计(Responsive Web design)是一个网站能够兼容多个终端，而不是为每一个终端做一个特定的版本。
@@ -260,31 +228,25 @@ font-face {
 ```
 
 26. 你有兼容 retina 屏幕的经历吗？如果有，在什么地方使用了何种技术？
-27. 请问为何要使用 translate() 而非 absolute positioning，或反之的理由？为什么？
-translate()是transform的一个值，改变transform和opacity不会触发浏览器回流或重绘，只会触发复合compositions。transform使浏览器为元素创建一个GPU图层，更高效，可以缩短平滑动画的绘制时间。
-translate改变位置时，元素依然会占据其原始空间。
-
-改变绝对定位会触发重新布局，进而触发重绘和复合。会用到CPU
 
 28. 为什么响应式设计 (responsive design) 和自适应设计 (adaptive design) 不同？
 
-- setTimeout 动画与 CSS animation 区别
 30. CSS里的visibility属性有个collapse属性值？在不同浏览器下以后什么区别？
 当一个元素的visibility属性被设置成collapse值后，对于一般的元素，它的表现跟hidden是一样的。
 chrome中，使用collapse值和使用hidden没有区别。
 firefox，opera和IE，使用collapse值和使用display：none没有什么区别。
+
 31. 在网页中的应该使用奇数还是偶数的字体？为什么呢？
 使用偶数字体。偶数字号相对更容易和 web 设计的其他部分构成比例关系。
-32. 你对line-height是如何理解的？
-行高是指一行文字的高度，具体说是两行文字间基线的距离。CSS中起高度作用的是height和line-height，没有定义height属性，最终其表现作用一定是line-height。
-单行文本垂直居中：把line-height值设置为height一样大小的值可以实现单行文字的垂直居中，其实也可以把height删除。
-多行文本垂直居中：需要设置display属性为inline-block。
-33. display各个属性值
+
 33.  CSS属性overflow属性定义溢出元素内容区的内容会如何处理?
-参数是scroll时候，必会出现滚动条。
-参数是auto时候，子元素内容大于父元素时出现滚动条。
-参数是visible时候，溢出的内容出现在父元素之外。
-参数是hidden时候，溢出隐藏。overflow:hidden有什么缺点？
+    参数是scroll时候，必会出现滚动条。
+    参数是auto时候，子元素内容大于父元素时出现滚动条。
+    参数是visible时候，溢出的内容出现在父元素之外。
+    参数是hidden时候，溢出隐藏。
+
+    overflow:hidden有什么缺点？
+
 35. link和@import引入css的区别
 39. css 单行和多行截断
 40. CSS中的长度单位（px,pt,rem,em,ex,vw,vh,vh,vmin,vmax），em和px的区别，em、 rem的原理和用法，rem、flex的区别（root em）
@@ -293,22 +255,21 @@ firefox，opera和IE，使用collapse值和使用display：none没有什么区�
     rem——相对于根元素< html>，如果没有设置，将以16px为基准，2rem=32px
     percentage 指定为包含块的宽度、高度的百分比
 
-
-
 41. CSS 的加载是异步的吗？表现在什么地方？
-42. clearfix css属性如何有用
-43. * { box-sizing: border-box; }作用及优势
-44. 描述伪元素并讨论它们的用途
-    伪类：以冒号做前缀，添加到选择器末尾的关键字，表示元素的特定状态，即，通过在元素选择器上加入伪类改变元素状态；
 
-    伪元素：用于创建一些不在文档树中的元素，并为其添加样式，::before可以在元素前添加content，并为其添加样式，虽然可以看到，但不在文档树中。即，**通过对元素的操作进行对元素的改变**
 48. 您将如何解决特定于浏览器的样式问题
-49. float，以及它们是如何工作的
 ## 实践及优化
 
 - CSS硬件加速
 
-9 CSS3有哪些新特性？
+9. CSS3有哪些新特性？
+过渡 transition
+动画 animation
+形状转换 transform
+滤镜 Filter
+栅格布局 gird
+弹性布局 flex
+
 RGBA和透明度
 background-image background-origin(content-box/padding-box/border-box) background-size background-repeat
 word-wrap（对长的不可分割单词换行）word-wrap：break-word
@@ -318,11 +279,12 @@ font-face属性：定义自己的字体
 边框图片：border-image: url(border.png) 30 30 round
 盒阴影：box-shadow: 10px 10px 5px #888888
 媒体查询：定义两套css，当浏览器的尺寸变化时会采用不同的属性
-- CSS3新特性，新增的选择器，伪类，伪元素，锚伪类，伪类和伪元素有哪些，它们的区别和实际应用
-解释一下“::before”和“:after”中的双冒号和单冒号的区别
-- CSS3中新增的属性, transform trasition animation等...
 
-13 常遇到的浏览器兼容性问题有哪些？常用的hack的技巧
+- CSS3新增的选择器，伪类，伪元素，锚伪类，伪类和伪元素有哪些，它们的区别和实际应用
+解释一下“::before”和“:after”中的双冒号和单冒号的区别
+
+13 常遇到的浏览器兼容性问题有哪些？常用的hack的技巧。CSS浏览器兼容性写法，了解不同 API在不同浏览器下的兼容性情况
+
 不同浏览器的标签默认的margin和padding不一样。
 *{margin:0;padding:0;}
 
@@ -340,35 +302,32 @@ Chrome 中文界面下默认会将小于 12px 的文本强制按照 12px 显示,
 超链接访问过后hover样式就不出现了，被点击访问过的超链接样式不再具有hover和active了。解决方法是改变CSS属性的排列顺序:L-V-H-A ( love hate ): a:link {} a:visited {} a:hover {} a:active {}
 
 25 CSS优化、提高性能的方法有哪些？
-避免过度约束
-避免后代选择符
-避免链式选择符
-使用紧凑的语法
-避免不必要的命名空间
-避免不必要的重复
-最好使用表示语义的名字。一个好的类名应该是描述他是什么而不是像什么（根据用途而不是体现外观或位置的名称来命名类）
-避免！important，可以选择其他选择器
-尽可能的精简规则，你可以合并不同类里的重复规则
+    避免过度约束
+    避免后代选择符
+    避免链式选择符
+    使用紧凑的语法
+    避免不必要的命名空间
+    避免不必要的重复
+    最好使用表示语义的名字。一个好的类名应该是描述他是什么而不是像什么（根据用途而不是体现外观或位置的名称来命名类）
+    避免！important，可以选择其他选择器
+    尽可能的精简规则，你可以合并不同类里的重复规则
 
-创建多个外部样式表，装饰网站中不同的元素；创建一个外部样式表（为通用样式表），用@import指令导入前面创建的各个样式表；最后在网站的html页面中用link标签或@import指令链接上一步创建的通用样式表。
-
-29 元素竖向的百分比设定是相对于容器的高度吗？
-当按百分比设定一个元素的宽度时，它是相对于父容器的宽度计算的，但是，对于一些表示竖向距离的属性，例如 padding-top , padding-bottom , margin-top , margin-bottom 等，当按百分比设定它们时，依据的也是父容器的宽度，而不是高度。
+    创建多个外部样式表，装饰网站中不同的元素；创建一个外部样式表（为通用样式表），用@import指令导入前面创建的各个样式表；最后在网站的html页面中用link标签或@import指令链接上一步创建的通用样式表。
 
 30 全屏滚动的原理是什么？用到了CSS的哪些属性？
-原理：有点类似于轮播，整体的元素一直排列下去，假设有5个需要展示的全屏页面，那么高度是500%，只是展示100%，剩下的可以通过transform进行y轴定位，也可以通过margin-top实现
-overflow：hidden；transition：all 1000ms ease；
+    原理：有点类似于轮播，整体的元素一直排列下去，假设有5个需要展示的全屏页面，那么高度是500%，只是展示100%，剩下的可以通过transform进行y轴定位，也可以通过margin-top实现
+    overflow：hidden；transition：all 1000ms ease；
 
 32 视差滚动效果？
-视差滚动（Parallax Scrolling）通过在网页向下滚动的时候，控制背景的移动速度比前景的移动速度慢来创建出令人惊叹的3D效果。
-CSS3实现
-优点：开发时间短、性能和开发效率比较好，缺点是不能兼容到低版本的浏览器
-jQuery实现
-通过控制不同层滚动速度，计算每一层的时间，控制滚动效果。
-优点：能兼容到各个版本的，效果可控性好
-缺点：开发起来对制作者要求高
-插件实现方式
-例如：parallax-scrolling，兼容性十分好
+    视差滚动（Parallax Scrolling）通过在网页向下滚动的时候，控制背景的移动速度比前景的移动速度慢来创建出令人惊叹的3D效果。
+    CSS3实现
+    优点：开发时间短、性能和开发效率比较好，缺点是不能兼容到低版本的浏览器
+    jQuery实现
+    通过控制不同层滚动速度，计算每一层的时间，控制滚动效果。
+    优点：能兼容到各个版本的，效果可控性好
+    缺点：开发起来对制作者要求高
+    插件实现方式
+    例如：parallax-scrolling，兼容性十分好
 
 35 怎么让Chrome支持小于12px 的文字？
 p{font-size:10px;-webkit-transform:scale(0.8);} //0.8是缩放比例
@@ -379,26 +338,12 @@ p{font-size:10px;-webkit-transform:scale(0.8);} //0.8是缩放比例
 37 position:fixed;在android下无效怎么处理？
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
 
-38 如果需要手动写动画，你认为最小时间间隔是多久，为什么？
-多数显示器默认频率是60Hz，即1秒刷新60次，所以理论上最小间隔为1/60＊1000ms ＝ 16.7ms。
-
 39 li与li之间有看不见的空白间隔是什么原因引起的？有什么解决办法？
 行框的排列会受到中间空白（回车空格）等的影响，因为空格也属于字符,这些空白也会被应用样式，占据空间，所以会有间隔，把字符大小设为0，就没有空格了。
 解决方法：
 可以将<li>代码全部写在一排
 浮动li中float：left
 在ul中用font-size：0（谷歌不支持）；可以使用letter-space：-3px
-
-40 display:inline-block 什么时候会显示间隙？
-有空格时候会有间隙 解决：移除空格
-margin正值的时候 解决：margin使用负值
-使用font-size时候 解决：font-size:0、letter-spacing、word-spacing
-
-- 行内元素和块级元素的区别，对行内元素设置宽高有用吗，为什么对 img 标签起作用，对行内元素设置边距有效吗
-  span包含12px大小英文'abc',问span高度?baseline怎么理解?
-vertical-align & line-height
-vertical-align 为什么没有绝对垂直居中？
-line-height 的具体含义是什么？
 
 - 已知如下代码，如何修改才能让图片宽度为 300px ？注意下面代码不可修改。
 < img src="1.jpg" style="width:480px!important;”>
@@ -407,8 +352,9 @@ line-height 的具体含义是什么？
 - CSS 3 如何实现旋转图片（transform: rotate）
 - 雪碧图,雪碧图实现原理
 
-43. 分析比较 opacity: 0、visibility: hidden、display: none 优劣和适用场景。
-  三种隐藏方式差别:visibility:hidden,display:none,opacity:0
+43. 有哪些的隐藏内容的方法 (如果同时还要保证屏幕阅读器可用呢) 。分析比较 opacity: 0、visibility: hidden、display: none 优劣和适用场景。
+
+  三种隐藏方式差别:visibility:hidden, display:none, opacity:0
     渲染上的差异:
     1.将元素设置为display:none后，元素在页面上将彻底消失，元素本来占有的空间就会被其他元素占有，也就是说它会导致浏览器的回流和重绘。
     2.设置元素的visibility为hidden，和display:none的区别在于，元素在页面消失后，其占据的空间依旧会保留着，所以它只会导致浏览器重绘而不会回流。
@@ -420,9 +366,6 @@ line-height 的具体含义是什么？
     2、visibility：hidden：元素消失的时间跟transition属性设置的时间一样，但是没有动画效果.
     3、opacity:0,动画属性生效,能够进行正常的动画效果.
 
-45. inline和block元素列举,block和inline-block区别?内联元素包含块元素的表现？块元素和内联元素渲染区别?
-
-46. line-height: height 有被问到该值是不是等于高度设置的值?，回来测试发现是跟盒模型相关的，需要是 computed height
 47. absolute + transform 居中为什么要使用 transform（为什么不使用margin Left / Top），这是一道重绘重排的问题。
 
 30. 规划、组织和维护样式表
@@ -472,9 +415,6 @@ line-height 的具体含义是什么？
 2. JS帧动画,定时器,requestAnimateFrame
 3. Canvas动画,使用canvas绘图时如何组织成通用组件
 4. SVG
-transform动画和直接使用left、top改变位置有什么优缺点
-什么时候应该使用 CSS animations而不是 CSS transitions？你做出这个决定标准是什么？
-transition和animation的区别，animation的属性，加速度，重力的模拟实现
 
 transition 过渡动画：
 (1) transition-property：属性名称
@@ -491,11 +431,22 @@ animation 关键帧动画：
 (6) animation-direction: 方向
 (7) animation-fill-mode: 禁止模式
 
-10. 介绍position属性包括CSS3新增, position:sticky
+setTimeout 动画与 CSS animation 区别
+
+transform动画和直接使用left、top改变位置有什么优缺点
+什么时候应该使用 CSS animations而不是 CSS transitions？你做出这个决定标准是什么？
+transition和animation的区别，animation的属性，加速度，重力的模拟实现
+
+- 如果需要手动写动画，你认为最小时间间隔是多久，为什么？
+多数显示器默认频率是60Hz，即1秒刷新60次，所以理论上最小间隔为1/60＊1000ms ＝ 16.7ms。
+
+27. 请问为何要使用 translate() 而非 absolute positioning，或反之的理由？为什么？
+translate()是transform的一个值，改变transform和opacity不会触发浏览器回流或重绘，只会触发复合compositions。transform使浏览器为元素创建一个GPU图层，更高效，可以缩短平滑动画的绘制时间。
+translate改变位置时，元素依然会占据其原始空间。
+
+改变绝对定位会触发重新布局，进而触发重绘和复合。会用到CPU
 
 <b>和<strong>的区别
-
-外边距合并
 
 理解 Viewport的原理和用法，分辨率、 px、 ppi、 dpi、 dp的区别和实际应用
 
@@ -507,8 +458,7 @@ animation 关键帧动画：
 移动端适配1px的问题, 移动端页面适配解决方案, 移动端长度单位
 
 - 1. CSS选择器( 三大特性 ）
-CSS所有选择器及其优先级、使用场景，哪些可以继承，如何运用 at规则
-特异性——如何计算选择器的特异性，以及级联如何影响属性；
+CSS所有选择器如何运用 at规则
 
 CSS 选择器的解析顺序是从右到左，还是从左到右，为什么
 说说CSS重要难点?
@@ -516,12 +466,8 @@ CSS 选择器的解析顺序是从右到左，还是从左到右，为什么
 - 怎么避免 css 冲突
 CSS模块化方案、如何配置按需加载、如何防止 CSS阻塞渲染
 
-css初始化
 svg与canvas
-HTML文档流的排版规则， CSS几种定位的规则、定位参照物、对文档流的影响，如何选择最好的定位方式，
 
 7. 可使用 CSS函数复用代码，实现特殊效果
-11. CSS浏览器兼容性写法，了解不同 API在不同浏览器下的兼容性情况
 
-CSS模块化开发(封装);
 如何写一个CSS库,要注意哪些东西?

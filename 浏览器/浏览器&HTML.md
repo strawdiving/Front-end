@@ -152,12 +152,7 @@ Web Components，Security，CSS transform，Web Assembly，Service Workers，PWA
 (7) window.open + window.postMessage
 (8) Websocket
 
-
-浏览器的全局变量有哪些
-浏览器同一时间能够从一个域名下载多少资源
 按需加载，不同页面的元素判断标准
-拆解url的各部分
-
 
 常见兼容性问题,列举(移动端/PC端)　
 了解xpath吗
