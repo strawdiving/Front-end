@@ -66,13 +66,7 @@ Response:
    是否熟悉 Java 等其他编程语言中使用的任何其他并发模型？提示：事件循环，任务队列，调用栈，堆等。
 
 6. Javascript 中有哪些不同的函数调用模式，详细解释
-
 四种模式：函数调用，方法调用，call(), apply()
-call 和 apply 的区别是什么，哪个性能更好一些
-
-7. new 关键字的作用
-
-在 Javascript 中，new 是用于实例化对象的运算符。另，要注意[[Construct]]和[[Call]]
 
 8. JavaScript 中的迭代器（iterators）和迭代（iterables）是什么？ 你知道什么是内置迭代器吗？
 
@@ -105,13 +99,11 @@ function makeAPIRequest(url, timeout = 200, headers) {
   `['1', '2', '3'].map((item, index) => parseInt(item, index))`
   实际调用的是parseInt(string, radix)
 第 65 题：`a.b.c.d` 和 `a['b']['c']['d']`，哪个性能更高？
-第 72 题：为什么普通 `for` 循环的性能远远高于 `forEach` 的性能，请解释其中的原因。
 第 21 题：有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
 Object.prototype.toString.call() 、 instanceof 以及 Array.isArray()
 
 第 5 题：介绍下深度优先遍历和广度优先遍历，如何实现？
 第 6 题：请分别用深度优先思想和广度优先思想实现一个拷贝函数？
-第 95 题：模拟实现一个深拷贝，并考虑对象相互引用以及 Symbol 拷贝的情况
 
 第 31 题：改造下面的代码，使之输出 0 - 9，写出你能想到的所有解法。
 
@@ -185,48 +177,6 @@ console.log(a.x); // undefined
 console.log(b.x); // { n:2 }
 ```
 
-第 50 题：（百度）实现 (5).add(3).minus(2) 功能。
-例：5 + 3 - 2，结果为 6
-第 56 题：要求设计 LazyMan 类，实现以下功能。
-
-```javascript
-LazyMan("Tony");
-// Hi I am Tony
-
-LazyMan("Tony").sleep(10).eat("lunch");
-// Hi I am Tony
-// 等待了10秒...
-// I am eating lunch
-
-LazyMan("Tony").eat("lunch").sleep(10).eat("dinner");
-// Hi I am Tony
-// I am eating lunch
-// 等待了10秒...
-// I am eating diner
-
-LazyMan("Tony")
-  .eat("lunch")
-  .eat("dinner")
-  .sleepFirst(5)
-  .sleep(10)
-  .eat("junk food");
-// Hi I am Tony
-// 等待了5秒...
-// I am eating lunch
-// I am eating dinner
-// 等待了10秒...
-// I am eating junk food
-```
-
-第 84 题：请实现一个 add 函数，满足以下功能。
-add(1); // 1
-add(1)(2); // 3
-add(1)(2)(3)；// 6
-add(1)(2, 3); // 6
-add(1, 2)(3); // 6
-add(1, 2, 3); // 6
-
-
 第 98 题：（京东）写出如下代码的打印结果
 
 ```javascript
@@ -262,9 +212,6 @@ let obj = new Foo();
 obj.a(); // 2
 Foo.a(); // 1
 ```
-
-第 42 题：（喜马拉雅）实现一个 sleep 函数
-比如 sleep(1000) 意味着等待 1000 毫秒，可从 Promise、Generator、Async/Await 等角度实现
 
 - 说出以下打印结果
 
@@ -343,16 +290,6 @@ parseInt('2017abcdef') //2017
 parseInt('abcdef2017') //NaN
 ```
 
-- 实现一个函数判断数据类型
-```javascript
- function getType(obj) {
-   if (obj === null) {
-     return String(obj)
-   }
-   return typeof obj === 'object' ? Object.prototype.toString.call(obj).replace('[object ]', '').replace(']', '').toLowerCase() : typeof obj
- }
-```
-
 - 手动封装一个请求函数，可以设置最大请求次数，请求成功则不再请求，请求失败则继续请求直到超过最大次数
 
 ```javascript
@@ -380,18 +317,8 @@ a.x = a = {n:1};
 console.log(a);
 console.log(b)
 ```
-怎么赋值的，基本数据类型和复杂数据类型的不同，typeof 能正确判断数据类型吗，怎么正确判断数据类型
+怎么赋值的，基本数据类型和复杂数据类型的不同
 
-实现 sum 函数
-```javascript
-sum(1)(2)(3) == 6; // true
-sum(1, 2, 3) == 6; // true
-```
-实现 sum2 函数
-```javascript
-console.log(sum2(1)(2)(3)()) // 6
-console.log(sum2(1, 2, 3)()); // 6
-```
 - 实现 co 函数
 - 实现以下功能，当对一个 arr 做 push 操作时，会自动打印一行提示消息
 ```javascript
@@ -471,8 +398,6 @@ const person = new Person();
 ```
 person的原型上有Funciton吗
 
-实现(10).add(10).add(10)
-
 实现一个函数,该函数接收一个obj, 一个path, 一个value，实现obj[path] = value，obj类似json格式
 reduce实现map
 实现一个函数，每隔wait秒执行func，一共执行times次
@@ -490,8 +415,6 @@ let result = fnArray.find((fn) => {
 })
 console.log(result);
 ```
-
-写一个url解析函数，包括hash
 
 如何对请求进行缓存，例如有10个异步请求，如果有一个异步请求返回结果，剩下的请求就用这个结果，并且能够传入成功和失败的回调函数
 
@@ -514,119 +437,36 @@ let result = fnArray.find((fn) => {
 console.log(result);
 
 ```
-setInterval需要注意的点，使用 setTimeout实现 setInterval
 
 - 如果自己写个转发中间件，思路是什么？
-实现 deepClone，要求能成功克隆带有循环引用的对象
-多种方式实现深拷贝、对比优缺点; 实现一个deepClone需要兼容set、map、symbol、object；深浅clone，以及优化方案
 
-通过什么做到并发请求，并发请求资源数上限（6个）
-手写防抖和节流（防抖debounce和节流throttle）工具函数、并理解其内部原理和应用场景
-打印出来html里所有标签
-实现一个lazyMan
-
-多种方式实现数组去重、扁平化、对比优缺点
 - 数组去重的方法
 
 ```javascript
 let originalArray = [1,2,3,4,5,3,2,4,1]
 
-// 方式1
-const result = Array.from(new Set(originalArray))
-// -> [1, 2, 3, 4, 5]
-
-// 方式2
-const result = []
-const map = new Map()
-
-for (let v of originalArray) {
-  if (!map.has(v)) {
-    map.set(v,true)
-    result.push(v)
-  }
-}
-// -> [1, 2, 3, 4, 5]
-
-// 方式3
-const result = []
-for (let v of originalArray) {
-  if (!result.includes(v)) {
-    result.push(v)
-  }
-}
-// -> [1, 2, 3, 4, 5]
-
-// 方式4
-
-for (let i=0; i<originalArray.length; i++) {
-  for (let j=i+1; j<originalArray.length; j++) {
-    if (originalArray[i] === originalArray[j]) {
-      originalArray.splice(j,1)
-      j--
-    }
-  }
-}
-// -> [1, 2, 3, 4, 5]
-
 // 方式5
 const obj = {}
 const result = originalArray.filter(item => obj.hasOwnProperty(typeof item+item) ? false: (obj[typeof item+item] = true))
 }
-```
-- 对象数组如何去重？
-心里想着每个对象的内存地址本身就不一样，去重的意义何在，非要去重的话，那只能通过 JSON.stringify序列化成字符串(这个方法有一定的缺陷)后进行对比，或者递归的方式进行键-值对比，但是对于大型嵌套对象来说还是比较耗时的.
 
-根据每个对象的某一个具体属性来进行去重，因为考虑到服务端返回的数据中可能存在id重复的情况，需要前端进行过滤，如下：
-```javascript
-const list = [
-  {id:1, a:1},
-  {id:2, a:2},
-  {id:3, a:3},
-  {id:1, a:4},
-]
-const result = list.reduce((acc,cur) => {
-  const ids = acc.map(item => item.id)
-  return ids.includes(cur.id) ? acc : [...acc,cur]
-}, [])
-```
-
-数组乱序
-手写call、apply、bind
-- 手动实现一个bind
-```javascript
-Function.prototype.bind = function(context,...args1) {
-  if (typeof this !== 'function) {
-    throw new Error('not a function')
-  }
-  let fn = this
-  let resFn = function(...args) {
-    return fn.apply(this instanceof resFn ? this : context, args1.concat(args2))
-  }
-
-  const DumpFunction = function DumpFunction() {}
-  DumpFunction.prototype = this.prototype
-  resFn.prototype = new DumpFunction()
-
-  return resFn
+// 方式6
+function uniqueEasy(arr) {
+    if(!arr instanceof Array) {
+        throw Error('当前传入的不是数组')
+    }
+    let list = []
+    let obj = {}
+    arr.forEach(item => {
+        if(!obj[item]) {
+            list.push(item)
+            obj[item] = true
+        }
+    })
+    return list
 }
 ```
-继承（ES5/ES6）
-写一个函数，可以控制最大并发数
-jsonp的实现
-eventEmitter实现事件发布、订阅, eventBus(先把框架搭好，包含emit,on,off,once)
-实现instanceof
-实现new
 
-实现数组flat、filter等方法
-第 36 题：使用迭代的方式实现 flatten 函数。
-
-可以说出两种实现双向绑定的方案、可以手动实现；手写 Proxy / Object.defineProperty  要求两者的比较以及如何运用。
-3.手写函数柯里化工具函数、并理解其应用场景和优势
-5.手写 JSON.stringify、 JSON.parse
-6.手写一个模版引擎，并能解释其中原理
-7.手写 懒加载、 下拉刷新、 上拉加载、 预加载等效果
-什么是防抖和节流？有什么区别？如何实现？
--
 ```javascript
 alert(a)
 a();
@@ -674,14 +514,8 @@ function a(){
 实现一个方法，参数是一个generator函数，执行结果是执行完所有generator中的yield
 
 7. [1,2,3].map(parseInt) 执行结果
-1、实现sum(1)(2)(3).valueOf()，实现这么一个sum函数，返回6
-3. 实现（10）.add(10).add(10) 函数柯里化？
 2.taskSum(1000,()=>{console.log(1)}).task(1200,()=>{console.log(2)}).task(1300,()=>{console.log(3)})，这里等待1s，打印1，之后等待1.2s，打印2，之后打印1.3s，打印3
 
-1、多空格字符串格式化为数组
 日期转化为2小时前，1分钟前等、固定日期与当前时间格式化处理；输入一个日期 返回几秒前 几天前或者几月前；
-倒计时功能
-换行字符串格式化
 
-写一个url解析函数，包括hash
-1. function request(urls, maxNumber, callback) 要求编写函数实现，可以批量请求数据，所有的 URL 地址在 urls 参数中，根据urls数组内的url地址进行并发网络请求，最大并发数maxNumber,当所有请求完毕后调用callback函数(已知请求网络的方法可以使用fetch api)
+7.手写 懒加载、 下拉刷新、 上拉加载、 预加载等效果

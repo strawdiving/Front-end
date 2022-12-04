@@ -1,21 +1,3 @@
-## 1. 前端环境搭建
-### 1.1 安装
-```javascript
-//全局安装
-npm install webpack webpack-cli -g
-//安装到项目目录
-npm install webpack webpack-cli --save-dev
-```
-在webpack4中，webpack和webpack-cli分开来，更好地管理。
-
-### 1.2 初始化
-新建一个webpack-test的文件夹，进入文件夹中，初始化和配置webpack
-```javascript
-npm init // 加-y，即默认所有的配置
-
-```
-终端会问一系列项目名称，描述，作者等信息。
-初始化完成后，自动创建了package.json文件。这是一个标准的npm说明文件，包含了丰富的信息，如项目的依赖模块，自定义的脚本任务等。
 
 ## 1.3 部署webpack
 开发时一般会打包的文件类型：
@@ -35,7 +17,7 @@ const path = require('path'); //引入我们的node模块里的path
 module.exports = {
     entry: './src/index.js', //入口文件  在vue-cli main.js
     output: {       //webpack如何向外输出
-        path: path.resolve(__dirname, 'dist'),//定位，输出文件的目标路径
+        path: path.resolve(__dirname, 'dist'),//定位，输出文件的目标路径，__dirname总是指向被执行js文件的绝对路径
         filename: '[name].js' //文件名[name].js默认，也可自行配置
     }
  }
@@ -43,6 +25,49 @@ module.exports = {
 
 在index.html文件中写入最基础的html代码，它的目的在于引入打包后的js文件。
 
+在package.json的scripts中添加打包命令；
+```javascript
+"scripts": {
+   "test": "echo \"Error: no test specified\" && exit 1",
++  "build": "webpack"
+},
+```
+npm script 可运行webpack，原理是 package.json文件可以读取 node_modules/.bin目录下的命令，耳鸣了是在模块局部安装时创建的软链接。
+打包完成后，根目录下会多一个dist文件夹。
+
+1. entry——入口，指定webpack打包入口，仅支持Javascript文件。
+output—— 出口，指定webpack文件打包出口，以及命名出口文件。
+
+- path.resolve()，顺序从右向左，如果字符串以/开头，不拼接前面的路径；如果以‘../'开头，拼接前面的路径，且不包含最后一节的路径；若以'./'开头或没有符号，则拼接前面的路径
+- path.join：顺序从右向左，只是拼接各个path片段
+
+分为单页面和多页面。
+
+单页面配置：
+```javascript
+entry: './src/index.js', // 单页面的entry是一个字符串
+output: {
+    filename: 'bundle.js',
+    path: path.join(__dirname, 'dist')
+  }
+```
+
+多页面配置，[name]中name变量与entry对象的key对应。
+
+```javascript
+entry: {  // 多页面下，entry是一个对象
+  app: './src/app.js',
+  app2: './src/app2.js'
+},
+output: {
+    path: path.join(__dirname, 'dist')
+    filename: [name].js,
+  }
+```
+2. mode —— 模式
+区分环境是生产、开发还是测试，默认是production
+
+### 别名在webpack中的配置——resolve
 ### webpack的使用
 webpack可以在终端中使用，
 ```javascript
@@ -55,101 +80,6 @@ node_modules/.bin/webpack src/main.js dist/main.js
 ```
 
 但是终端中进行复杂的操作很不方便，一般通过配置文件来使用webpack。配置文件也是一个简单的Javascript模块，我们可以把所有的与打包相关的信息放在里面。
-
-## loaders
-webpack把所有的文件都当作模块处理，Javascript代码，CSS，fonts和图片等资源通过合适的loader都可以被处理。
-
-通过使用不同的loader，webpack有能力调用外部的工具或脚本，实现对不同格式文件的处理，如分析转换scss为css，或者把es6的高级语法转换为现代浏览器兼容的JS文件。
-
-Loaders需要单独安装，且需要在webpack.config.js的modules关键字下进行配置，Loaders的配置包括以下几方面：
-- text:一个用以匹配loaders所处理文件的扩展名的正则表达式（必须）
-- loader: loader的名称（必须）
-- include/exclude: 手动添加必须处理的文件/文件夹，或屏蔽不需要处理的文件/文件夹（可选）
-- query: 为loaders提供额外的设置选项（可选）
-
-### css在webpack中的配置
-可以用css去写样式，也可以使用高级的stylus，less，sass等预编译器。
-- css-loader,使你能够使用类似@import和url(...)的方法实现require()的功能
-- style-loader，将所有计算后的样式加入页面中
-
-两者组合在一起使你能够把样式表嵌入webpack打包后的JS文件中
-
-首先安装对应的loader，安装好后，在module.exports里配置。
-
-**CSS modules**技术，把模块化的思想带入CSS，通过CSS模块，所有的类名，动画名默认只作用于当前模块。
-```javascript
-module: {
-        rules: [
-            {
-                test: /\.css$/,
-                use: [
-                    {
-                        loader: "style-loader"
-                    }, {
-                        loader: "css-loader",
-                        options: {
-                            modules: true, // 指定启用css modules
-                            localIdentName: '[name]__[local]--[hash:base64:5]' // 指定css的类名格式
-                        }
-                    }
-                ]
-            }
-        ]
-    }
-```
-详见官方文档
-**CSS预处理器**
-Sass和Less之类的预处理器是对原生CSS的扩展，它允许你使用类似variables,nesting,mixin,inheritance等特性来写CSS，CSS预处理可以将这些特殊类型的语句转化为浏览器可识别的CSS语言。使用相应的loaders(Less Loadee,Sass loader, stylus loader)
-
-**autoprefixer**自动添加前缀
-
-注：**如果要在dist目录下将css和html分离，引入extract-text-webpack-plugin,webpack4使用mini-css-extract-plugin**
-
-[mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)
-
-原来的webpack配置里，是css in js的，即打包时css是打包在js里的，所以引入了mini-css-extract-plugin插件，将css从里面剥离出来。
-
-## Babel
-Babel其实是一个编译Javascript的平台，它可以编译代码以帮你达到以下目的：
-- 让你使用最新的Javascript代码（ES6，ES7）,不用管新标准是否被当前使用的浏览器完全支持
-- 让你能使用基于Javascript进行了扩展的语言，如React的JSX
-
-Babel其实是几个模块化的包，其核心功能位于babel-core中，webpack可以把其不同的包整合在一起使用，对每一个你需要的功能或扩展，都需要安装独立的包（用的最多的是解析ES6的babel-env-preset和解析JSX的babel-preset-react）
-```javascript
-npm i --save-dev babel-core babel-loader babel-preset-env
-```
-在webpack中配置Babel modeule:rules
-Babel的配置
-新建名为.babelrc的配置文件（webpack会自动调用.babelrc里的babel配置选项）
-
-### js在webpack中的配置
-随着es6的普及，es6的使用非常广泛，但很多浏览器不支持es6,因此需要引用babel来把es6的代码编译为es5
-安装babel及其依赖
-在module.exports中进行配置
-根目录下新建 .babelrc，进行配置
-
-### 图片资源在webpack中的配置
-file-loader
-
-
-
-#### Html在webpack中的配置——HtmlWebpackPlugin
-引入html-webpack-plugin,并在module.exports里配置插件plugins。
-这个插件的作用是依据一个简单的index.html模板，生成一个自动引用你打包后的js文件的新index.html，这在每次生成的js文件名称不同时非常有用（比如添加了hash值）。
-配置好后，在终端输入npm run dev后，webpack将我们的html打包好，并自动将js文件引进来了。
-
-这个插件自动完成了我们之前手动做的一些事情，对项目结构要有一定更改：
-
-#### 热更新——Hot Module Replacement（HMR）
-HMR允许你在修改组件代码后，自动刷新实时预览修改后的效果。只需要做两项配置：
-- webpack配置文件中添加HMR插件
-- webpack dev server中添加“hot"参数
-
-### 别名在webpack中的配置——resolve
-
-### 其他静态资源在webpack中的配置
-- src下其他的文件直接复制到dist目录下，并不是每个文件都需要打包处理，很多资源可能就直接复制过去，使用**CopyWebpackPlugin插件**
-- jquery，lodash等工具库是很多组件会复用的，使用**webpack.ProvidePlugin插件**
 
 ## 使用webpack构建本地服务器
 想让浏览器监听代码的修改，并自动刷新显示修改后的结果，webpack提供了一个可选的本地开发服务器webpack-dev-server，它是一个单独的组件，需要单独安装。

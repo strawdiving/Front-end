@@ -287,3 +287,8 @@ token注重授权，拿到token可享特定的功能权限
 
 Cookie NAME=VALUE
 告知server，当client想获取HTTP状态管理支持时，就会在请求中包含从server接收到的cookiehnjnxjjfcdjmm ,./mm,./<,,,,,,,///m.,/?>
+
+- 页面访问Cookie的限制条件
+ 1）跨域问题
+ 2）设置了HttpOnly
+- web端cookie的设置和获取,cookie 结构有什么字段

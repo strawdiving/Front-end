@@ -106,8 +106,7 @@ this来自于父级最近的非箭头函数，并且不能改变this的指向，
 注：1. 某些情况下我们可能需要函数有自己的this，例如DOM事件绑定的事件回调函数中，往往需要this来操作当前DO吗，这时候需要用传统匿名函数，而非箭头函数
 
 - 所有的 ES6 特性你都知道吗？如果遇到一个东西不知道是 ES6 还是 ES5, 你该怎么区分它
-- babel是如何将es6代码编译成es5的，ES6 代码转成 ES5 代码的实现思路是什么，ES6转成ES5的常见例子
-  babel如何编译let和const（ES6深入系列）
+- babel如何编译let和const（ES6深入系列）
 
   Babel直接将let编译成了var
 
@@ -201,6 +200,8 @@ ES6提供了Object.assign方法，来实现浅复制。
 可以把任意多个源对象**自身可枚举**的属性拷贝给目标对象，然后返回目标对象。参数1为目标对象。
 
 使用源对象的[[ Get ]]和[[ Set ]]，所以会调用相关getter和setter。
+
+当源对象为{} 或 undefined，null时？
 
 4. Object.keys(), Object.values(), Object.entries()
 根据对象自身可遍历的键名，键值，键值对进行遍历，返回一个数组
