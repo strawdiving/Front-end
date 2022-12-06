@@ -3,7 +3,7 @@
 git仓库三个组成部分：
 1. 工作区（working directory）
 
-在git管理下的正常目录都算工作区，平时编辑都在这里完成。
+在git管理下的正常目录都算工作区，平时编辑都在这里完成。本地编写的代码，不执行任何git命令，出于工作区。
 工作区有一个隐藏的目录.git，是git的版本库respository。
 
 git的版本库里，有
@@ -89,15 +89,27 @@ git reflog， 查看命令历史，以便确定要回到未来的哪个版本
 **用git restore  < file >代替git checkout -- file**，丢弃工作区的修改
 **用git restore --staged < file >代替git reset HEAD < file >**，取消暂存区的修改
 
-### git checkout -- file
+### 1. 在未暂存前，撤销本地修改
+git checkout --<filename>（该操作一旦撤销，无法找回）
+- 作用：丢弃工作区的修改，让这个文件回到最近一次 git commit 或 git add 时的状态
 注：“--”很重要，否则就变成“切换到另一个分支”的命令了。
-把file在工作区的修改全部撤销：
-1. 文件修改后还没有被放到暂存区，撤销修改就回到和版本库一样的状态（该文件必须进入过git 版本库，曾经git add过或git commit过）
-2. 文件已经添加到暂存区后，又做了修改，撤销修改就回到添加到暂存区后的状态
+可以通过 git checkout --. 撤销本地修改。也可以 git checkout --<filename> 指定具体的文件路径，撤销该文件的修改
 
-即，**让文件回到最近一次git commit（1）或git add（2）时的状态**
+git add 命令，把工作取得文件标记为已暂存，保存在暂存区。
+git commit命令，把已暂存的文件保存到本地git仓库，并生成一个快照
+
+可以通过 git diff 查看本地修改。
+
+在没有暂存之前，即没有执行git add之前，如果不想要这些本地代码（比如一些临时的测试代码），把file在工作区的修改全部撤销：
+
+1. 文件修改后还没有被放到暂存区，撤销修改就回到和版本库一样的状态，**让文件回到最近一次git commit时的状态**
+2. 文件已经添加到暂存区后，又做了修改，撤销修改就回到添加到暂存区后的状态，**让文件回到最近一次 git add 时的状态**
+
+撤销后再执行 git diff 命名，没有任何输出，即没有文件在暂存区
 
 注：git checkout只恢复修改过的文件，想删除未被tracked的文件（即还未进行过git add等操作的文件），用**git clean -df**
+
+### 2. 
 ### git reset HEAD < file >
 
 可以把暂存区的修改撤销掉（unstage），重新放回工作区。用HEAD时，表示最新的版本
@@ -158,7 +170,130 @@ github上可以fork任意开源库，自己拥有fork后的仓库的读写权限
 
 可以对fork后的库进行一些修改，然后创建一个pull request给官方仓库来贡献代码。
 
-## git reset，git revert，git checkout有什么区别
+## 工具
+Gogs
+sourceTree
+VS Code插件：Git Blame，查看代码的书写者
+
+## git使用
+- 下载分支：git clone -b 分支名仓库地址
+- 初始化开发流程
+    - 本地创建公钥 ssh-keygen -t rsa -C "your email address"并配置
+    - 克隆最新主分支项目代码： git clone地址
+    - 创建并切换到本地分支： git checkout -b 分支名
+    - 本地分支推送到远程分支： git push <远程仓库> <本地分支>:<远程分支>
+
+- 一般工作流程
+工作区
+1. git status 查看状态
+2. git add . 将所有修改加入暂存区
+3. git commit -m "提交描述" 将代码提交到本地仓库
+4. git push 将本地仓库代码更新到远程库
+
+## git remote
+为远程仓库指定别名，以便于管理远程主机，默认只有一个时为origin
+
+1. 查看主机名： git remote
+2. 查看主机名即网址： git remote -v
+    默认克隆远程仓库到本地，远程主机为origin，如需指定别名，使用 git clone -o <别名> <远程git地址>
+3. 查看主机详细信息 git remote show <主机名>
+4. 添加远程主机 git remote add <主机名> <网址>
+5. 删除远程主机 git remote rm <主机名>
+6. 修改远程主机的别名：git remote rename <原主机名> <新主机名>
+
+## git fetch
+将某个远程主机的更新，全部/分支取回本地，此时只更新了 Repository,取回的代码对本地的开发代码没有影响。如需彻底更新需合并，或使用 git pull
+
+1. 远程主机的更新，全部拉回本地 git fetch <远程主机名>
+2. 远程主机特定分支的更新，拉回本地 git fetch <远程主机名> <分支名>
+
+如果需要将更新拉取，但本地工作代码需要合并到本地某一分支 git merge <被合并的远程分支> 或者在此基础上创建出新分支并切换 git checkout -b <分支名> <在此分支上创建>
+
+## git pull
+拉取远程主机某分支的更新，再与本地的指定分支合并（fetch + 合并分支）
+1. 拉取远程某分支，并与本地某分支合并（没有则默认会创建）：git pull <远程主机名> <远程分支名>：<本地分支名>
+2. 如果远程分支是与当前所在分支合并，则 本地分支名 可以省略: git pull <远程主机名> <远程分支名>
+3. 如果当前分支与远程分支存在追踪关系，则可以忽略分支名： git pull <远程主机名>
+4. 如果当前分支只有一个追踪分支，则远程主机名可以忽略： git pull
+
+## git push
+将本地分支的更新，推送到远程主机，命令格式和git pull 相似
+
+1. 将本地分支推送到远程分支：git push <远程主机名> <本地分支名>:<远程分支名>
+2. 如果省略远程分支名，则默认为将本地分支推送到与之关联的远程分支：(一般设置本地分支和与之关联的远程分支同名，防止混淆)：git push <远程主机名> <本地分支名>
+
+3. 如果对应的远程分支不存在，则会被创建（默认与本地分支同名）
+如果省略本地分支名，则表示删除指定的远程分支，这等同于推送一个空的本地分支到对应远程分支：git push origin :<远程分支> 等同于 git push origin --delete <远程分支>
+
+4. 如果当前分支与远程分支之间存在追踪关系，则本地分支和远程分支都可以省略git push origin
+
+5. 如果当前分支只有一个追踪分支，那么主机名也可以省略：git push
+
+6. 如果当前分支与多个主机存在追踪关系(使用场景相对来说较少)，可以使用-u指定默认推送主机git push -u origin <主机名>，设置时候需推送便可以直接使用git push
+7. 将本地的所有分支都推送到远程主机:git push --all origin
+8. 如果远程主机的版本比本地版本更新，推送时Git会报错，要求先在本地做git pull合并差异，然后再推送到远程主机。如果一定要推送，可以使用--force选项(谨慎使用，除非你非常确认): git push --force origin
+
+注意:**分支推送顺序的格式为<来源地>:<目的地>**，所以git pull格式：<远程分支>:<本地分支>，git push格式为：<本地分支>:<远程分支>。
+
+## 分支操作
+1. 创建本地分支： git branch xxx
+2. 切换分支： git checkout xxx
+3. 创建并切换分支： git checkout -b xxx(相当于1, 2的合并)
+4. 查看本地分支： git branch
+5. 查看远程仓库所有分支： git branch -a 
+6. 删除本地分支： git branch -d xxx
+7. 分支合并： git merge master (将master分支合并到当前分支)
+8. 本地分支重命名： git branch -m oldName newName
+9. 远程分支重命名
+    - 1. 重命名远程分支对应的本地分支： git branch -m oldName newName
+    - 2. 删除远程分支： git push -delete origin oldName
+    - 3. 上传新命名的本地分支： git push origin newName
+    - 4. 把修改后的本地分支与远程分支关联： git branch --set-upstream-to origin/newName
+
+### 分支关联
+1. 查看当前的本地分支与远程分支的关联关系： git branch -vv
+2. 把当前分支与远程origin的某分支进行关联处理（--set-upstream-to命令）：git branch --set-upstream-to origin/branchName
+
+### 分支差异查看
+1. 查看本地当前分支与远程某一分支的差异： git diff origin/feature/list
+2. 查看本地特定分支与远程某一分支的差异： git diff master(本地分支) origin/feature/list（远程分支）
+
+## 修改撤销
+
+2. git reset HEAD <filename>: 把暂存区的修改撤销掉（unstage），重新放回工作区
+3. git reset --hard commit_id：git版本回退，回退到特定的 commit_id 版本
+    流程：
+    1. git log 查看提交历史，以便确定要回退到哪个版本（commit_id)
+    2. git reset --hard commit_id, 回退到commit_id版本
+    - git reflog: 查看历史命令，以便确定要回到未来的哪个版本
+    - 更新远程代码到本地
+      git fetch origin master（分支）
+      git pull // 将fetch下来的代码pull到本地
+      git diff master origin/master //查看本地分支代码和远程仓库的差异
+
+      拉取远程分支并创建本地分支
+      1. git checkout -b 本地分支名 origin/远程分支名：使用此方法会在本地新建并切换到新分支
+      2. git fetch origin 远程分支名:本地分支名，使用此方式会在本地新建分支，但是不会自动切换到该本地分支，需要手动checkout。
+
+### git reset
+1. 作用是，当你希望提交的commit从历史记录中完全消失就可以用。
+2. 如果是协作开发。大家都把分支合并到主分支，就不能用reset强行回滚，这样会把别人的提交记录冲掉，这时候用revert来操作
+
+进行代码分支合并的时候，有时候会提示代码没有更新，因为当前开发分支的commi记录时落后于要合并的目标分支的，可能就是reset引起
+的，reset要慎用。
+
+1. git log 查找commit_id
+2. git reset commit_id
+3. 直接 git push 会报错，这是因为我们的回滚已经落后于仓库的代码了，需要用 git push -f 进行强制提交
+
+### git revert
+1. revert的原理是，在当前提交后面，新增一次提交，抵消掉上一次提交导致的所有变化。他不会改变过去的历史， 没有丢失代码的风险。
+2. revert可以抵消掉上一个提交，如果想要抵消多个，需要执行 git revert 倒数第一个commit_id, 倒数第二个commit_id
+3. 可用于，很多人提交过代码后，想改之前的某一次commit记录，又不想影响后面的提交记录，就可以用 revert，它会把你后面提交的记录都放到工作区。合并的时候需要注意
+
+使用revert后，增加了一条 revert commit_id的记录，原来的commit_id的记录还在
+
+### git reset，git revert，git checkout有什么区别
 共同点：用来撤销代码仓库中的某些更改
 
 working directory-git add files-stage-git commit-history
@@ -178,12 +313,54 @@ history- git reset-stage-git checkout-working directory
 
 文件层面：把文件从历史记录区拿到暂存区，不影响工作区的内容
 
+如果你可以向 master 强推代码，且想让 git log 里不再出现被回退代码的痕迹，可以使用 git reset --hard + git push --force 的方式。
+
 3. get revert
 
 类似reset，以创建新的commit的方式来撤销commit，可以保留之前的commit历史，比较安全。但可能会覆盖本地的修改，所以要先stash或commit
 
+revert 适合需要回退的历史提交不多，且无合并冲突的情景。
+
 文件层面：不支持文件层面的操作。
 
-## 工具
-Gogs
-sourceTree
+### git rebase
+rebase把多个提交合并成一个提交。
+这里的base，是指多次commit形成的git workflow，使用rebase，可以改变历史提交， 修改commit信息，将多个commit进行组合。
+
+使用git rebase进行代码回退的步骤:
+1. 切除一个新分支F，git log 查询要回退到的commit_id
+2. 使用 git rebase -i commit_id， -i 指定交互模式后，会打开git rebase编辑界面
+3. 界面上，commit自旧到新排列，只需要在commit_id前添加操作命令即可，在合并xommit这个需求里，可以选择pick(p)最旧的commit1, 再在后续的commit_id前添加 squash(s)命令。将这些commits都合并到最旧的commit1上
+4. 保存rebase结果后，再编辑commit信息，使这次rebase失效。git 会将之前的这些 commit 都删除，并将其更改合并为一个新的 commit5，如果出错了，也可以使用 git rebase --abort/--continue/--edit-todo 对之前的编辑进行撤销、继续编辑。
+5. 这时候，主分支上的提交记录是 older, commit1, commit2, commi3, commit4，而F上的提交记录是older, commit5/由于F分支的祖先节点是older，明显落后于主分支的commit4, 所以将F合并到主分支是不允许的，先要git merge master, 合并后 git 会发现 commit1 到 commit4 提交的内容和 F 分支上 commit5 的修改内容是完全相同的，会自动进行合并，内容不变，但多了一个 commit5。
+6. 再在 F 分支上对 commit5 进行一次 revert 反提交，就实现了把 commit1 到 commit4 的提交全部回退。
+
+rebase 操作历史提交的功能和 git 识别修改相同自动合并的特性，操作虽然复杂，但历史提交保留得还算完整。
+
+rebase 这种修改历史提交的功非常实用，能够很好地解决我们遇到的一个小功能提交了好多次才好使，而把 git 历史弄得乱七八糟的问题，只需要注意避免在多人同时开发的分支使用就行了。
+
+### 文件操作
+对文件操作，然后让 git 来识别变更，具体是：
+
+1. 从主分支上切出一个跟主分支完全相同的分支 F。
+2. 从文件管理系统复制项目文件夹为 bak，在 bak 内使用 git checkout N 将代码切到想要的历史提交，这时候 git 会将 bak 内的文件恢复到 N 状态。
+3. 在从文件管理系统内，将 bak 文件夹下 除了 .git 文件夹下的所有内容复制粘贴到原项目目录下。git 会纯从文件级别识别到变更，然后更新工作区。
+4. 在原项目目录下执行 add 和 commit，完成反提交。
+这种方式的巧妙之处在于利用 git 本身对文件的识别，不牵涉到对 workflow 操作。
+
+### tag
+commit记录打tag。上线前对当前的commit记录打一个tag，方便上线的代码有问题可以及时回滚。
+1. git tag: 列出所有的tag列表
+2. 创建一个tag： git tag <name>
+3. 查看tag对应的commit信息： git show <tagName> ,上线后若有问题就可以根据此commit_id进行代码回滚。
+
+## 配置
+- git config -l 列出所有git配置项
+- git config core.ignorecase false 配置git不忽略大小写（默认忽略）
+
+## 暂存
+git stash 暂存当前正在进行的工作
+- 添加缓存栈： git stash
+- 查看缓存栈： git stash list
+- 推出缓存栈： git stash pop
+- 取出特定缓存内容： git stash apply stash2{1}
