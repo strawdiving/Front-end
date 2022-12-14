@@ -1,4 +1,7 @@
 
+## to-do 
+git rebase
+
 ## 工作区和暂存区
 git仓库三个组成部分：
 1. 工作区（working directory）
@@ -51,6 +54,8 @@ git commit 提交修改，实际是把暂存区的所有内容提交到当前分
 **git status** 可以查看仓库当前的状态，比如xxx被修改过了，但还没有准备提交的修改
 **git diff** 可以查看文件具体修改了什么
 
+git diff查看时，如何退出该流程：  **press q**,不行的话就 Shift + q, win + q
+
 提交修改（和提交新文件一样）：
 ```git
 1. git add file/git add .
@@ -84,6 +89,7 @@ git的回退很快，因为git内部有个指向当前版本的HEAD指针，回�
 git log， 查看提交历史，以便确定要回退到哪个版本。如果回退了，则后面的提交历史就看不到了，要用git reflog
 git reflog， 查看命令历史，以便确定要回到未来的哪个版本
 
+
 ## 撤销修改
 注：最新的git
 **用git restore  < file >代替git checkout -- file**，丢弃工作区的修改
@@ -109,7 +115,68 @@ git commit命令，把已暂存的文件保存到本地git仓库，并生成一�
 
 注：git checkout只恢复修改过的文件，想删除未被tracked的文件（即还未进行过git add等操作的文件），用**git clean -df**
 
-### 2. 
+### 2. 在暂存之后，撤销暂存区的修改
+"撤销暂存区的修改”是指撤销git add .这个命令，回到执行git add .之前的状态，即已修改未暂存状态
+
+执行 git add 命令后， git diff 就看不到对应文件的修改
+用 git diff -staged，可以看到文件的修改
+
+要一次性撤销暂存区的全部/部分修改， git reset . 或 git reset <fileName> 
+
+撤销后， git diff -staged 没有记录， git diff 可以看到已修改未暂存的记录
+
+git reset --hard 相当于：
+- 1. git reset .
+- 2. git checkout --.
+即把已暂存的文件直接抛弃
+
+### 3. 提交到本地仓库后，未推送到远程仓库，撤销此次提交
+git commit -m "modify"后，提交历史里会有一条记录（有commit id)
+
+撤销当前提交的方法：
+1. 回到当前提交的父对象（即上一次提交），就等于撤销了本次提交
+    - git log，查看提交记录，查看本次提交的上一次提交parent_commit_id
+    - git checkout parent_commit_id，即撤销了本次提交
+2. 重置之前的提交
+    - git reset --hard HEAD~1
+    该命令可以二次反悔：
+        - 找到被重置的提交 git reflog
+        - git reset --hard commit_id 回到该提交
+
+- git reset --soft
+把所有更改的文件更改为“要提交的更改”，即回退已提交的commit，**并将commit的修改内容放回到暂存区**。
+
+- git reset --hard 能让commit记录强制回溯到某一个节点；
+- git reset --soft 除了回溯节点外，还会保留节点的修改内容(可以再次修改重新提交，保持干净的commit记录)
+
+```javascript
+git reset --soft HEAD^ // 恢复最近一次commit
+```
+
+注：在用 reset --soft 指定commit号时，会将该commit到最近一次commit的所有修改内容全部恢复，而不是只针对该commit.
+e.g. commit记录有 c、b、a，reset到a，此时HEAD到了a，b、c的修改内容都回到了暂存区。
+
+### 4. 修改提交
+场景：原本打算修改两个文件，但只提交了一个，又不想生产两个提交记录，即 **添加遗漏文件，又不重新生成新的Commit ID**
+
+- git add <fileName>
+- git commit --amend
+
+没有遗漏的文件，只是提交信息里有一个单词写错了，可以使用以下命令进行修补：
+
+- git commit --amend -m "add test container"
+
+--amend修补参数会将改变之前的Commit ID，但不会生成新的Commit ID
+
+### 5. 撤销提交历史中的某一次指定的提交
+git revert commit_id， 撤销该次提交（将提交的内容反操作），并生成一个新的提交在最前面。
+revert之后，会在提交历史的最前面生成一个新的commit id，这次提交做的事情就是将前一个commit_id里的内容反操作
+
+### 6. 合并出现冲突时，撤销合并操作
+两个分支修改了同一个文件的同一个地方，合并时会出现冲突。如果要撤销合并：
+-- git merge --abort
+abort之后，将恢复合并前的状态。
+
 ### git reset HEAD < file >
 
 可以把暂存区的修改撤销掉（unstage），重新放回工作区。用HEAD时，表示最新的版本
@@ -287,6 +354,21 @@ VS Code插件：Git Blame，查看代码的书写者
 3. 直接 git push 会报错，这是因为我们的回滚已经落后于仓库的代码了，需要用 git push -f 进行强制提交
 
 ### git revert
+将现有的提交还原，恢复提交的内容，并生成一条还原记录。
+
+git reset会把其他人提交的代码也撤回了。而revert会把之前那个commit_id的内容revert掉，并生成一条新的提交记录，（会让你编辑提交信息，编辑完后 :wq 保存退出。此时，之前的提交记录还会保留，但你修改的代码内容已经被撤回了
+
+还有一种类型是**合并提交** merge类的，这种用revert的方法是不一样的。
+ 对于merge类的commit，通常无法revert合并，因为合并提交是两条分支的交集节点，而git不知道需要撤销的是哪一条分支（不知道合并的哪一侧被视为主线），需要添加参数 -m 指定主线分支，保留主线分支的代码，而另一条被撤销
+
+ -m 后面要跟一个parent number 标识出“主线”，一般用 1 保留主分支代码
+ ```javascript
+ git revert -m 1 commit_id
+ ```
+ 在master分支revert合并提交后，切到feature分支修复好bug,再合并到master分支时，发现之前被revert的修改内容没有重新合并进来。因为使用revert后，feature分支的commit还保留在master分支的记录中，再次合并时，git判断有相同commit_id，旧忽略了相关commit修改的内容。就需要revert掉之前revert的合并提交
+
+ 再次使用revert，之前被revert的修改内容就又回来了。
+
 1. revert的原理是，在当前提交后面，新增一次提交，抵消掉上一次提交导致的所有变化。他不会改变过去的历史， 没有丢失代码的风险。
 2. revert可以抵消掉上一个提交，如果想要抵消多个，需要执行 git revert 倒数第一个commit_id, 倒数第二个commit_id
 3. 可用于，很多人提交过代码后，想改之前的某一次commit记录，又不想影响后面的提交记录，就可以用 revert，它会把你后面提交的记录都放到工作区。合并的时候需要注意
@@ -322,6 +404,28 @@ history- git reset-stage-git checkout-working directory
 revert 适合需要回退的历史提交不多，且无合并冲突的情景。
 
 文件层面：不支持文件层面的操作。
+
+### git stash
+
+stash命令，能将还未commit的代码存起来，让工作目录变干净。
+
+场景：feature分支开发新功能，突然要修复bug，切换到别的分支。此时需要工作区干净才能切换分支。只能紧急commit上去，添加了一条提交历史。
+
+1. 使用 -- git stash，把代码存起来
+2. 切回该分支，恢复代码， 使用 --git stash apply
+```javascript
+git stash // 保存当前未commit的代码
+git stash save "remark" // 保存当前未commit的代码并添加备注
+git stash list // 列出stash的记录
+git stash clear // 删除stash的所有记录
+git stash apply // 应用最近一次stash
+git stash pop // 应用最近一次stash, 随后删除该记录
+git stash drop // 删除最近一次stash
+
+// 有多条stash时，操作指定stash
+git stash list
+git stash apply stash@{1} // pop, drop同理
+```
 
 ### git rebase
 rebase把多个提交合并成一个提交。
@@ -364,3 +468,69 @@ git stash 暂存当前正在进行的工作
 - 查看缓存栈： git stash list
 - 推出缓存栈： git stash pop
 - 取出特定缓存内容： git stash apply stash2{1}
+
+## cherry-pick
+给定一个或多个现有commit，应用每个commit引入的更改，为每个commit记录一个新的commit。
+
+将已经提交的commit,复制出新的commit应用到分支里。
+
+场景：1）其中的某些开发完的需求要临时上线，或正在开发的需求卡住了已开发完成的需求上线，就需要把commit抽出来单独处理， 2）开发分支中的代码记录被污染了，导致开发分支合到线上分支有问题，需要拉一条干净的开发分支，再从旧开发分支中，把commit复制到新分支
+
+- 复制单个
+1. 在feature分支上，查看commi记录，把需要的commit_id复制下来
+2. 切换到master分支， git cherry-pick commit_id，把该commit_id的内容应用到master分支
+3. 可以看到已经有了一个新的commit，commit_id和之前的不一样，但提交时间还是保留之前的
+
+- 复制多个
+git cherry-pick commit_id1 commit_id2
+
+- 区间复制（多个连续的commit,包括头尾两个commit，左边的是最早的提交)
+git cherry-pick commit_id1^..commitid_2
+
+- cherry-pick 代码冲突
+有多个commit时，可能会遇到代码冲突，这时cherry-pick会停下来，让用户决定如何继续操作
+
+不如要把c d e都复制到master分支上，c成功了，到d时发现代码冲突，cherry-pick中断。这时需要解决代码冲突，重新提交到暂存区
+
+在使用 cherry-pick --continue 让 cherry-pick 继续，最后e也被复制进去，流程完成。
+
+如果在代码冲突后，要放弃或退出流程：
+
+```javascript
+git cherry-pick --abort // 放弃，回到cherry-pick前的样子
+git cherry-pick --quit // 不回到操作前的样子，即保留已经cherry-pick成功的commit，并退出流程
+```
+### reflog
+reflog记录了所有commit操作记录，便于错误操作后找回记录。找到错误提交的那次commit_id，再reset回去
+
+### 设置短命令
+git config --global alias.ps push
+
+或打开全局配置文件
+```javascript
+vim ~/.gitconfig
+
+[alias] 
+    cp = cherry-pick
+
+// 使用
+git cp commit_id
+```
+
+### git HEAD detached from a branch
+会有一条commit，
+```javascript
+$git branch
+*(detached from rear-1.16)
+master
+```
+solution: **create a temporary branch from the detached HEAD, and then merge that branch into master, to get the missing commits back into the master branch**
+```javascript
+git branch temp-branch
+git checkout master
+get merge temp-branch
+git push origin master
+git branch -d temp
+```
+
+如果此 detached state 是你期望的，可以强制推送： git push origin HEAD:master --force. 但是会影响到其他check out了这个分支的用户。
