@@ -2,41 +2,49 @@
 ## to-do 
 git rebase
 
+## 创建版本库
+git init 时，会多出来一个 .git ，。 
+
+1. 创建一个空目录；
+2. git init ，将该目录变成git可以管理的仓库；仓库建好了，且会告诉你这是一个empty git respository
+
+目录下多了一个.git目录（默认隐藏），称之为版本库respository，是git来跟踪管理版本库的，目录里的所有文件都可以被git管理起来，每个文件的修改、删除，git都能跟踪，以便任何时刻都可以追踪历史或者还原。
+
+不要手动修改，否则会把git仓库破坏。
+
+也可以选择一个已经有东西的目录创建git仓库。
+
 ## 工作区和暂存区
+使用git管理文件时，比如 
+
 git仓库三个组成部分：
 1. 工作区（working directory）
+本地项目存放文件的位置。workspace
 
-在git管理下的正常目录都算工作区，平时编辑都在这里完成。本地编写的代码，不执行任何git命令，出于工作区。
-工作区有一个隐藏的目录.git，是git的版本库respository。
+在git管理下的正常目录都算工作区，平时编辑都在这里完成。本地编写的代码，不执行任何git命令，处于工作区。
+工作区有一个隐藏的目录.git，是git的版本库respository。创建 .git 时，会同时创建
 
-git的版本库里，有
-- 暂存区stage
 - git为我们自动创建的第一个分支 master
 - 指向master的一个指针 HEAD
 
-2. 暂存区（Stage）
+2. 暂存区（Stage）：暂时存放文件的临时区域，存放将要提交的文件的快照，通常通过 add 命令将工作区的文件添加到缓冲区。
+3. 本地仓库（Repository):使用commit命令可以将暂存区的文件添加到本地仓库
+4. 远程仓库(Remote)
+5. 历史记录区（History）：git commit后的记录区
 
-临时区域，存放将要提交的文件的快照
-
-3. 历史记录区（History）：git commit后的记录区
-
-## git安装
-安装完成后，需要设置：
+## git配置
+ 
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "email@email.com"
+git config --list // 列出当前配置
+git config --local --list // 列出Repository配置
+git config --global --list // 列出全局配置
+git config --system --list // 列出系统配置
+
+git config --global user.name "Your Name" // 配置用户名
+git config --global user.email "email@email.com" // 配置用户邮箱
 ```
 --global参数表示机器上所有的git仓库都使用这个配置。也可以为某个仓库指定不同的用户名和密码。
 因为git是分布式版本控制系统，所以，每个机器都必须自报其名字和email地址
-
-## 创建版本库
-版本库即respository,可以看作一个目录，目录里的所有文件都可以被git管理起来，每个文件的修改、删除，git都能跟踪，以便任何时刻都可以追踪历史或者还原。
-
-创建：
-1. 创建一个空目录；
-2. git init ，将该目录变成git可以管理的仓库；仓库建好了，且会告诉你这是一个empty git respository
-目录下多了一个.git目录（默认隐藏），是git来跟踪管理版本库的，不要手动修改，否则会把git仓库破坏。
-也可以选择一个已经有东西的目录创建git仓库。
 
 ## 把文件添加到版本库
 所有的版本控制系统只能跟踪文本文件的改动，如txt，网页，程序代码等，但图片，视频这些二进制文件，没法跟踪文件的变化，只能把每次改动串起来，但到底改了什么不知道。
@@ -51,8 +59,17 @@ git add 实际是把文件修改添加到暂存区；
 git commit 提交修改，实际是把暂存区的所有内容提交到当前分支。 因为创建git 版本库时，git自动创建了一个master分支，所以现在是往master分支上提交修改。
 
 ## 查看结果 & 提交
+### Git文件状态
 **git status** 可以查看仓库当前的状态，比如xxx被修改过了，但还没有准备提交的修改
+    - Changes not staged for commit // 工作区有内容，但是暂存区没有，需要git add
+    - Changes to be committed // 文件再暂存区，需要 git commit
+    - nothing to commit. working tree clean // 这个时候，可以将代码推到remote
+
 **git diff** 可以查看文件具体修改了什么
+- git diff: 比较工作区与暂存区
+- git diff --cached：比较暂存区与本地库最近一次commit内容
+- git diff HEAD：比较工作区与本地库最近一次commit内容
+- git diff commit_id1 commit_id2 // 比较两个commit之间差异
 
 git diff查看时，如何退出该流程：  **press q**,不行的话就 Shift + q, win + q
 
@@ -146,8 +163,8 @@ git commit -m "modify"后，提交历史里会有一条记录（有commit id)
 - git reset --soft
 把所有更改的文件更改为“要提交的更改”，即回退已提交的commit，**并将commit的修改内容放回到暂存区**。
 
-- git reset --hard 能让commit记录强制回溯到某一个节点；
-- git reset --soft 除了回溯节点外，还会保留节点的修改内容(可以再次修改重新提交，保持干净的commit记录)
+- git reset --hard 能让commit记录强制回溯到某一个节点；回退全部，包括HEAD,index, working tree
+- git reset --soft 除了回溯节点外，还会保留节点的修改内容(可以再次修改重新提交，保持干净的commit记录)，只回退HEAD
 
 ```javascript
 git reset --soft HEAD^ // 恢复最近一次commit
@@ -276,6 +293,11 @@ VS Code插件：Git Blame，查看代码的书写者
 
 如果需要将更新拉取，但本地工作代码需要合并到本地某一分支 git merge <被合并的远程分支> 或者在此基础上创建出新分支并切换 git checkout -b <分支名> <在此分支上创建>
 
+git fetch origin <branch-name>:<local-branch-name>
+- origin: 远程主机名，一般默认origin
+- branch-name: 要拉取的分支
+- local-branch-name： 本地新建一个分支，将origin下的某个分支代码下载到本地分支
+
 ## git pull
 拉取远程主机某分支的更新，再与本地的指定分支合并（fetch + 合并分支）
 1. 拉取远程某分支，并与本地某分支合并（没有则默认会创建）：git pull <远程主机名> <远程分支名>：<本地分支名>
@@ -302,28 +324,6 @@ VS Code插件：Git Blame，查看代码的书写者
 
 注意:**分支推送顺序的格式为<来源地>:<目的地>**，所以git pull格式：<远程分支>:<本地分支>，git push格式为：<本地分支>:<远程分支>。
 
-## 分支操作
-1. 创建本地分支： git branch xxx
-2. 切换分支： git checkout xxx
-3. 创建并切换分支： git checkout -b xxx(相当于1, 2的合并)
-4. 查看本地分支： git branch
-5. 查看远程仓库所有分支： git branch -a 
-6. 删除本地分支： git branch -d xxx
-7. 分支合并： git merge master (将master分支合并到当前分支)
-8. 本地分支重命名： git branch -m oldName newName
-9. 远程分支重命名
-    - 1. 重命名远程分支对应的本地分支： git branch -m oldName newName
-    - 2. 删除远程分支： git push -delete origin oldName
-    - 3. 上传新命名的本地分支： git push origin newName
-    - 4. 把修改后的本地分支与远程分支关联： git branch --set-upstream-to origin/newName
-
-### 分支关联
-1. 查看当前的本地分支与远程分支的关联关系： git branch -vv
-2. 把当前分支与远程origin的某分支进行关联处理（--set-upstream-to命令）：git branch --set-upstream-to origin/branchName
-
-### 分支差异查看
-1. 查看本地当前分支与远程某一分支的差异： git diff origin/feature/list
-2. 查看本地特定分支与远程某一分支的差异： git diff master(本地分支) origin/feature/list（远程分支）
 
 ## 修改撤销
 
@@ -332,7 +332,7 @@ VS Code插件：Git Blame，查看代码的书写者
     流程：
     1. git log 查看提交历史，以便确定要回退到哪个版本（commit_id)
     2. git reset --hard commit_id, 回退到commit_id版本
-    - git reflog: 查看历史命令，以便确定要回到未来的哪个版本
+    - git reflog: 查看历史命令/操作记录，以便确定要回到未来的哪个版本
     - 更新远程代码到本地
       git fetch origin master（分支）
       git pull // 将fetch下来的代码pull到本地
@@ -452,12 +452,6 @@ rebase 这种修改历史提交的功非常实用，能够很好地解决我们�
 4. 在原项目目录下执行 add 和 commit，完成反提交。
 这种方式的巧妙之处在于利用 git 本身对文件的识别，不牵涉到对 workflow 操作。
 
-### tag
-commit记录打tag。上线前对当前的commit记录打一个tag，方便上线的代码有问题可以及时回滚。
-1. git tag: 列出所有的tag列表
-2. 创建一个tag： git tag <name>
-3. 查看tag对应的commit信息： git show <tagName> ,上线后若有问题就可以根据此commit_id进行代码回滚。
-
 ## 配置
 - git config -l 列出所有git配置项
 - git config core.ignorecase false 配置git不忽略大小写（默认忽略）
@@ -534,3 +528,12 @@ git branch -d temp
 ```
 
 如果此 detached state 是你期望的，可以强制推送： git push origin HEAD:master --force. 但是会影响到其他check out了这个分支的用户。
+
+基本流程
+1. 创建本地仓库 git init
+2. 链接本地仓库与远端仓库 git remote add origin URL，origin默认是远程仓库别名，url可以使用https,或ssh的方式新建
+3. 检查配置信息 git config --list
+4. 配置用户名和邮箱 git config --global user.name ....
+5. 生成SSH密钥
+6. 查看远端仓库信息 git remote -v
+开始开发
