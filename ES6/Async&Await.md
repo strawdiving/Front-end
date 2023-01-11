@@ -371,6 +371,20 @@ Async/Await 如何通过同步的方式实现异步
 Async里面有多个await请求，可以怎么优化（请求是否有依赖）
 async + await: 异步编程的终极方案 promise + generator的语法糖
 es6 generator 是什么，async/await 实现原理
+
+ES6中引入 Generator 函数，Generator是一种异步编程解决方案，Generator 函数是协程在 ES6 的实现，最大特点就是可以交出函数的执行权。整个 Generator 函数就是一个封装的异步任务，或者说是异步任务的容器。异步操作需要暂停的地方，都用 yield 语句注明。Generator 函数一般配合 yield 或 Promise 使用。Generator函数返回的是迭代器。但是 Generator 使用起来较为复杂。
+
+ES7又提出了新的异步解决方案:async/await，async是 Generator 函数的语法糖，async/await 使得异步代码看起来像同步代码，异步编程发展的目标就是让异步逻辑的代码看起来像同步一样。
+
+async/await 的优点是代码清晰，不用像 Promise 写很多 then 链，就可以处理回调地狱的问题。错误可以被try catch。
+
+async 函数就是将 Generator 函数的星号（*）替换成 async，将 yield 替换成await。
+
+1）async函数内置执行器，函数调用之后，会自动执行，输出最后结果。而Generator需要调用next或者配合co模块使用。
+2）更好的语义，async和await，比起星号和yield，语义更清楚了。async表示函数里有异步操作，await表示紧跟在后面的表达式需要等待结果。
+3）更广的适用性。co模块约定，yield命令后面只能是 Thunk 函数或 Promise 对象，而async 函数的 await 命令后面，可以是 Promise 对象和原始类型的值。
+4）返回值是Promise，async函数的返回值是 Promise 对象，Generator的返回值是 Iterator，Promise 对象使用起来更加方便。
+
 ## 用async/await代替promise
 使异步代码形式上更接近于同步代码，语义更明确，语法更简洁，代码阅读性高。
 

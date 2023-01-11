@@ -2,6 +2,18 @@ ES6 既是一个历史名词，也是一个泛指，含义是 5.1 版以后的 J
 
 Node.js是Javascript的服务器运行环境（runtime）
 # ES6
+## 新增特性
+- 新增了块级作用域(let,const)
+- 提供了定义类的语法糖(class)
+- 新增了一种基本数据类型(Symbol)
+- 新增了变量的解构赋值
+- 函数参数允许设置默认值，引入了rest参数，新增了箭头函数
+- 数组新增了一些API，如 isArray / from / of 方法;数组实例新增了 entries()，keys() 和 values() 等方法
+- 对象和数组新增了扩展运算符
+- ES6 新增了模块化(import/export)
+- ES6 新增了 Set 和 Map 数据结构
+- ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例
+- ES6 新增了生成器(Generator)和遍历器(Iterator)
 
 ## 解构赋值
 为简化提取信息，ES6提出了解构，就是将数据结构分解为更小的部分的过程。允许按一定模式，模式匹配，从数组和对象中提取值，对变量进行赋值
@@ -226,9 +238,60 @@ Iterator的作用：
   2. 使得数据结构的成员能按某种次序排列
   3. for...of循环
 
-数组，类数组对象，Set，Map原生具备Iterator接口。
+Array，类数组对象（函数的arguments, NodeList对象，String,），TypedArray,  Set，Map原生具备Iterator接口。
+ES6 的数组、Set、Map 都部署了以下三个方法: entries() / keys() / values()，调用后都返回遍历器对象。
 
+一个对象如果要具备可被 for...of 循环调用的 Iterator 接口，就必须在其 Symbol.iterator 的属性上部署遍历器生成方法(或者原型链上的对象具有该方法)
+
+```javascript
+//如为对象添加Iterator 接口;
+let obj = {
+    name: "Yvette",
+    age: 18,
+    job: 'engineer',
+    [Symbol.iterator]() {
+        const self = this;
+        const keys = Object.keys(self);
+        let index = 0;
+        return {
+            next() {
+                if (index < keys.length) {
+                    return {
+                        value: self[keys[index++]],
+                        done: false
+                    };
+                } else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+    }
+};
+
+for(let item of obj) {
+    console.log(item); //Yvette  18  engineer
+}
+```
 ## proxy对象  属性代理器: 属性的读取（get）和设置（set）相关操作
+```javascript
+let hobbits = ['travel', 'reading'];
+let p = new Proxy(hobbits, {
+    get(target, key) {
+        // if(key === 'length') return true; //如果是数组长度的变化，返回。
+        console.log('读取成功');
+        return Reflect.get(target, key);
+    },
+    set(target, key, value) {
+        // if(key === 'length') return true; //如果是数组长度的变化，返回。
+        console.log('设置成功');
+        return Reflect.set([target, key, value]);
+    }
+});
+p.splice(0,1) //触发get和set，可以被劫持
+p.push('photography');//触发get和set
+p.slice(1); //触发get；因为 slice 是不会修改原数组的
+```
+Proxy 可以监听到数组的变化，支持各种API。注意数组的变化触发get和set可能不止一次，如有需要，自行根据key值决定是否要进行处理。
 
 - ES5和ES6有什么区别，用过ES6的哪些新特性，再针对你所回答的进行深入的提问。
 - ES6中使用this的不同

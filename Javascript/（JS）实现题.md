@@ -7,10 +7,9 @@ a.multiply();
 console.log(a); // [1,2,3,4,5,1,4,9,16,25]
 ```
 
-2. 0.1+0.2===0.3 为何返回 false
 4. 解决以下异步代码问题
    检索并计算属于同一教室中每个学生的平均分数，例子中教室 ID 为 75。每个学生可以在一年内参加一门或多门课程。以下 API 可用于检索所需数据。
-
+  
 ```javascript
 // get list of all students
 GET /api/students
@@ -227,6 +226,43 @@ console.log(obj[a]);
 
 解答： 20；
 考察 JS 数据类型，ES6 中属性名表达式。在上题中 obj[b]=20 的赋值操作后， obj 其实已经变成了 {a:10,[objectObject]:20}，这是因为如果属性名表达式是一个对象的话，那么默认情况下会自动将对象转为字符串 [objectObject]，最后一步获取 obj[a]时，a 本身也是一个对象，所以会被转换为获取 obj[objectObject]也就是上一步赋值的 20。
+
+75： 下面代码的输出是什么
+```javascript
+function Foo() {
+    getName = function() {console.log(1)};
+    return this;
+}
+Foo.getName = function() {console.log(2)};
+Foo.prototype.getName = function() {console.log(3)};
+var getName = function() {console.log(4)};
+function getName() {console.log(5)};
+
+Foo.getName(); // 2,直接调用Foo上getName方法，输出2
+getName(); // 4, 输出4，getName被重新赋值了
+Foo().getName(); // 1
+getName();// 1
+new Foo.getName();// 2，new 无参数列表，对应的优先级是18；成员访问操作符 . , 对应的优先级是 19。因此相当于是 new (Foo.getName)();  new操作符会执行构造函数中的方法，因此此处输出为2
+new Foo().getName(); // 3，new 带参数列表，对应的优先级是19，和成员访问操作符.优先级相同。同级运算符，按照从左到右的顺序依次计算。new Foo()先初始化 Foo 的实 例化对象，实例上没有getName方法，因此需要原型上去找，即找到了 Foo.prototype.getName，输出3
+new new Foo().getName();// 3，new 带参数列表，优先级19，因此相当于是 new (new Foo()).getName()；先初始化 Foo 的实例化对象，然后将其原型上的 getName 函数作为构造函数再次 new ，输出3
+
+// 以上代码编译后
+function Foo() {
+    getName = function() {console.log(1)};
+    return this;
+}
+function getName() {console.log(5)}; //函数优先(函数首先被提升)
+var getName;//重复声明，被忽略
+Foo.getName = function() {console.log(2)};
+Foo.prototype.getName = function() {console.log(3)};
+getName = function() {console.log(4)};
+
+```
+1. 首先预编译阶段，变量声明与函数声明提升至其对应作用域的最顶端。
+2. Foo().getName();执行Foo()，window的getName被重新赋值，返回this;浏览器环境中，非严格模式，this 指向 window，this.getName();输出为1.
+  如果是严格模式，this 指向 undefined，此处会抛出错误。
+  如果是node环境中，this 指向 global，node的全局变量并不挂在global上，因为global.getName对应的是undefined，不是一个function，会抛出错误。
+3. getName();已经抛错的自然走不动这一步了；继续浏览器非严格模式；window.getName被重新赋过值，此时再调用，输出的是1
 
 第 76 题：输出以下代码运行结果
 

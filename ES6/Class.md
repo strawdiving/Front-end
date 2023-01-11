@@ -1,6 +1,13 @@
 # Class
 
 - ES5/ES6 的继承除了写法以外还有什么区别？
+1. ES6 Class内部所有定义的方法都是不可枚举的
+2. ES6 Class必须使用new调用
+3. ES6 Class不存在变量提升
+4. ES6 Class默认严格模式
+5. ES6 Class子类必须在构造函数中调用super，这样才有this对象。
+   ES5 Class类继承的关系是相反的，先有子类的this，然后父类的方法应用在this上
+
 - ES6类class和ES5函数构造函数（function constructors）之间有什么区别？ES6 class原理，class语法，构造函数的语法糖
 
 ## 特性
