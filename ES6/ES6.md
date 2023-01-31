@@ -179,6 +179,11 @@ Number
   2. isInteger，判断一个值是否为整数，注：1和1.0都是整数，Number.isInteger（1.0）
   3. 全局函数 parseInt() 与 parseFloat() 被移植到 Number 对象上。
 
+### isNaN 和 Number.isNaN 函数的区别
+函数 isNaN 接收参数后，会尝试将这个参数转换为数值，任何不能被转换为数值的的值都会返回 true，因此非数字值传入也会返回 true ，会影响 NaN 的判断。
+
+函数 Number.isNaN 会首先判断传入参数是否为数字，如果是数字再继续判断是否为 NaN ，这种方法对于 NaN 的判断更为准确。
+
 Math
   1. trunc，去除一个数的小数部分，返回整数部分， Math.trunc(1.1)，返回1
   2. sign()，判断一个函数的正负
@@ -295,3 +300,11 @@ Proxy 可以监听到数组的变化，支持各种API。注意数组的变化�
 
 - ES5和ES6有什么区别，用过ES6的哪些新特性，再针对你所回答的进行深入的提问。
 - ES6中使用this的不同
+
+- Reflect对象创建目的
+1. 将 Object 对 象 的 一 些 明 显 属 于 语 言 内 部 的 方 法 （ 比 如 Object.defineProperty，放到 Reflect 对象上。
+2. 修改某些 Object 方法的返回结果，让其变得更合理。
+3. 让 Object 操作都变成函数行为。
+4. Reflect 对象的方法与 Proxy 对象的方法一一对应，只要是 Proxy 对象 的方法，就能在 Reflect 对象上找到对应的方法。这就让 Proxy 对象可 以方便地调用对应的 Reflect 方法，完成默认行为，作为修改行为的基础。
+
+也就是说，不管 Proxy 怎么修改默认行为，你总可以在 Reflect 上获取 默认行为。

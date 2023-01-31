@@ -6,10 +6,6 @@ Promise, bind/call
 未看：05-08
 已看：01-04，09，10，11（正在看），12，DOM，CSSDOM
 
-3. 《Javascript设计模式与开发实践》
-《高性能Javascript》
-《你不知道的Javascript》
-
 4. ES6入门，ES6实践（编程风格）
 
 5. 错题回顾——github lydiahallie/Javascript-Questions
@@ -19,14 +15,81 @@ Promise, bind/call
 119,121,124!,125,128,130!,131,132,133!,134,135,136,137,
 139(#私有变量)，143，144
 
+第二遍：
+  
+   8. Class的static方法，只能被构造器函数（Class名称）调用，不能传递给实例。实例调用方法时，会报TypeError错误
+
+   10. 给普通函数传递属性时可以的，因为函数是一个特殊的对象
+
+   11. 不能给构造函数添加属性，只能给原型prototype添加，或者给实例添加，如Person.prorotype.getFullName=……
+
+   12. 17(标记模板字面量)，28，38，64，66，71，76，96，114，124，131，133，152
+
+   14. 所有对象都有原型？错误。基本对象，即字面量对象没有原型，但是可以访问一些方法和属性如toString()
+
+   19. function(…args), args类型是数组，typeof 得到‘object’
+
+   20. 使用‘use strict’，变量未声明就使用，会抛出ReferenceError，非严格模式是undefined
+   21. eval（），代码以字符串形式传进来，eval对其求值，如果是表达式，就对表达式求值 `eval('10*10+5')，结果为105`
+
+   24. 所有对象的键（不包括Symbol）在底层都是字符串，即使你自己没有将其作为字符串输入。而对于Set，则不是这样工作的。
+
+   29. 
+
+   ```jsx
+   const a = {}
+   const b = { key: 'b' }
+   const c = { key: 'c' }
+
+   a[b] = 123
+   a[c] = 123
+   console.log(a[b])
+   ```
+
+   对象的键会被自动转换为字符串，当字符串化一个对象时，它会变成“[object object]”，a[b]=123，会变成 `a[”[object object]”]=123`，`c`是另外一个对象，a[c] = 123这里也有隐式字符串化，于是，`a["[object Object]"] = 456`。打印a[b]，也就是a[”[object object]”]，就是刚才的456。
+
+   52. 通过throw语句，我们可以创建自定义错误。而通过它，我们可以抛出异常，异常可以是一个字符串，数字，布尔类型或对象 `throw ‘Hello world’`。通过 `catch`语句，我们可以设定当`try`语句块中抛出异常后应该做什么处理。`e`就是这个字符串。
+
+   57. import引入的模块是只读的，不能修改引入的模块。
+
+   58. delete操作符返回一个bool值，删除成功就是true。通过var, let, const声明的变量无法用delete删除，对象中的属性是可以删除的，全局对象也是如此。
+
+   61. 通过defineProperty给对象添加的属性，默认为不可枚举不可变的，可以通过writable, configurable和enumerable属性来改变这一行为。Object.keys(obj)仅返回对象中可枚举的属性
+
+   67. import命令是编译阶段执行的，在代码执行之前。这意味着被导入的模块会先运行，而导入模块的文件会后执行。而使用`require()`，您可以在运行代码时根据需要加载依赖项。
+
+   75. Object.freeze使得无法添加、删除或修改对象的属性，除非属性的值是另一个对象
+
+   77. 纯函数：相同的输入值时，需产生相同的输出，与输入值以外的其他隐藏信息或状态无关
+
+   79. for…in，遍历一个对象自有的、继承的、可枚举的、非Symbol的属性，数组的可枚举的属性是数组元素的“键”，即它们的索引
+
+         for…of，可以迭代一个可迭代对象的值
+
+   92. 常规函数，有一个prototype属性，它是一个带有constructor属性的对象（原型对象），而剪头函数没有prototype属性。
+   93. Object.entries返回一个给定对象自身可枚举属性的键值对数组，即一个二维数组
+
+   ```jsx
+   const person = {
+   name: "Lydia",
+   age: 21
+   }
+   Object.entries(person) // [['name'，'Lydia']，['age'，21]]
+   ```
+
+   97. Symbol类型是不可枚举的，Object.keys()返回对象上所有可枚举的键属性，而Symbol类型是不可见的。
+   98. 箭头函数，如果只返回一个值，不必编写花括号，但是箭头函数想要返回一个对象，必须把它写在圆括号之间。否则花括号之间的所有内容都将被解释为一个块语句，没有返回。
+
+   103. 一个对象和数字2用“+”连接，两者都不是字符串，因此将二者都字符串化，变成“[object object ]2”
+
+   137. Object.freeze，只对对象进行浅冻结，对象中的直接属性被冻结，但是如果属性是另一个object，这个object中的属性没有被冻结，仍然可以被修改。
+   
+
 6. 图解HTTP
 - ch7, Https及以后
 - 现有的http知识点整理
 Q：end-to-end端到端首部
    hop-by-hop逐跳首部
-no-cache和no-store区别
-
-cache-control，no-cache，max-age和Date,Expire,Age等的关系和优先级
 
 7. 项目实战
 vue-element-admin
@@ -39,9 +102,6 @@ vue2-elm
    看 动图解释算法（visualAlgo)
 
    《剑指offer》+ 牛客网刷题
-   《cracking code view》/《程序员面试金典》百度网盘、csdn下载pdf
-   《算法 第4版》
-   leetcode刷题
    《编程之美》
    JS中数据结构对应哪些数据结构？
    真实桶排序及其时间复杂度

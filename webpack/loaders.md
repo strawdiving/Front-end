@@ -98,3 +98,9 @@ file-loader
 loader把读到的源文件的内容转义成新的文件内容，且每个loader通过链式操作，把源文件一步步翻译成想要的样子。
 要遵循单一原则，即一个loader只做一种“转义”工作。
 每个loader拿到的是源文件内容，以通过返回值的方式将处理后的内容输出，也可调用this.callback()方法，将内容返回给webpack，还可以通过this.async生成一个callback函数。还有提供的loader-utils工具函数集
+
+webpack loader是webpack为了处理各种类型文件的一个中间层。webpack本质上就是一个mode模块，不能处理js以外的文件。loader就帮webpack做了一层转换，把所有文件转成字符串，可以对字符串进行任意操作/修改，然后返回给webpack一个包含这个字符串的对象，让webpack进行后续处理。
+
+一个 Loader 的职责是单一的，只需要完成一种转换。如果一个源文件需要经历多步转换才能正常使用，就通过多个 Loader 去转换。在调用多个 Loader 去转换一个文件时，每个 Loader 会链式的顺序执行， 第一个 Loader 将会拿到需处理的原内容，上一个 Loader 处理后的结果会传给下一个接着处理，最后的 Loader 将处理后的最终结果返回给 Webpack。
+
+所以，在你开发一个 Loader 时，请保持其职责的单一性，你只需关心输入和输出。

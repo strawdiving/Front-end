@@ -74,6 +74,13 @@ bundle是webpack打包出来的文件
 chunk是代码块，一个chunk由多个模块组合而成，用于代码的合并和分割
 module是开发中的单个模块，webpack中一切皆模块，一个模块对应一个文件，从entry文件开始找出所有依赖的模块
 
+### bundle
+bundle是一个立即执行函数，可以认为它是把所有模块捆绑在一起的一个巨型模块
+webpack把所有模块打包成了bundle的依赖，通过一个对象注入
+0模块就是入口
+webpack通过 __webpack_require__引入模块，__webpack_require__ 是我们用的require被webpack封装了一层
+
+
 ## 如何配置单页应用，多页应用。webpack的入口文件怎么配置，如何实现分模块打包（多入口）,多个入口怎么分割。
 webpack单页应用，entry入口指定单页应用的入口即可；
 
@@ -113,9 +120,62 @@ module.exports = {
 
 import { Button } from 'antd'，打包的时候只打包button，分模块加载，是怎么做到的
 使用import时，webpack对node_modules里的依赖会做什么；
-webpack 动态 import 是如何实现的
+
+## webpack 动态 import 是如何实现的
+import是动态加载的，只有使用的时候才回去加载；require是声明了就会加载，即webpack遇到require就会把它当成一个模块加载到bundle的依赖里。
+
+import()动态加载的打包结果：
+  除了正常的bundle外，还可以看见一个 0.bundle.js，这就是我们动态加载的模块。这个文件将我们import的模块放进了一个单独的js文件中。
+  原理是利用jsonp的实现原理加载模块，只是这里并不是从server拿数据，而是从其他模块中拿数据：
+  1. 调用模块时，在window上注册一个 webpackJsonp 数组，window['webpackJsonp'] = window['webpackJsonp'] || []
+  2. 当我们import时，webpack会调用__webpack_require__.e(0) 方法，也就是 requireEnsure
+  3. webpack会动态创建一个script标签去加载这个模块，加载成功后会将该模块注入到webpackJsonp中
+  ```javascript
+  (window['webpackJsonp'] = window['webpackJsonp'] || []).push([
+  [0],
+  {
+    './node_modules/css-loader/dist/runtime/api.js': function(
+      module,
+      exports,
+      __webpack_require__
+    ) {
+      'use strict';
+      eval(`
+        ...
+      `);
+    },
+
+    './src/style/index.css': function(module, exports, __webpack_require__) {
+      eval(`
+        exports = module.exports = __webpack_require__("./node_modules/css-loader/dist/runtime/api.js")(false));
+        exports.push([module.i, \`body {
+          width: 100%;
+          height: 100vh;
+          background-color: orange;
+        },"\`]
+      `);
+    }
+  }
+  ]);
+  ```
+  4. webpackJson.push会调用webpackJsonpCallback拿到模块
+  5. 模块加载完(then)再使用__webpack_require__获取模块
 
 import()内部调用promises，该函数返回Promise对象
+
+### webpack-chain
+方式更灵活，尝试通过提供可链式或顺流式的 API 创建和修改 webpack 配置。API 的 Key 部分可以由用户指定的名称引用，这有助于跨项目修改配置方式的标准化。
+
+### tree-shaking
+如何使用：
+1. 确保代码是 ES6 格式，模块化
+2. package.json中，设置 sideEffects ?
+3. 确保 tree-shaking 的函数没有副作用
+4. babelrc中设置presets:  [["@babel/preset-env", { "modules": false }]] 禁止转换模块，交由webpack进行模块化处理
+5. 结合 uglyfy-webpack-plugin
+
+webpack4中不需要做这些了，因为 webpack 在生产环境已经帮我们默认添加好了，开箱即用
+
 
 webpack 配置文件中的UMD
 
@@ -142,3 +202,13 @@ sourcemap原理是什么？
 项目构建
 1. 理解 npm、 yarn依赖包管理的原理，两者的区别
 2. 可以使用 npm运行自定义脚本
+
+## webpack编译流程
+Webpack 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程，
+1. 初始化参数：从配置文件和 Shell 语句中读取与合并参数，得出最终的参数；
+2. 开始编译：用上一步得到的参数初始化 Compiler 对象，加载所有配置的插件，执行对象的 run 方法开始执行编译；
+3. 确定入口：根据配置中的 entry 找出所有的入口文件；
+4. 编译模块：从入口文件出发，调用所有配置的 Loader 对模块进行翻译，再找出该模块依赖的模块，再递归本步骤直到所有入口依赖的文件都经过了本步骤的处理；
+5. 完成模块编译：在经过第4步使用 Loader 翻译完所有模块后，得到了每个模块被翻译后的最终内容以及它们之间的依赖关系；
+6. 输出资源：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 Chunk，再把每个 Chunk 转换成一个单独的文件加入到输出列表，这步是可以修改输出内容的最后机会；
+7. 输出完成：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统。在以上过程中，Webpack 会在特定的时间点广播出特定的事件，插件在监听到感兴趣的事件后会执行特定的逻辑，并且插件可以调用 Webpack 提供的 API 改变 Webpack 的运行结果。
