@@ -28,6 +28,7 @@ cookies的属性:
 
 持久性Cookie，会保存在用户的硬盘中，直至过期或者清除。设定的日期和时间只和客户端相关，而非服务端。
 - Max-Age，设置cookie失效之前需要经过的秒数，为正数时（浏览器会将其持久化，即写到对应的cookie文件中），为负数时（表示为会话性cookie），为0（立即删除这个cookie）
+
 Max-Age比Expires优先级更高
 
 Domain和Path标识共同定义了Cookie的作用域：即Cookie应该发送给哪些URL。
@@ -54,6 +55,17 @@ Cookie的缺点：从大小，安全，增加请求大小等方面回答
 
 cookie设置http-only属性后，可以阻止js对cookie操作，h那么 XSS 注入的问题也基本不用担心了。但请求时cookie还是会被自动带到请求头中，无法避免CSRF。
 设置secure，cookie只允许通过HTTPS传输，secure可以过滤掉一些使用HTTP协议的XSS注入，但并不能完全阻止
+
+### 二级域名下与二级域名的cookie传输
+公司的所有内部系统都全要走一个登陆系统。也可能说sso单点登陆，如果登陆是sso.pilishou.com的二级域名下，而你自己的开发的时候环境是localhost:9999端口，当登陆成功时，此时cookie是设在sso.pilishou.com域名下，在本地127 .0.0.1下发送请求，根本拿不到sso.pilishou.com下的cookie信息，cookie根本不会从request header中带过去，可以通过host的映射，把127.0.0.1映射成web.pilishou.com
+
+但是问题来了，sso和web都是二级域名，在web下同样拿不到sso下的cookie，此时解决办法，在sso登成功后，需要后台配合把cookie的信息通过Dioman设置到pilishou.com的主域下
+
+在web二级域名下就可以拿到sso下请求成功后设置的cookie信息，在不设置httponly情况下，尝试用document.cookie可以拿到自己想要的cookie信息，但是在发送的时候，发现request头中根本没有把cookie信息带入请求，在fetch请求中我们要设置credentials: 'include'，意思代表允许请求时带上跨域cookie,此时就会发现cookie带入了request头部
+
+经历了这么多的设置，在联调的时候，后端同样也需要配合你的行为，需要后台工程师也需要配置在返回头中加入'Access-Control-Allow-Credentials': 'true'，允许进行cookie的跨域，
+
+此时你的浏览器又会报错，在设置跨域cookie的时候，不允许response header设置 Origin 设置为* ，只能设置指定的域名进行一个跨域仿问，此时还需要后端工程师配合把前面的* 改成你指定当前web.pilishou.com。
 
 ## session
 会话，服务器要知道当前发送请求给自己的人是谁。为了区分，服务器要给每个客户端分配不同的“身份标识”，客户端如何保存这个标识可以有很多方式，对于浏览器，一般默认cookie

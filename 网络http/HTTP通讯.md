@@ -18,6 +18,19 @@ HTTP协议基于TCP协议出现，TCP是一条双向的通讯通道，HTTP在TCP
 
 HTTP是纯粹的文本协议，它是使用 TCP 协议来传输文本格式的一个应用层协议。在TCP通道中传输的完全是文本。
 
+HTTP 是一个在计算机世界里专门在两点之间传输文字、图片、音频、视频等超文本数据的约定和规范。
+
+## HTTP 特点
+1. 【灵活可扩展】，语法上只规定了基本格式，空格分隔单词、换行分隔字段等；传输形式：可以传输文本、图片、视频等任意数据
+2. 【请求——应答模式】
+3. 【可靠传输】，基于TCP
+4. 【无状态】
+
+## HTTP 缺点
+1. 【无状态】，有时候需要保存信息，如购物系统要保留客户信息等；有时候无状态也会减少网络开销，要分场景
+2. 【明文传输】，协议里的报文（主要是头部）不使用二进制数据，而是文本形式，导致报文暴露给外界，给攻击者带来了便利
+3. 【队头阻塞】，http开启长连接时，共用一个TCP连接，当一个请求时间过长时，其他请求只能处于阻塞状态
+
 1. 请求报文格式：
 1）request line 请求行(请求方法 请求路径URL HTTP协议及版本)：GET / HTTP/1.1， path完全由server决定
 2）heade 请求头部：若干行，每一行是用冒号分隔的名称和值
@@ -75,6 +88,15 @@ HTTP1.1:
 1.2 http 请求幂等性
 幂等，同一个请求方法执行多次和仅执行一次的效果完全相同
 
+GET 获取资源 (幂等)
+POST 新增资源
+HEAD 获取HEAD元数据 (幂等)
+PUT 更新资源 (带条件时幂等)
+DELETE 删除资源 (幂等)
+CONNECT 建立 Tunnel 隧道
+OPTIONS 获取服务器支持访问资源的方法 (幂等)
+TRACE 回显服务器收到的请求，可以定位问题。(有安全风险)
+
 1.3 PUT VS POST VS PATCH
 
 根本区别： 两者都能创建资源，PUT是幂等的，POST非幂等
@@ -108,6 +130,11 @@ PUT是直接覆盖资源，局部修改时会带很多无用信息。
 307，临时重定向，和302含义相同
 303明确表示客户端应用get获取资源，把post请求变为get请求进行重定向
 307遵循浏览器标准，不会从post变为get
+
+301适合永久重定向，常用于使用域名跳转，比如，我们访问 http://www.baidu.com 会跳转到 https://www.baidu.com，发送请求之后，就会返回301状态码，然后返回一个location，提示新的地址，浏览器就会拿着这个新的地址去访问。
+
+设置了302如果再次访问则是从服务端再次拉取资源，然后进行重定向。301则是如果有缓存文件，则直接读缓存文件上响应头上的重定向位置，如果原服务端重定向的位置有变化，则只能通过用户清除缓存进行重新拉取新资源进行再次重定向，所以301的使用需要严谨。
+
 
 3. 4xx 客户端请求错误
 403，Forbidden，无权限，对请求资源的访问被server拒绝
@@ -224,19 +251,32 @@ HTTP1中，想并发多个请求，必须使用多个TCP连接，浏览器为了
 HTTP2，同域名下所有通信都在单个连接上完成，单个连接可以承受任意数量的双向数据流；
 数据流以消息的形式发送，消息由多个帧组成，多个帧之间可以乱序发送，根据帧首流标志可以重新组装。
 
-- 二进制分帧
+# HTTP 2.0
+1. 二进制分帧
+头信息和数据体都是二进制，称为“帧”。
 帧：HTTP2数据通信的最小单位
 消息：HTTP2中逻辑上的HTTP消息，如请求和响应等，由1或多个帧组成
 流：存在于连接中的一个虚拟通道，可以承载双向消息，每个流都有一个唯一的整数ID
 
 使用二进制格式传输数据，而非HTTP1.x的文本格式，解析起来更高效。
 
-- 头部压缩
+2. 头部压缩
 HTTP1在请求和响应中重复地携带不常改变的、冗长的头部数据，给网络带来额外负担
+HTTP 2.0 使用 HPACK 算法进行压缩。
 
-1. HTTP2在c和s端使用“首部表”来跟踪和存储之前发送的键值对，对相同数据，不再通过每次请求和响应发送
-2. 首部表在连接存续期内始终存在，由c和s端共同维护
-3. 每个新的首部键值对要么被追加到当前表末尾，要么替换表中之前的值（只发送差异数据，从而减少头部信息量）
+3. 多路复用
+复用TCP连接，在一个连接里，客户端和浏览器都可以同时发送多个请求或回应，且不用按顺序一一对应，这样子解决了队头阻塞的问题。
+
+    1. HTTP2在c和s端使用“首部表”来跟踪和存储之前发送的键值对，对相同数据，不再通过每次请求和响应发送
+    2. 首部表在连接存续期内始终存在，由c和s端共同维护
+    3. 每个新的首部键值对要么被追加到当前表末尾，要么替换表中之前的值（只发送差异数据，从而减少头部信息量）
+
+4. 服务器推送
+允许服务器未经请求，主动向客户端发送资源，即服务器推送。
+5. 请求优先级
+可以设置数据帧的优先级，让服务端先处理重要资源，优化用户体验。
+
+
 
 9. 服务器如何知道你？
 
@@ -298,3 +338,26 @@ REST 与 RPC；
   HTTP 首部（Header）和实体（Body）的分隔符是什么，用正则如何匹配
 
 
+
+
+## CSP(Content Security Policy 内容安全策略)
+为了让网页更安全：1）限制资源获取，2）资源获取越权
+可以通过设置 default-src 设置全局需要资源的内容，也可以设置资源类型的范围
+
+connect-src：我们连接的资源
+style-src: 样式请求的资源
+script-src: 脚本的请求资源
+
+可以通过响应头的返回设置'Content-Security-Policy'进行设置
+
+有些情况是，一些XSS攻击是通过inline script进行注入一些代码进行攻击，
+
+可以通过设置进行一个禁用。可以设置'Content-Security-Policy': 'default-src http: https:'对inline scrpit进行一个禁用。设置之后，后报Refused to execute inline script because it violates the following Content Security Policy directive: "default-src http: https:". Either the 'unsafe-inline' keyword, a hash ('sha256-9aPvm9lN9y9aIzoIEagmHYsp/hUxgDFXV185413g/Zc='), or a nonce ('nonce-...') is required to enable inline execution. Note also that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.错误。
+
+不允许引入外部连接:
+
+可以设置 ''Content-Security-Policy': 'default-src \self\'' 进行设置，如果引用了外部的资源则会报Refused to load the script 'http://static.ymm56.com/common-lib/jquery/3.1.1/jquery.min.js' because it violates the following Content Security Policy directive: "default-srcself". Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.错误
+
+如果需要指定外链的地址，则可以，在default-src加入指定的地址
+
+其余的则可以根据Content-Security-Policy' 内容安全策略文档进行设置。
