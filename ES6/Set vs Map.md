@@ -29,18 +29,40 @@ Set常被用来检查对象中是否存在某个键名。
   - Object有原型，所以映射中有一些缺省值。可以理解为 Map = Object.create(null)
 
 ## Map
-Map类似于对象，键名的值可以是各种类型的值。
+Map类似于对象，[key/value]的键值对形式。 
+
+键名的值可以是各种类型的值。
 
 使用new Map()构造函数来声明Map.
+
+属性：
+   - size，返回对象键值对数量
 
 操作方法：
     - delete，删除
     - has，是否包含元素
     - clear，清空
     - set，新增/修改元
-    - get，获取
+    - get，获取，除了NaN比较特殊外，Map的get方法都通过对比key是否相等（===）来获取，不相等则返回 undefined
+    - entries, values, forEach, [@@iterator], 作为Itarator对象的方法
 
 Map集合常被用来获取已存的信息
+
+### Map和Object的区别
+1. 默认值：Map没有默认值，Object有一个原型，原型上有键名
+2. key类型：Map任意，Object是String 或 Symbol, 其他类型的键名也会隐式转换为String类型。Map还支持 正则表达式 作为键名，Object则会报错 `map.set(/^1[34]\d{3}$/, '手机号正则')`
+3. 长度：Map通过size属性获取，Object要计算
+4. 性能：频繁增删键值对的场景下 Map 表现更好
+5. Map可迭代，Object不能直接迭代，要借助values(),keys(),entries(),也可用 for...in...进行遍历循环键名
+
+### Map和Object的最佳实践
+需要处理JSON数据的时候，用Object，没有可以将Map转化为JSON的原生方法
+
+Object:
+- 键名接受类型只能用 String 或者 Symbol
+- 自定义的键名容易与原型继承的属性键名冲突（例如 toString，constructor 等）
+- 对象/正则无法用作键名 而这些问题通过 「Map」 都可以解决，并且提供了诸如迭代器和易于进行大小查找之类的好处
+
 
 
 Set 和 Map 的方法合集，和其他数据结构的互相转换
