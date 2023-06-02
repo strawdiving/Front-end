@@ -163,8 +163,8 @@ module.exports = {
     devServer: {
         contentBase: "./public", //本地服务器所加载的页面所在的目录
         historyApiFallback: true, //不跳转
-        inline: true,
-        hot: true
+        inline: true, // 打包后加入一个websocket客户端
+        hot: true // 热更新
     },
 };
 ```

@@ -360,3 +360,196 @@ new Vue({
 # 参考引用
 [webpack搭建vue项目开发环境【文档向学习】](https://segmentfault.com/a/1190000016494957)
 [使用webpack手动搭建一个基于vue的单页面应用](https://segmentfault.com/a/1190000015132838)
+
+
+# 从"npm init"开始，实现一套完整的前端工程架构方案
+一套完整的前端工程架构涉及很多技术栈：
+1. 构建工具： Webpack5.x
+2. 前端框架： Vue 3.x
+3. 路由工具： Vue Router 4.x
+4. CSS预编译： Less
+5. Git hook工具： Husky
+6. 代码规范： Prettier + ESLint + Airbnb standard
+7. 自动部署：Github Actions
+
+## 1. 架构搭建
+- npm init
+- 安装webpack三件套 webpack webpack-cli webpack-dev-server
+- 区分development和production环境。在根目录添加build文件夹，添加
+  - webpack.common.config 公共配置
+  - webpack.dev.config，mode为development的配置
+  - webpack.prod.config，mode为peoduction的配置
+  - webpack.loader.config, 配置loader
+  再用某种方式来组合他们，通常是合并数组和对象———— webpack-merge
+
+  使用webpack的webpack-merge把当前文件配置合并到公共配置，那么后续如果想增加测试环境、预发布环境 、生产环境只要添加对应的配置文件就可以区分出来。
+  ```javascript
+  const { merge } = require('webpack-merge')
+  const webpackConfigBase = require('./webpack.common.config')
+
+  module.exports = merge(webpackConfigBase(false), {
+    mode: 'development',
+    devtool: 'eval-cheap-module-source-map',
+    module: {},
+    plugins: [],
+    devServer: {
+      hot: true
+    }
+  })
+  ```
+  - 安装dotenv、cross-env 配置环境变量
+  在根目录添加两个文件 .env.dev, .env.prod，里面可以添加自己定义的全局变量，然后按照不同环境写入不同的变量。
+  ```javascript
+  NODE_ENV = 'development'
+  VUE_SHOWCONSOLE = true  //是否显示console
+  VUE_DEV_URL ='www.xxx.com' //开发环境接口地址
+  ```
+  - 修改 webpack.common.config.js 将写好的变量配置到该文件
+  ```javascript
+  const { resolve } = require('path')
+  const webpack = require('webpack')
+
+  require('dotenv').config({ path: `.env.${process.env.envMode}` })
+  let env = {}
+  // 只有 NODE_ENV，BASE_URL 和以 VUE_APP_ 开头的变量将通过 webpack.DefinePlugin 静态地嵌入到客户端侧的代码中
+  for (const key in process.env) {
+    if (key === 'NODE_ENV' || key === 'BASE_URL' || /^VUE_APP_/.test(key)) {
+      env[key] = JSON.stringify(process.env[key])
+    }
+  }
+
+  module.exports = (mode) => {
+    return {
+      .../
+      plugins: [
+        new webpack.DefinePlugin({
+          // 定义环境和变量
+          'process.env': {
+            ...env
+          }
+        })
+      ]
+    }
+  }
+  ```
+  packgae.json 文件增加两条命令分别对应开发环境和生产坏境
+  ```javascript
+  "scripts": {
+    "dev": "cross-env envMode=dev webpack serve --config build/webpack.dev.config.js  --color",
+    "build": "cross-env envMode=prod webpack --config build/webpack.prod.config.js  --color"
+  },
+  ```
+  如果还有其他环境可以按照自己的需求去添加，比如测试环境、预发布环境等等
+
+  ## 添加各种技术栈
+  安装vue3,vue-loader,webpack.loader.config中添加 vue-loader.
+  webpack.common.config.js 添加 VueLoaderPlugin
+
+  ES6+转ES5 -- babel
+
+  安装html-webpack-plugin
+
+  安装vue-router,index.js修改路由规则，main.js中挂载路由配置
+
+  添加less预处理器 ： install style-loader, css-loader, less-loader，在webpack.loader.config中添加loader
+
+  ## 配置webpack
+  alias，图片等静态资源，清除dist目录（webpack5.20以下版本一般使用插件 clean-webpack-plugin， 5.20版本以后output新增特性clean，用于清除dist目录）
+  ```javascript
+  // webpack.prod.config.js
+  module.exports = {
+  //...
+    output: {
+      clean: true, // Clean the output directory before emit.
+    },
+  };
+  ```
+  - FileSystem Cache 加速二次构建
+
+  Webpack5 之前，我们会使用 cache-loader 缓存一些性能开销较大的 loader ，或者是使用 hard-source-webpack-plugin为模块提供一些中间缓存。
+  在 Webpack5 之后，默认就为我们集成了一种自带的缓存能力（对 module 和 chunks 进行缓存）。通过如下配置，即可在二次构建时提速。
+  ```javascript
+  module.exports = {
+    //...
+    cache: {
+        type: 'filesystem',
+        // 可选配置
+        buildDependencies: {
+            config: [__filename],  // 当构建依赖的config文件（通过 require 依赖）内容发生变化时，缓存失效
+        },
+        name: '',  // 配置以name为隔离，创建不同的缓存文件，如生成PC或mobile不同的配置缓存
+        //...
+    },
+  }
+  ```
+  
+  ## 代码规范
+  Prettier：在项目根目录下创建 .prettierrc 文件，在这个文件可以配置团队统一的格式化风格。
+  如果想保存文件之后格式化可以在VS Code设置找到file wathcer ，添加 prettierrc
+
+  ESLint：安装并执行 npx eslint \--init ,按操作提示完成一系列设置来创建配置文件。
+
+  根目录添加.eslintignore, .eslintrc.js
+
+  webpack5.20以后不需要eslint-loader直接在webpack.common.config.js添加如下代码
+
+  ```javascript
+  plugins:[
+    new ESLintPlugin({
+      // fix: true,
+      extensions: ['js', 'json', 'vue'],
+      exclude: '/node_modules/'
+    })
+  ]
+  ```
+
+  ## Github Actions 自动部署项目
+  创建一个有 repo 和 workflow 权限的 GitHub Token。注意：新生成的 Token 只会显示一次，保存起来，后面要用到。如有遗失，重新生成即可。
+
+  在仓库中添加 secret: 仓库 -> settings -> Secrets -> New repository secret
+  将上面新创建的 Token 添加到 GitHub 仓库的 Secrets 里，并将这个新增的 secret 命名为 NIGO_DEV （名字无所谓，看你喜欢）。
+
+  - 创建 Actions 配置文件
+  在项目根目录下创建 .github 目录。
+  在 .github 目录下创建 workflows 目录。
+  在 workflows 目录下创建 deploy.yml 文件。
+  修改 deploy.yml 文件，添加如下代码
+  ```javascript
+  name: deploy
+
+  on:
+    push:
+      branches: [master] # master 分支有 push 时触发
+
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Setup Node.js v14.x
+          uses: actions/setup-node@v1
+          with:
+            node-version: '14.x'
+
+        - name: Install
+          run: yarn install # 安装依赖
+
+        - name: Build
+          run: npm run build # 打包
+
+        - name: Deploy
+          uses: peaceiris/actions-gh-pages@v3 # 使用部署到 GitHub pages 的 action
+          with:
+            publish_dir: ./dist # 部署打包后的 dist 目录
+            github_token: ${{ secrets.NIGO_DEV }} # secret 名
+            user_name: ${{ secrets.MY_USER_NAME }}
+            user_email: ${{ secrets.MY_USER_EMAIL }}
+            commit_message: Update # 部署时的 git 提交信息，自由填写
+  ```
+
+  接着只要提交修改代码，Github Actions就会运行自动部署
+
+  这里部署后的代码会放到gh-pages分支，gh-pages分支是自动创建的
+
+  github仓库 -> settings -> pages 读取gh-pages分支，然后访问shinewen189.github.io/nigo-cli/
