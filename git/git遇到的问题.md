@@ -69,10 +69,15 @@ Q: Git撤销已经push到远端仓库的commit信息
 Q: 报错 error: You have not concluded your merge(MERGE_HEAD exists)
    原因：可能是以前pull下来的代码自动合并失败
 
-   解决：git merge --abort
-        git reset --merge
-        git pull
-  git pull之后重新解决冲突，再push
+   解决： undo the merge and again pull
+   
+   ```javascript
+      git merge --abort
+      git reset --merge
+      git pull
+   ```
+  
+  git pull之后重新解决冲突，再commit & push
 
 
 Q: git fetch 和 git pull 的区别

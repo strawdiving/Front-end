@@ -195,7 +195,17 @@ module.exports = {
 - 使用tree-shaking和scope hoisting来删除多余代码 -->
 
 ### 去除build文件中的残余文件
-添加hash后，会导致改变文件内容后重新打包时，文件名不同而内容越来越多，可以使用clean-webpack-plugin
+单页面应用为了防止缓存，每次build打包后都会改变变动的文件名称，添加hash后，会导致改变文件内容后重新打包时，文件名不同而内容越来越多，dist文件夹下会产生多个相同功能的相似文件，久而久之文件会越来越多。需要在每次打包前先清空目录，可以使用clean-webpack-plugin
+```javascript
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+module.exports = {
+	//其他忽略
+	plugins:[
+		new CleanWebpackPlugin()
+	]
+}
+```
+配置一般用不到，目的就是清除打包后的目录。clean-webpack-plugin会在我们每次build的时候动态读取输出目录，清除里面的文件。
 
 ### externals + CDN
 将这部分代码拆出去，用CDN引入
@@ -241,6 +251,9 @@ configureWebpack: (config) => {
     代码在运行时因为创建的函数作用域更少了，内存开销也随之变小。
 分析出模块之间的依赖关系，尽可能把打散的模块合并到一个函数中去，前提是不能造成代码冗余。 只有那些被引用了一次的模块才能被合并。
 因为要分析模块之间的依赖，所以必须使用ES6模块化语句。
+
+最初webpack在打包的时候，会在打包后的模块外部包裹一层函数，import引入会被转换成require，进而产生大量的作用域，模块越多内存占用的就会越大。这个时候若开启了Scope Hoisting，webpack会动态分析模块之间的依赖关系，将一些模块合并到一个函数中去，从而减少被包裹的数量，同时也会重命名一些变量防止冲突。
+
 ```javascript
 const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
 

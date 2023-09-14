@@ -79,6 +79,23 @@ HMR允许你在修改组件代码后，自动刷新实时预览修改后的效�
 - src下其他的文件直接复制到dist目录下，并不是每个文件都需要打包处理，很多资源可能就直接复制过去，使用**CopyWebpackPlugin插件**
 - jquery，lodash等工具库是很多组件会复用的，使用**webpack.ProvidePlugin插件**
 
+一些需要直接引入而无需打包的文件，比如icon Font。这个时候只需要在build的时候将指定文件内容copy一份到dist目录即可。copy-webpack-plugin插件就是用来解决这一问题的，不仅可以拷贝内容，还可以动态转换内容。
+
+```javascript
+plugins:[
+		new CopyWebpackPlugin(
+			[
+				{ // 将public文件夹中的内容拷贝到dist文件夹中
+					from:'./public', 
+					to:'./',
+				}
+			],
+			{
+				ignore:['test/*.png','*.html']
+			}
+		)
+	]
+```
 ## 进阶： 写一个plugin
 plugin监听webpack广播的事件，在合适时通过webpack的API改变结果。
 

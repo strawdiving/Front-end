@@ -91,7 +91,7 @@ npm install --save-dev webpack-dev-server
   devServer是webpack配置选项中的一项，
   - contentBase 默认webpack-dev-server会为根文件夹提供本地服务器，如果想为另一个目录下的文件提供本地服务器，应该在这里设置所在目录
   - port 设置默认监听端口，如果省略，则默认为8080
-  - hitoryApiFallback，开发单页应用时很有用，它依赖于HTML5 history API，如果设为true，所有跳转将指向index.html
+  - hitoryApiFallback，开发单页应用时很有用，它依赖于HTML5 history API，如果设为true，所有跳转将指向index.html, 将不存在的目录（路径）重定向到index.html
   - inline 设为true，源文件改变时会自动刷新页面
   // webpack.config.js
   ```javascript
