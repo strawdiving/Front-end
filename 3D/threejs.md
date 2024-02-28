@@ -26,6 +26,7 @@
         - width
         - height
         - updateStyle(boolean)
+
 1. create a Scene
 2. Create a Camera
 3. Create a Render
@@ -41,7 +42,9 @@
     - Mesh
       An object that takes a geometry, and applies a material to it, which we then can insert to our scene, and move freely around.
 
-    scene.add() ———— default added to coordinates(0,0,0). Move the camara.
+    scene.add() ———— default added to coordinates(0,0,0)
+   
+    Move the camara:
 
     ```javascript
       camera.position.set( 0, 0, 100 );
@@ -79,3 +82,28 @@ Anything you want to move or change while the app is running has to go through t
     
 ```
 Lines are drawn between each consecutive pair of vertices, but not between the first and last (the line is not closed.)
+
+## Creating text
+1. CSS2DRenderer & CSS3DRenderer
+similar to DOM+CSS way to position absolutely at a position above all others with z-index.
+
+but these renderers element can be integrated more tightly and dynamically into the scene.
+
+2. draw text to canvas, and use as a Texture
+
+3. Text Geometry
+create a mesh whose geometry is an instance of THREE.TextGeometry.
+
+
+TextGeometry will need an instance of THREE.Font to be set on its "font" parameter.
+
+```javascript
+const loader = new THREE.FontLoader();
+loader.load('', (font) => {
+    const geometry = new THREE.TextGeometry(text, {
+        font,
+        size: 80,
+        height: 5
+    })
+})
+```
