@@ -366,8 +366,6 @@ p{font-size:10px;-webkit-transform:scale(0.8);} //0.8是缩放比例
     2、visibility：hidden：元素消失的时间跟transition属性设置的时间一样，但是没有动画效果.
     3、opacity:0,动画属性生效,能够进行正常的动画效果.
 
-47. absolute + transform 居中为什么要使用 transform（为什么不使用margin Left / Top），这是一道重绘重排的问题。
-
 30. 规划、组织和维护样式表
      1. 对文档应用样式——将所有样式放在一个或多个外部样式表中，再将外部样式表附加到网页上（链接或导入）。如果将样式放在style标签之间，则可移植和可维护性差
      2. 在使用多个CSS文件时，速度相关的问题——1）多个文件会导致从服务器发送更多数据包，这些数据包的数量（而非内容）会影响下载时间，2）浏览器只能从同一个域同时下载数量有限的文件（对老式浏览器常常是2个文件，现代浏览器把限制提到了8）——使用结构良好的单一CSS文件可以显著提高下载速度
@@ -440,7 +438,7 @@ transition和animation的区别，animation的属性，加速度，重力的模�
 - 如果需要手动写动画，你认为最小时间间隔是多久，为什么？
 多数显示器默认频率是60Hz，即1秒刷新60次，所以理论上最小间隔为1/60＊1000ms ＝ 16.7ms。
 
-27. 请问为何要使用 translate() 而非 absolute positioning，或反之的理由？为什么？
+27. absolute + transform 居中为什么要使用 transform（为什么不使用margin Left / Top）？为何要使用 translate() 而非 absolute positioning，或反之的理由？为什么？
 translate()是transform的一个值，改变transform和opacity不会触发浏览器回流或重绘，只会触发复合compositions。transform使浏览器为元素创建一个GPU图层，更高效，可以缩短平滑动画的绘制时间。
 translate改变位置时，元素依然会占据其原始空间。
 

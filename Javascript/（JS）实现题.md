@@ -53,21 +53,9 @@ Response:
 [
 { "id": 1, "name": "John", "average": 70.5 },
 { "id": 3, "name": "Lois", "average": 67 },
-】
+]
 
 使用普通回调，promises，observables，generator 或 async-wait 编写所需的函数。 尝试使用至少 3 种不同的技术解决这个问题。
-
-4. 使用 Javascript Proxy 实现简单的数据绑定
-
-提示：ES Proxy 允许你拦截对任何对象属性或方法的调用。首先，每当更改底层绑定时，都应更新 DOM
-
-5. 解释 Javascript 并发模型
-   是否熟悉 Java 等其他编程语言中使用的任何其他并发模型？提示：事件循环，任务队列，调用栈，堆等。
-
-6. Javascript 中有哪些不同的函数调用模式，详细解释
-四种模式：函数调用，方法调用，call(), apply()
-
-8. JavaScript 中的迭代器（iterators）和迭代（iterables）是什么？ 你知道什么是内置迭代器吗？
 
 9. 如何在 JSON 中序列化以下对象？如果我们将以下对象转换为 JSON 字符串，会发生什么？
 
@@ -93,13 +81,7 @@ function makeAPIRequest(url, timeout = 200, headers) {
 }
 ```
 
-第 2 题：`['1', '2', '3'].map(parseInt)` what & why ?
-  结果：[1, NaN, NaN]
-  `['1', '2', '3'].map((item, index) => parseInt(item, index))`
-  实际调用的是parseInt(string, radix)
 第 65 题：`a.b.c.d` 和 `a['b']['c']['d']`，哪个性能更高？
-第 21 题：有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
-Object.prototype.toString.call() 、 instanceof 以及 Array.isArray()
 
 第 5 题：介绍下深度优先遍历和广度优先遍历，如何实现？
 第 6 题：请分别用深度优先思想和广度优先思想实现一个拷贝函数？
@@ -325,26 +307,6 @@ parseInt('2017-07-01') //2017
 parseInt('2017abcdef') //2017
 parseInt('abcdef2017') //NaN
 ```
-
-- 手动封装一个请求函数，可以设置最大请求次数，请求成功则不再请求，请求失败则继续请求直到超过最大次数
-
-```javascript
-function request(url, body, successCb, errorCb, maxCount=3) {
-  return fetch(url,body).then(response => successCb(response))
-                        .catch(err => {
-                          if (maxCount <= 0) {
-                            return errorCb('请求超时')
-                          }
-                          return request(url,body,successCb,errorCb, --maxCount)
-                        })
-}
-
-request('https://some/path',
-  { method: 'GET' },
-  (response) => { console.log(response.json())},
-  (err) => { console.log(err)}
-})
-```
 -
 ```javascript
 var a = {x:1};
@@ -426,8 +388,6 @@ console.log(a.x);
 console.log(b.x);
 ```
 
-如何对请求进行缓存，例如有10个异步请求，如果有一个异步请求返回结果剩下的请求就用这个结果，并且能过传入成功和失败的回调函数
-
 ```javascript
 function Person() {}
 const person = new Person();
@@ -435,7 +395,7 @@ const person = new Person();
 person的原型上有Funciton吗
 
 实现一个函数,该函数接收一个obj, 一个path, 一个value，实现obj[path] = value，obj类似json格式
-reduce实现map
+
 实现一个函数，每隔wait秒执行func，一共执行times次
 
 ```javascript
@@ -452,56 +412,10 @@ let result = fnArray.find((fn) => {
 console.log(result);
 ```
 
-如何对请求进行缓存，例如有10个异步请求，如果有一个异步请求返回结果，剩下的请求就用这个结果，并且能够传入成功和失败的回调函数
-
 - 如何实现下列代码：
  [1,2,3,4,5].duplicator(); // [1,2,3,4,5,1,2,3,4,5]
 
-如何保证一次只能并发10个任务~（用JavaScript实现指定数量的并发限制）
-
-```javascript
-let arr = [1, 2, 3];
-let fnArray = [];
-for (var i = 0; i < arr.length; i++) {
-    fnArray[i] = function () {
-        return arr[i] * 2;
-    }
-}
-let result = fnArray.find((fn) => {
-    return fn() === 4;
-})
-console.log(result);
-
-```
-
 - 如果自己写个转发中间件，思路是什么？
-
-- 数组去重的方法
-
-```javascript
-let originalArray = [1,2,3,4,5,3,2,4,1]
-
-// 方式5
-const obj = {}
-const result = originalArray.filter(item => obj.hasOwnProperty(typeof item+item) ? false: (obj[typeof item+item] = true))
-}
-
-// 方式6
-function uniqueEasy(arr) {
-    if(!arr instanceof Array) {
-        throw Error('当前传入的不是数组')
-    }
-    let list = []
-    let obj = {}
-    arr.forEach(item => {
-        if(!obj[item]) {
-            list.push(item)
-            obj[item] = true
-        }
-    })
-    return list
-}
-```
 
 ```javascript
 alert(a)
@@ -550,6 +464,12 @@ function a(){
 实现一个方法，参数是一个generator函数，执行结果是执行完所有generator中的yield
 
 7. [1,2,3].map(parseInt) 执行结果
+
+`['1', '2', '3'].map(parseInt)` what & why ?
+  结果：[1, NaN, NaN]
+  `['1', '2', '3'].map((item, index) => parseInt(item, index))`
+  实际调用的是parseInt(string, radix)
+
 2.taskSum(1000,()=>{console.log(1)}).task(1200,()=>{console.log(2)}).task(1300,()=>{console.log(3)})，这里等待1s，打印1，之后等待1.2s，打印2，之后打印1.3s，打印3
 
 日期转化为2小时前，1分钟前等、固定日期与当前时间格式化处理；输入一个日期 返回几秒前 几天前或者几月前；
